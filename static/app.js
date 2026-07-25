@@ -26,10 +26,33 @@ const CIERRE_INACTIVIDAD_MS = 3 * 60 * 1000;
 const MENSAJE_AVISO_INACTIVIDAD =
   "¿Sigues ahí? Si no recibo respuesta en un minuto voy a cerrar esta conversación por inactividad.";
 
+const URL_REGEX = /https?:\/\/[^\s<>"']+/g;
+
+function escaparHtml(texto) {
+  const div = document.createElement("div");
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
+// convierte URLs sueltas dentro de un texto (ya escapado) en <a> clicables.
+// El texto se escapa ANTES de buscar URLs, asi que esto nunca reintroduce
+// HTML desde el contenido del mensaje (ni del bot ni del usuario), solo
+// envuelve los links en una etiqueta <a>.
+function conLinksClicables(textoEscapado) {
+  return textoEscapado.replace(URL_REGEX, (url) => {
+    // separa puntuacion final de cierre de frase (. , ; : ! ? ) ') que no es
+    // parte de la URL, para no romper el link con un punto pegado al final
+    const cierre = url.match(/[.,;:!?)\]'"]+$/);
+    const puntuacion = cierre ? cierre[0] : "";
+    const urlLimpia = puntuacion ? url.slice(0, -puntuacion.length) : url;
+    return `<a href="${urlLimpia}" target="_blank" rel="noopener noreferrer">${urlLimpia}</a>${puntuacion}`;
+  });
+}
+
 function agregarBurbuja(texto, quien) {
   const div = document.createElement("div");
   div.className = `burbuja ${quien}`;
-  div.textContent = texto;
+  div.innerHTML = conLinksClicables(escaparHtml(texto));
   mensajesDiv.appendChild(div);
   mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
 }
@@ -59,13 +82,21 @@ function esperar(ms) {
 // el usuario ve "escribiendo..." durante toda la espera real, sin sumarle
 // un retardo artificial encima. Mientras tanto, el input queda bloqueado
 // para que no se puedan mandar mensajes mientras el agente "esta pensando".
+// Si la peticion falla (ej. red intermitente en movil) no se deja el
+// input bloqueado para siempre: se devuelve null y quien llama debe
+// verificarlo antes de usar la respuesta.
 async function pedirConIndicadorEscribiendo(peticion) {
   esperandoRespuesta = true;
   inputMensaje.disabled = true;
   btnEnviarMensaje.disabled = true;
   mostrarEscribiendo();
   const inicio = Date.now();
-  const data = await peticion();
+  let data = null;
+  try {
+    data = await peticion();
+  } catch (error) {
+    console.error("Fallo la conexion con el asesor digital:", error);
+  }
   const transcurrido = Date.now() - inicio;
   if (transcurrido < RETARDO_MINIMO_MS) {
     await esperar(RETARDO_MINIMO_MS - transcurrido);
@@ -94,6 +125,16 @@ async function iniciar() {
       body: JSON.stringify({ telefono }),
     }).then((r) => r.json())
   );
+
+  if (!data) {
+    pantallaChat.classList.add("oculto");
+    btnFinalizarChat.classList.add("oculto");
+    pantallaInicio.classList.remove("oculto");
+    document.querySelector(".ayuda").textContent =
+      "No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.";
+    return;
+  }
+
   sessionId = data.session_id;
   sesionFinalizada = false;
   usuarioEncontrado = data.usuario_encontrado;
@@ -106,7 +147,7 @@ async function enviarMensaje() {
   if (!texto || !sessionId || sesionFinalizada || esperandoRespuesta) return;
   inputMensaje.value = "";
   agregarBurbuja(texto, "user");
-  reiniciarTemporizadorInactividad();
+  limpiarTemporizadoresInactividad();
 
   const data = await pedirConIndicadorEscribiendo(() =>
     fetch("/api/mensaje", {
@@ -115,7 +156,25 @@ async function enviarMensaje() {
       body: JSON.stringify({ session_id: sessionId, texto }),
     }).then((r) => r.json())
   );
+
+  if (!data) {
+    agregarBurbuja(
+      "No pude enviar tu mensaje por un problema de conexión. Por favor intenta de nuevo.",
+      "bot"
+    );
+    inputMensaje.value = texto;
+    reiniciarTemporizadorInactividad();
+    return;
+  }
+
   agregarBurbuja(data.mensaje, "bot");
+  // el reloj de inactividad mide el tiempo que el USUARIO tarda en responder,
+  // no el tiempo que tarda el LLM en generar la respuesta -- por eso arranca
+  // aqui, cuando el turno vuelve a quedar en manos del usuario, y no antes de
+  // esperar la respuesta (si no, una respuesta lenta del LLM se contaba como
+  // inactividad del usuario y cerraba la conversacion sin que el usuario
+  // hubiera hecho nada mal)
+  reiniciarTemporizadorInactividad();
 
   if (data.finalizada) {
     if (!usuarioEncontrado) {
@@ -164,6 +223,17 @@ async function finalizarConversacion(motivo) {
       body: JSON.stringify({ motivo }),
     }).then((r) => r.json())
   );
+
+  if (!data) {
+    agregarBurbuja(
+      "No pudimos cerrar la conversación por un problema de conexión. Intenta de nuevo con el botón Finalizar.",
+      "bot"
+    );
+    sesionFinalizada = false;
+    reiniciarTemporizadorInactividad();
+    return;
+  }
+
   agregarBurbuja(data.mensaje, "bot");
   bloquearChat();
   await cargarResumen();

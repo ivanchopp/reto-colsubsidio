@@ -196,7 +196,7 @@ def procesar_mensaje(sesion: Sesion, texto_usuario: str) -> str:
 
 def finalizar_sesion(sesion: Sesion, motivo: str = "manual") -> str:
     """Cierra la conversacion a peticion explicita: boton 'Finalizar' del
-    usuario o inactividad de 5 min (ver /api/finalizar en main.py). Es
+    usuario o inactividad de 3 min (ver /api/finalizar en main.py). Es
     independiente del cierre natural que ocurre al llegar a una recomendacion
     (_pasar_a_recomendacion). Idempotente: si ya estaba finalizada no genera
     un nuevo mensaje de despedida, solo repite el ultimo."""
@@ -206,8 +206,9 @@ def finalizar_sesion(sesion: Sesion, motivo: str = "manual") -> str:
     if motivo == "inactividad":
         instruccion = (
             "[INSTRUCCION INTERNA] La conversacion se esta cerrando automaticamente porque "
-            "el usuario no respondio en varios minutos. Despidete de forma breve y calida, "
-            "sin sonar brusco, dejando claro que puede escribir de nuevo cuando quiera retomar."
+            "el usuario no respondio en varios minutos. Explicale, de forma breve y calida "
+            "(sin sonar brusco ni robotico), que estas cerrando la conversacion por inactividad, "
+            "y deja claro que puede escribir de nuevo cuando quiera retomarla."
         )
     else:
         instruccion = (
@@ -317,6 +318,12 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
     else:
         nota_subsidios = ""
 
+    invitacion_seguimiento = (
+        "Termina tu respuesta invitandolo con calidez a seguir preguntando mientras lo contactan, "
+        "algo como 'mientras te contactan, ¿hay algo mas que quieras saber sobre este proyecto?' "
+        "(usa tus propias palabras, no cites este ejemplo literalmente)."
+    )
+
     instruccion = (
         "[INSTRUCCION INTERNA] Ya tienes suficiente contexto de la conversacion. Aqui esta la "
         "recomendacion calculada (NUNCA menciones que fue 'calculada', ni el mecanismo): "
@@ -327,7 +334,7 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
         "con lo que el te conto en la conversacion. Usa solo los datos que te di arriba, nunca inventes "
         "precios, fechas ni caracteristicas que no esten en esta ficha. "
         f"{nota_subsidios} "
-        f"{tono} Presenta la recomendacion de forma natural y personalizada."
+        f"{tono} {invitacion_seguimiento} Presenta la recomendacion de forma natural y personalizada."
     )
     respuesta = llm_client.generar_respuesta(construir_system_prompt(), sesion.historial, instruccion)
     sesion.historial.append({"role": "assistant", "content": respuesta})
