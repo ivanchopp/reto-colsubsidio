@@ -1,0 +1,41 @@
+# Blueprint de Render (https://render.com) para desplegar el Asesor Digital
+# de Vivienda Colsubsidio. Uso: en el dashboard de Render, "New" > "Blueprint",
+# conecta este repo y Render detecta este archivo automaticamente.
+#
+# Las variables con "sync: false" no llevan valor aqui a proposito (nunca se
+# suben secretos al repo) -- Render te las pide una por una al crear el
+# servicio. Copia los valores desde tu .env local.
+services:
+  - type: web
+    name: colsubsidio-asesor-vivienda
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: LLM_PROVIDER
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        sync: false
+      - key: GOOGLE_CLOUD_PROJECT
+        sync: false
+      - key: GOOGLE_CLOUD_LOCATION
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: ASESOR_EMAIL_DESTINO
+        sync: false
+      - key: SUPABASE_DB_URL
+        sync: false
