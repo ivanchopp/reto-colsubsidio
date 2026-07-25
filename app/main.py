@@ -82,9 +82,11 @@ def mensaje(req: MensajeRequest):
     respuesta = conversation.procesar_mensaje(sesion, req.texto)
 
     envio_asesor = None
-    if sesion.finalizada and not sesion.enviado_al_asesor:
-        # la conversacion acaba de cerrar: se notifica al asesor automaticamente,
-        # sin esperar un clic manual
+    if sesion.interaccion_cerrada and not sesion.enviado_al_asesor:
+        # ojo: se dispara con interaccion_cerrada, NO con finalizada -- un
+        # usuario registrado puede seguir preguntando despues de recibir la
+        # recomendacion (ver conversation.py), y el correo no debe salir
+        # hasta que la interaccion de verdad termine
         envio_asesor = _enviar_correo_asesor(sesion)
 
     return {"mensaje": respuesta, "finalizada": sesion.finalizada, "envio_asesor": envio_asesor}
@@ -93,7 +95,7 @@ def mensaje(req: MensajeRequest):
 @app.post("/api/finalizar/{session_id}")
 def finalizar(session_id: str, req: FinalizarRequest):
     """Cierre explicito de la conversacion: boton 'Finalizar' en el chat o
-    inactividad de 5 minutos del lado del cliente (ver static/app.js).
+    inactividad de 3 minutos del lado del cliente (ver static/app.js).
     Reusa el mismo mecanismo de envio automatico de correo al asesor que el
     cierre natural en /api/mensaje."""
     sesion = conversation.obtener_sesion(session_id)
@@ -102,7 +104,7 @@ def finalizar(session_id: str, req: FinalizarRequest):
     respuesta = conversation.finalizar_sesion(sesion, req.motivo)
 
     envio_asesor = None
-    if sesion.finalizada and not sesion.enviado_al_asesor:
+    if sesion.interaccion_cerrada and not sesion.enviado_al_asesor:
         envio_asesor = _enviar_correo_asesor(sesion)
 
     return {"mensaje": respuesta, "finalizada": sesion.finalizada, "envio_asesor": envio_asesor}
@@ -120,9 +122,10 @@ def resumen(session_id: str):
 
 @app.post("/api/enviar-asesor/{session_id}")
 def enviar_asesor(session_id: str):
-    """Reenvio manual -- normalmente el correo ya se envio solo al finalizar
-    la conversacion (ver /api/mensaje). Esto sirve para reintentar si el
-    envio automatico fallo (ej. problema de red o SMTP)."""
+    """Reenvio manual -- normalmente el correo ya se envio solo cuando la
+    interaccion realmente se cierra (ver interaccion_cerrada en /api/mensaje
+    y /api/finalizar). Esto sirve para reintentar si el envio automatico
+    fallo (ej. problema de red o SMTP)."""
     sesion = conversation.obtener_sesion(session_id)
     if sesion is None:
         raise HTTPException(404, "Sesion no encontrada")

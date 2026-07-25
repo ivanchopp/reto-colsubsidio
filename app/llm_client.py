@@ -4,6 +4,12 @@ from app import config
 
 MENSAJE_FALLBACK = "Uy, se me cruzaron los cables un segundo. ¿Me repites lo último que me contabas?"
 
+# el timeout por defecto del SDK de OpenAI es de 10 minutos -- si el
+# proveedor o la red se cuelgan, eso se siente como que "el chat esta
+# trabado". Con un timeout corto, si algo falla, cae rapido al mensaje de
+# fallback (ver generar_respuesta) en vez de dejar al usuario esperando.
+TIMEOUT_LLM_SEGUNDOS = 30
+
 
 def generar_respuesta(system_prompt: str, historial: list[dict], instruccion_turno: str) -> str:
     """historial: lista de {"role": "user"|"assistant", "content": str}
@@ -37,7 +43,7 @@ def _generar_openai(mensajes: list[dict]) -> str:
     if not config.OPENAI_API_KEY:
         return _fallback_sin_key(mensajes)
 
-    client = OpenAI(api_key=config.OPENAI_API_KEY)
+    client = OpenAI(api_key=config.OPENAI_API_KEY, timeout=TIMEOUT_LLM_SEGUNDOS, max_retries=1)
     resp = client.chat.completions.create(
         model=config.OPENAI_MODEL,
         messages=mensajes,

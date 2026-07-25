@@ -75,7 +75,14 @@ class Sesion:
     intentos_evasion: dict = field(default_factory=dict)
     historial: list[dict] = field(default_factory=list)
     recomendacion: recommender.Recomendacion | None = None
+    # finalizada: se llego a un mensaje de cierre/recomendacion, pero para un
+    # usuario registrado el chat sigue abierto por si hace mas preguntas.
+    # interaccion_cerrada: la interaccion realmente termino (boton
+    # 'Finalizar', inactividad, o el caso de usuario no encontrado que
+    # cierra de inmediato) -- es la condicion correcta para disparar el
+    # correo automatico al asesor, ver main.py.
     finalizada: bool = False
+    interaccion_cerrada: bool = False
     enviado_al_asesor: bool = False
     datos_declarados_no_registrado: str | None = None
 
@@ -196,11 +203,14 @@ def procesar_mensaje(sesion: Sesion, texto_usuario: str) -> str:
 
 def finalizar_sesion(sesion: Sesion, motivo: str = "manual") -> str:
     """Cierra la conversacion a peticion explicita: boton 'Finalizar' del
-    usuario o inactividad de 3 min (ver /api/finalizar en main.py). Es
-    independiente del cierre natural que ocurre al llegar a una recomendacion
-    (_pasar_a_recomendacion). Idempotente: si ya estaba finalizada no genera
-    un nuevo mensaje de despedida, solo repite el ultimo."""
-    if sesion.finalizada:
+    usuario o inactividad de 3 min (ver /api/finalizar en main.py). Es lo que
+    marca interaccion_cerrada=True (dispara el correo al asesor, ver main.py),
+    incluso si ya se habia dado una recomendacion antes (sesion.finalizada);
+    un usuario registrado puede seguir haciendo preguntas despues de la
+    recomendacion, y el correo no debe salir hasta que de verdad termine.
+    Idempotente: si la interaccion ya estaba cerrada no genera un nuevo
+    mensaje de despedida, solo repite el ultimo."""
+    if sesion.interaccion_cerrada:
         return sesion.historial[-1]["content"] if sesion.historial else ""
 
     if motivo == "inactividad":
@@ -220,6 +230,7 @@ def finalizar_sesion(sesion: Sesion, motivo: str = "manual") -> str:
     sesion.historial.append({"role": "assistant", "content": respuesta})
     sesion.fase = "cierre"
     sesion.finalizada = True
+    sesion.interaccion_cerrada = True
     return respuesta
 
 
@@ -269,6 +280,11 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
     if usuario is None:
         sesion.fase = "cierre"
         sesion.finalizada = True
+        # a diferencia del usuario registrado (ver mas abajo), aqui no hay
+        # recomendacion ni pie para mas preguntas: la interaccion termina
+        # de verdad en este mismo mensaje, asi que el correo se puede
+        # disparar ya (ver main.py)
+        sesion.interaccion_cerrada = True
         instruccion = (
             "[INSTRUCCION INTERNA] No tienes datos financieros de este usuario en el sistema. "
             "Agradece la conversacion, explica con calidez que un asesor se pondra en contacto "
