@@ -1,0 +1,175 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "karakali",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/5083a3d46c.html",
+    "flipbook_id": "5083a3d46c",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/5083a3d46c423cf8924b85d5b798e728f3bb50da-4.pdf",
+    "num_paginas": 28,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Karakalí",
+    "tagline": "Una exclusiva ubicación para tu proyecto de vida",
+    "tipo": "Apartaestudios",
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [],
+    "constructor": null,
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Carrera 15 # 63A-22",
+    "sector": "Chapinero",
+    "ciudad": "Bogotá",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 1,
+    "pisos_por_torre": "16",
+    "ascensor": true,
+    "apartamentos_totales": 127,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO 1",
+      "area_construida_m2": 28.01,
+      "area_privada_m2": 24.11,
+      "alcobas": null,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Zona de ropas independiente",
+        "Cocina",
+        "Habitación",
+        "Baño"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO 2",
+      "area_construida_m2": 28.97,
+      "area_privada_m2": 23.86,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Zona de ropas independiente",
+        "Cocina",
+        "Sala comedor",
+        "Habitación",
+        "Baño"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO 3",
+      "area_construida_m2": 26.05,
+      "area_privada_m2": 21.6,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Zona de ropas independiente",
+        "Cocina",
+        "Sala comedor",
+        "Habitación",
+        "Baño"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Portería tipo lobby",
+    "Sala de juntas",
+    "Coworking",
+    "Zona de yoga",
+    "Gimnasio",
+    "Zona de lavandería",
+    "Terraza con BBQ",
+    "Teatrino al aire libre",
+    "Zona café",
+    "Máquinas biosaudables",
+    "Zona de fogata",
+    "Parqueaderos comunales",
+    "Bicicleteros comunales",
+    "Sala de lectura"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Fundación Universitaria Los Libertadores",
+      "Fundación Universitaria Konrad Lorenz",
+      "Politécnico GranColombiano",
+      "INCAP Sede Chapinero",
+      "ENA Centro de Servicios Financieros"
+    ],
+    "recreacion": [
+      "Parque de los Hippies",
+      "Plaza de Lourdes"
+    ],
+    "supermercados": [
+      "D1",
+      "Olímpica",
+      "Carulla Calle 63"
+    ],
+    "centros_comerciales": [],
+    "transporte": [
+      "Estación de Transmilenio Calle 63",
+      "Futura estación del metro"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Subsidio Colsubsidio"
+    ],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": null
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Carrera 15 # 63A-22, Bogotá, Chapinero",
+    "como_llegar": null,
+    "email": "servicioCliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Karakalí es un proyecto de 127 apartaestudios ubicado en Chapinero, Bogotá, una zona estratégica con acceso a universidades, comercio y conectividad. El proyecto combina coliving y coworking en espacios modernos, perfecto para estudiantes o profesionales jóvenes. Aplica subsidio Colsubsidio y ofrece acompañamiento integral en tu compra.",
+    "perfil_comprador": "Estudiantes universitarios, profesionales jóvenes, emprendedores y personas que buscan vivienda en una zona central con amenidades de trabajo colaborativo y espacios comunitarios.",
+    "argumentos_venta": [
+      "Ubicación privilegiada en Chapinero cerca de universidades, parques y transporte público",
+      "127 apartaestudios con tipologías compactas y eficientes desde 21.6 m²",
+      "Concepto innovador de coliving y coworking integrados",
+      "14 zonas sociales incluyendo coworking, gimnasio, yoga, café y áreas de descanso",
+      "Aplica subsidio Colsubsidio con acompañamiento completo",
+      "Torre de 16 pisos con ascensor en zona de gran crecimiento y valorización"
+    ],
+    "keywords": [
+      "Bogotá",
+      "Chapinero",
+      "apartaestudios",
+      "coliving",
+      "coworking",
+      "subsidio Colsubsidio",
+      "obra gris",
+      "estudiantes",
+      "profesionales jóvenes",
+      "pequeños espacios",
+      "VIS",
+      "Carrera 15",
+      "gimnasio",
+      "zona céntrica"
+    ]
+  },
+  "legal": "Los planos, imágenes, renders y demás representaciones gráficas son ilustrativos y pueden presentar variaciones frente al producto final. Las áreas construidas y privadas son aproximadas y podrán modificarse por ajustes técnicos o procesos constructivos. Aplican subsidios conforme a los requisitos y condiciones vigentes."
+}

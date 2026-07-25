@@ -1,0 +1,128 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "verde-esperanza-el-dorado",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/ea1997d7ae.html",
+    "flipbook_id": "ea1997d7ae",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/v3/ea1997d7ae6f96d3124eea9a740cdd3a2ea401e2-3.pdf",
+    "num_paginas": 16,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Verde Esperanza El Dorado",
+    "tagline": "Tu proyecto de vida en Ubaté",
+    "tipo": null,
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [],
+    "constructor": null,
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Carrera 7 # 8-12, Ubaté - Villa de San Diego",
+    "sector": "Villa de San Diego",
+    "ciudad": "Ubaté",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 22,
+    "pisos_por_torre": "5",
+    "ascensor": null,
+    "apartamentos_totales": 440,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO A",
+      "area_construida_m2": 49.53,
+      "area_privada_m2": 46.13,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "futuro estudio o alcoba",
+        "futuro baño"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Baño social",
+        "Habitación principal",
+        "Habitación 2"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Zona de juegos infantiles",
+    "Parque biosaludable",
+    "Edificio comunal",
+    "Parque infantil",
+    "Zonas verdes",
+    "Senderos peatonales"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Universidad de Cundinamarca"
+    ],
+    "recreacion": [
+      "Parque Ricaurte",
+      "Parque Principal los libertadores",
+      "Basílica Menor Divino Salvador"
+    ],
+    "supermercados": [
+      "Tiendas D1"
+    ],
+    "centros_comerciales": [],
+    "transporte": []
+  },
+  "financiacion": {
+    "clasificacion_vivienda": null,
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Colsubsidio"
+    ],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": "Aplican subsidios conforme a los requisitos y condiciones vigentes"
+  },
+  "contacto": {
+    "telefono": "310 208 1364",
+    "direccion_sala_ventas": null,
+    "como_llegar": null,
+    "email": null,
+    "web": null,
+    "telefono_e164": "+573102081364",
+    "whatsapp": "https://wa.me/573102081364"
+  },
+  "bot": {
+    "resumen": "Verde Esperanza El Dorado es un proyecto de 440 apartamentos en Ubaté, Cundinamarca, ubicado en zona céntrica con acceso a servicios, parques y espacios verdes. Ideal para familias que buscan tranquilidad y bienestar en un entorno natural. Ofrece subsidios de Colsubsidio para quienes cumplan requisitos.",
+    "perfil_comprador": "Familias jóvenes y parejas que buscan vivienda en entorno tranquilo, con espacios verdes y acceso a servicios básicos, interesadas en subsidios de vivienda.",
+    "argumentos_venta": [
+      "22 torres de 5 pisos con 440 apartamentos disponibles",
+      "Amplias zonas comunes: parques, zona de juegos infantiles, parque biosaludable, senderos peatonales",
+      "Apartamentos tipo A con 2 alcobas y espacios ampliables para futuro baño y estudio",
+      "Ubicación céntrica en Ubaté cerca de Universidad de Cundinamarca, hospitales y supermercados",
+      "Entrega en obra gris permitiendo personalización",
+      "Acceso a subsidios Colsubsidio"
+    ],
+    "keywords": [
+      "Ubaté",
+      "Cundinamarca",
+      "2 alcobas",
+      "apartamentos",
+      "obra gris",
+      "subsidio Colsubsidio",
+      "zonas verdes",
+      "parque",
+      "espacios comunes",
+      "vivienda tranquila"
+    ]
+  },
+  "legal": "Los apartamentos se entregan en obra gris. Planos, imágenes y renders son ilustrativos y pueden variar. Áreas construidas y privadas son aproximadas y pueden modificarse por ajustes técnicos o disposiciones de autoridad competente. Valores del inmueble pueden variar sin previo aviso; valor definitivo en promesa de compraventa. Muebles, enseres y acabados exhibidos no hacen parte del inmueble. Aplican subsidios conforme a requisitos y condiciones vigentes."
+}

@@ -1,0 +1,190 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "bosque-de-arrayan",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/7f3c85cf46.html",
+    "flipbook_id": "7f3c85cf46",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/7f3c85cf4681596d32975f6c19a258742bf481a6-2.pdf",
+    "num_paginas": 18,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Bosque de Arrayán",
+    "tagline": "tu proyecto de vida",
+    "tipo": "Apartamentos",
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [
+      "EDGE"
+    ],
+    "constructor": null,
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Carrera 9f # 2 sur - 26",
+    "sector": "Tocancipá",
+    "ciudad": "Tocancipá",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 11,
+    "pisos_por_torre": "6 pisos",
+    "ascensor": true,
+    "apartamentos_totales": 528,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO D",
+      "area_construida_m2": 48.05,
+      "area_privada_m2": 43.53,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Cocina",
+        "Sala comedor",
+        "Balcón",
+        "Zona de ropas independiente",
+        "1 Baño",
+        "Espacio disponible 1",
+        "Espacio disponible 2",
+        "Alcoba Principal"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO E",
+      "area_construida_m2": 58.22,
+      "area_privada_m2": 52.81,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Balcón",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Espacio disponible 1",
+        "1 Baño",
+        "Alcoba Principal",
+        "Espacio disponible para futuro baño"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO F",
+      "area_construida_m2": 58.9,
+      "area_privada_m2": 53.07,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Cocina",
+        "Sala comedor",
+        "Balcón",
+        "Zona de ropas independiente",
+        "1 Baño",
+        "1 Alcoba",
+        "Alcoba Principal",
+        "Espacio disponible para futuro baño"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Portería tipo lobby",
+    "Zona Kids",
+    "Cancha múltiple",
+    "Zona BBQ",
+    "Coworking",
+    "Salón de juegos",
+    "Parque Biosaludable",
+    "Zonas verdes",
+    "Parqueaderos comunales",
+    "Bicicleteros",
+    "Salón social",
+    "Zona Gym"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Instituto técnico Industrial"
+    ],
+    "recreacion": [
+      "Gimnasio Smartfit",
+      "Parque de los Novios",
+      "Parque Jaime Duque",
+      "Museo de las Fuerzas Militares",
+      "Museo Aeroespacial de la Fuerza Aérea Colombiana"
+    ],
+    "supermercados": [
+      "Colsubsidio",
+      "Pricesmart",
+      "Unimercas Tocancipá",
+      "Ara",
+      "Olímpica",
+      "D1"
+    ],
+    "centros_comerciales": [
+      "Milan Plaza"
+    ],
+    "transporte": [
+      "Autodromo de Tocancipá",
+      "Bomberos Tocancipá",
+      "Autopista Bogotá - Junio",
+      "Anillo Vial El Vergazo"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Subsidio de Vivienda",
+      "Subsidio Colsubsidio"
+    ],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": "Crédito hipotecario, más el de consumo complementario",
+    "nota": "Se pueden solicitar diferentes modalidades del Subsidio de Vivienda"
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Km 22 Autopista central Vía la Caro - Tocancipá Sentido Sur",
+    "como_llegar": null,
+    "email": "servicioalcliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Bosque de Arrayán es un proyecto VIS de Colsubsidio ubicado en Tocancipá, Cundinamarca, con 528 apartamentos modernos en obra gris. El proyecto cuenta con certificación EDGE de eficiencia energética y aplica para subsidio de vivienda, lo que lo hace accesible para familias que desean cumplir el sueño de tener casa propia en un entorno tranquilo y seguro.",
+    "perfil_comprador": "Familias de ingresos medios-bajos que califican para VIS y subsidio de vivienda, buscando su primera vivienda en zona segura con acceso a servicios, educación y recreación.",
+    "argumentos_venta": [
+      "Clasificación VIS con acceso a subsidio de vivienda y modalidades de pago flexibles",
+      "Certificación EDGE que garantiza reducción de 20% en consumo de agua y energía",
+      "528 apartamentos de 2 alcobas en entorno de naturaleza rodeado de zonas verdes",
+      "Amenities completos: zona kids, coworking, salón social, gimnasio y parque biosaludable",
+      "Ubicación estratégica cerca de instituciones educativas, centros comerciales y transporte",
+      "Acompañamiento permanente durante la preventa, venta y posventa"
+    ],
+    "keywords": [
+      "Tocancipá",
+      "Cundinamarca",
+      "VIS",
+      "subsidio",
+      "2 alcobas",
+      "obra gris",
+      "apartamentos económicos",
+      "EDGE",
+      "primer hogar",
+      "crédito hipotecario",
+      "zona verde",
+      "familia"
+    ]
+  },
+  "legal": "Aplican términos y condiciones. Las áreas construidas y privadas mencionadas son aproximadas y pueden sufrir variaciones por modificaciones ordenadas por la autoridad competente o procesos constructivos. Los precios y condiciones definitivos del negocio (tales como inmueble objeto de venta, precio, forma de pago, fecha de escritura y entrega) serán fijados en la correspondiente promesa de compraventa."
+}

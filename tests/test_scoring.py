@@ -1,0 +1,186 @@
+"""Pruebas unitarias rapidas para app/scoring.py (la calculadora de
+viabilidad). Cubren las reglas de negocio documentadas en el modulo:
+umbral VIS/No VIS, tiers de estabilidad laboral, penalizacion por
+desempleo, regla 90/10, bono/penalizacion de hogar monoparental joven,
+umbral de historial crediticio en No VIS, penalizacion por reporte en
+datacredito, y el blending con peers de perfil similar y con similitud
+vectorial contra centroides.
+
+No dependen del Excel real (ver fixtures `sin_peers` y `vectorial_neutro`
+en conftest.py). Con ambas senales externas fijas (sin peers, vectorial
+estubeado en 50.0), el score final de cualquier escenario sin peer-match
+es 0.8 * score_de_reglas + 10 (0.6 reglas + 0.2 que le vuelve al no haber
+peers, mas 0.2 * 50 del piso vectorial) — de ahi salen los numeros de
+abajo.
+"""
+import pandas as pd
+import pytest
+
+from app import data_store, scoring
+
+
+# ---------------------------------------------------------------------
+# _midpoint_rango_salarial
+# ---------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    "rango, esperado",
+    [
+        ("de 4.000.000 - 5.000.000", 4_500_000.0),
+        ("De 1.000.000 - 1.500.000", 1_250_000.0),
+        ("", 0.0),
+        ("sin dato", 0.0),
+        ("4000000", 0.0),  # sin rango (falta el "-"), no se puede promediar
+    ],
+)
+def test_midpoint_rango_salarial(rango, esperado):
+    assert scoring._midpoint_rango_salarial(rango) == esperado
+
+
+# ---------------------------------------------------------------------
+# _employer_tier
+# ---------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    "estado, contrato, tier_esperado",
+    [
+        ("Empleado", "Indefinido", "Tier 1"),
+        ("Empleado", "Fijo", "Tier 2"),
+        ("Empleado", "Obra y labor", "Tier 3"),
+        ("Independiente", "N/A", "Tier 3"),
+        ("Desempleado", "N/A", "Tier 3"),
+    ],
+)
+def test_employer_tier(estado, contrato, tier_esperado):
+    usuario = {"Estado laboral": estado, "Tipo de contrato": contrato}
+    assert scoring._employer_tier(usuario) == tier_esperado
+
+
+# ---------------------------------------------------------------------
+# calcular_score: reglas de negocio principales
+# ---------------------------------------------------------------------
+
+def test_no_vis_saturado_afiliado_tier1_es_caliente(make_usuario):
+    usuario = make_usuario(
+        **{"Rango salarial": "de 9.000.000 - 10.000.000"}  # 6.67 SMLV -> No VIS, satura el techo (6.0)
+    )
+    resultado = scoring.calcular_score(usuario)
+
+    assert resultado.project_segment == "No VIS"
+    assert resultado.score == pytest.approx(78.4)
+    assert resultado.segmento_lead == "CALIENTE"
+
+
+def test_no_vis_no_afiliado_tier3_es_tibio(make_usuario):
+    usuario = make_usuario(
+        **{
+            "Rango salarial": "de 9.000.000 - 10.000.000",
+            "Estado laboral": "Independiente",
+            "Tipo de contrato": "N/A",
+            "Afiliado a colsubsidio": "No",
+        }
+    )
+    resultado = scoring.calcular_score(usuario)
+
+    assert resultado.project_segment == "No VIS"
+    assert resultado.score == pytest.approx(48.1)
+    assert resultado.segmento_lead == "TIBIO"
+    assert any("regla 90/10" in r for r in resultado.razones)
+
+
+def test_desempleado_penaliza_fuerte_y_cae_a_frio(make_usuario):
+    usuario = make_usuario(**{"Estado laboral": "Desempleado", "Tipo de contrato": "N/A"})
+    resultado = scoring.calcular_score(usuario)
+
+    assert resultado.score == pytest.approx(13.2)
+    assert resultado.segmento_lead == "FRIO"
+    assert any("Sin empleo activo" in r for r in resultado.razones)
+
+
+def test_vis_no_afiliado_regla_90_10(make_usuario):
+    usuario = make_usuario(**{"Afiliado a colsubsidio": "No"})
+    resultado = scoring.calcular_score(usuario)
+
+    assert resultado.project_segment == "VIS"
+    assert resultado.score == pytest.approx(15.8)
+    assert any("regla 90/10" in r for r in resultado.razones)
+
+
+def test_vis_monoparental_joven_afiliado_suma_20(make_usuario):
+    usuario = make_usuario()
+    resultado = scoring.calcular_score(usuario, family_structure="Monoparental Joven")
+
+    assert resultado.score == pytest.approx(55.1)
+    assert resultado.segmento_lead == "TIBIO"
+
+
+def test_vis_monoparental_joven_no_afiliado_resta_30_y_score_de_reglas_no_baja_de_cero(make_usuario):
+    usuario = make_usuario(**{"Afiliado a colsubsidio": "No"})
+    resultado = scoring.calcular_score(usuario, family_structure="Monoparental Joven")
+
+    # el -30 deja el score de reglas clampeado en 0; el score final que
+    # queda es solo el piso del blend con el stub vectorial neutro (0.8*0+10)
+    assert resultado.score == pytest.approx(10.0)
+    assert resultado.segmento_lead == "FRIO"
+
+
+def test_no_vis_credit_score_insuficiente_anula_score(make_usuario):
+    usuario = make_usuario(
+        **{
+            "Rango salarial": "de 9.000.000 - 10.000.000",
+            "Reportado en data crédito": "Reportado",
+        }
+    )
+    resultado = scoring.calcular_score(usuario)
+
+    assert resultado.project_segment == "No VIS"
+    assert resultado.score == pytest.approx(10.0)
+    assert any("score anulado" in r for r in resultado.razones)
+
+
+def test_reportado_datacredito_penaliza_tambien_en_vis(make_usuario):
+    usuario = make_usuario(**{"Reportado en data crédito": "Reportado"})
+    resultado = scoring.calcular_score(usuario)
+
+    assert resultado.score == pytest.approx(12.9)
+    assert any("casi eliminatoria" in r for r in resultado.razones)
+
+
+# ---------------------------------------------------------------------
+# calcular_score: blending con peers de perfil similar
+# ---------------------------------------------------------------------
+
+def test_peer_blend_pondera_score_con_3_o_mas_peers(make_usuario, monkeypatch):
+    peers = pd.DataFrame(
+        {
+            "Estado de vivienda propia": [
+                "Con vivienda propia",
+                "Con vivienda propia",
+                "Desistido",
+                "Rechazado",
+            ]
+        }
+    )
+    monkeypatch.setattr(data_store, "peers_con_perfil_similar", lambda usuario: peers)
+
+    usuario = make_usuario(**{"Rango salarial": "de 9.000.000 - 10.000.000"})  # score de reglas puro: 85.5
+    resultado = scoring.calcular_score(usuario)
+
+    # con >=3 peers, el blend reparte 0.6 reglas / 0.2 peers / 0.2 vectorial:
+    # 0.6*85.5 + 0.2*50.0(pct_con_vivienda_propia) + 0.2*50.0(stub vectorial) = 71.3
+    assert resultado.score == pytest.approx(71.3)
+    assert resultado.segmento_lead == "CALIENTE"
+    assert resultado.peer_stats["total_peers"] == 4
+    assert resultado.peer_stats["pct_con_vivienda_propia"] == 50.0
+
+
+def test_menos_de_3_peers_no_aplica_blend_de_peers(make_usuario, monkeypatch):
+    peers = pd.DataFrame({"Estado de vivienda propia": ["Con vivienda propia", "Rechazado"]})
+    monkeypatch.setattr(data_store, "peers_con_perfil_similar", lambda usuario: peers)
+
+    usuario = make_usuario(**{"Rango salarial": "de 9.000.000 - 10.000.000"})  # score de reglas puro: 85.5
+    resultado = scoring.calcular_score(usuario)
+
+    # sin peers suficientes, ese peso vuelve a reglas: 0.8*85.5 + 0.2*50.0(vectorial) = 78.4
+    assert resultado.score == pytest.approx(78.4)
+    assert resultado.peer_stats["total_peers"] == 2

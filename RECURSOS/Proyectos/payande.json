@@ -1,0 +1,148 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "payande",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/34ac4d8a9e.html",
+    "flipbook_id": "34ac4d8a9e",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/v3/34ac4d8a9e7889f1c2b73272dac578569521bc24.pdf",
+    "num_paginas": 20,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Payandé",
+    "tagline": "El lugar donde siempre estarás de vacaciones es también el lugar donde construirás tu proyecto de vida",
+    "tipo": null,
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": 2027,
+    "certificaciones": [],
+    "constructor": null,
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Calle 7 # 18 - 108",
+    "sector": "Ricaurte",
+    "ciudad": "Ricaurte",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 2,
+    "pisos_por_torre": "10",
+    "ascensor": null,
+    "apartamentos_totales": 320,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO 3",
+      "area_construida_m2": 56.86,
+      "area_privada_m2": 47.01,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "Baño adicional en Alcoba Principal"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO 4",
+      "area_construida_m2": 44.0,
+      "area_privada_m2": 38.89,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "Baño adicional disponible"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Piscina",
+    "Salón de juegos",
+    "Parque infantil",
+    "Portería",
+    "Zonas verdes",
+    "Salón social con terraza",
+    "BBQ",
+    "Senderos peatonales",
+    "Parqueadero comunal 1:1"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [],
+    "recreacion": [
+      "Parque Ricaurte",
+      "Club Vacacional ETB"
+    ],
+    "supermercados": [
+      "Tiendas D1",
+      "Oxxo",
+      "Tienda Ara - Peñalisa"
+    ],
+    "centros_comerciales": [
+      "C.C. Peñalisa Plaza"
+    ],
+    "transporte": [
+      "Policía Nacional"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": null,
+    "aplica_subsidio": true,
+    "programas_subsidio": [],
+    "valor_desde": null,
+    "moneda": "SMMLV",
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": "El precio se proyecta con base en el salario mínimo legal vigente estimado para el año de escrituración 2027. El valor de la vivienda será pactado en SMMLV del año en que se escriture."
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Kilómetro 125 vía Bogotá-Girardot, junto al hotel Bosques de Colsubsidio",
+    "como_llegar": null,
+    "email": null,
+    "web": null,
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Payandé es un proyecto de 320 apartamentos en Ricaurte, Cundinamarca, diseñado para familias que buscan comodidad y naturaleza. Ubicado en una zona de gran crecimiento comercial y turístico, ofrece apartamentos en obra gris con subsidio aplicable y escrituración estimada para 2027.",
+    "perfil_comprador": "Familias que buscan una vivienda en zona de crecimiento, con acceso a amenidades recreativas, zonas verdes y seguridad. Especialmente dirigido a compradores que califican para subsidio de vivienda.",
+    "argumentos_venta": [
+      "320 apartamentos en 2 torres de 10 pisos con parqueadero comunal 1:1",
+      "Obra gris con entrega estimada 2027 y subsidio aplicable",
+      "Ubicación estratégica en zona de crecimiento comercial y turístico con acceso a centros comerciales y hoteles",
+      "Amplias zonas comunes: piscina, salón de juegos, parque infantil, zonas verdes y senderos peatonales",
+      "Espacios diseñados para familias con ampliación posible en alcobas principales",
+      "Seguridad garantizada con portería y vigilancia en la zona"
+    ],
+    "keywords": [
+      "Ricaurte",
+      "Cundinamarca",
+      "apartamentos",
+      "1 alcoba",
+      "obra gris",
+      "subsidio vivienda",
+      "zona verde",
+      "piscina",
+      "parque infantil",
+      "2027",
+      "Girardot",
+      "familias",
+      "vivienda asequible"
+    ]
+  },
+  "legal": "Las áreas construidas y privadas son aproximadas y pueden variar por ajustes técnicos o disposiciones de la curaduría. Los apartamentos se entregan en obra gris sin mobiliario ni dotaciones. El precio es valor de referencia en SMMLV del año de escrituración 2027. Las condiciones definitivas (precio, forma de pago, fecha de entrega) se fijan en la promesa de compraventa."
+}

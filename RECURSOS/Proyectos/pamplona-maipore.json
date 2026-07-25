@@ -1,0 +1,213 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "slug": "pamplona-maipore",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/c159d5d733.html",
+    "flipbook_id": "c159d5d733",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/v3/c159d5d733b09efe543a524b50f5b60d228a9016.pdf",
+    "num_paginas": 20,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Pamplona Maiporé",
+    "tagline": "Tu apartamento en Soacha con balcón, tu proyecto de vida",
+    "tipo": "VIS",
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": 2027,
+    "certificaciones": [
+      "EDGE"
+    ],
+    "constructor": null,
+    "macroproyecto": {
+      "nombre": "Ciudadela Colsubsidio Maiporé",
+      "descripcion": "Es una ciudad dentro de la ciudad, donde vivienda, servicios, educación, salud y zonas verdes se integran para que todo esté a pocos minutos de tu hogar. Un entorno planeado para ahorrar tiempo, vivir mejor y construir tu proyecto de vida con mayor tranquilidad y bienestar.",
+      "viviendas": "+16.000",
+      "equipamientos_m2": 249000.0,
+      "parques_zonas_proteccion_m2": 81912.0,
+      "hectareas": 87.0
+    }
+  },
+  "ubicacion": {
+    "direccion": "Carrera 2 # 30A - 89 sur, Ciudadela Colsubsidio Maiporé",
+    "sector": "Ciudadela Colsubsidio Maiporé",
+    "ciudad": "Soacha",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 12,
+    "pisos_por_torre": "6, 8 y 13",
+    "ascensor": true,
+    "apartamentos_totales": 488,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO A",
+      "area_construida_m2": 50.25,
+      "area_privada_m2": 45.75,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "Alcoba 2",
+        "Futuro baño en Alcoba Principal"
+      ],
+      "espacios": [
+        "Alcoba Principal",
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "1 Baño"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO B",
+      "area_construida_m2": 58.47,
+      "area_privada_m2": 53.3,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño en Alcoba Principal"
+      ],
+      "espacios": [
+        "Alcoba Principal",
+        "Alcoba 2",
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "1 espacio Adicional",
+        "1 Baño"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO C",
+      "area_construida_m2": 59.05,
+      "area_privada_m2": 51.2,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño en Alcoba Principal"
+      ],
+      "espacios": [
+        "Alcoba Principal",
+        "Alcoba 2",
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "1 espacio Adicional",
+        "1 Baño"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO D",
+      "area_construida_m2": 63.49,
+      "area_privada_m2": 55.89,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño en Alcoba Principal"
+      ],
+      "espacios": [
+        "Alcoba Principal",
+        "Alcoba 2",
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "1 Baño"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Zona BBQ",
+    "Máquinas Biosaludables",
+    "Zonas verdes",
+    "Portería tipo lobby",
+    "Zona para mascotas",
+    "Salón social",
+    "Sala de juntas",
+    "Gimnasio",
+    "Teatrino al aire libre",
+    "Cancha múltiple",
+    "Juegos infantiles"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Colegio Colsubsidio Maiporé",
+      "Institución Educativa Santa Ana",
+      "Colegio Nuestra Señora Del Carmen",
+      "Universidad Uniminuto",
+      "Universidad de Cundinamarca"
+    ],
+    "recreacion": [
+      "Bloc Colsubsidio La Casona",
+      "Bloc Colsubsidio Bosa",
+      "Club deportivo Los Primos",
+      "Parque Público de Nemesis",
+      "Polideportivo Lagos de Malibú"
+    ],
+    "supermercados": [
+      "Tiendas Ara"
+    ],
+    "centros_comerciales": [
+      "Centro Comercial Ventura Terreros",
+      "Mercurio Centro Comercial",
+      "Gran Plaza Soacha",
+      "Centro Comercial Unisur"
+    ],
+    "transporte": [
+      "Futuro Portal de Transmilenio El Vínculo",
+      "Estaciones de Transmilenio y otras rutas"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [],
+    "valor_desde": null,
+    "moneda": "SMMLV",
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": "El precio se proyecta con base en el salario mínimo legal vigente estimado para el año de escrituración 2027."
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Calle 30 Sur # 2 - 201, Soacha - Autopista sur",
+    "como_llegar": null,
+    "email": null,
+    "web": null,
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Pamplona Maiporé es un proyecto VIS en Soacha ubicado en la Ciudadela Colsubsidio Maiporé, pensado para familias que buscan estabilidad y bienestar. Ofrece 488 apartamentos de 1 y 2 alcobas en obra gris, con certificación EDGE que garantiza ahorro y confort sostenible. El proyecto aplica subsidio y está diseñado con excelentes conexiones a Bogotá, zonas verdes y servicios completos.",
+    "perfil_comprador": "Familias de ingresos medios-bajos que buscan acceso a vivienda propia en VIS con subsidio, valorando la ubicación estratégica, infraestructura comunitaria y sostenibilidad.",
+    "argumentos_venta": [
+      "Certificación EDGE garantiza ahorro energético y confort sostenible",
+      "488 apartamentos en una ciudadela de +16.000 viviendas con servicios, educación y zonas verdes integradas",
+      "Apartamentos funcionales de 1 y 2 alcobas en obra gris, desde 50 m² área construida",
+      "Ubicación estratégica en Soacha con excelente conexión a Bogotá vía Autopista Sur",
+      "Amplias zonas comunes: gimnasio, cancha múltiple, salón social, zona BBQ, parques infantiles",
+      "Aplica subsidio de vivienda con escrituración proyectada para 2027"
+    ],
+    "keywords": [
+      "Soacha",
+      "VIS",
+      "1 alcoba",
+      "2 alcobas",
+      "subsidio vivienda",
+      "obra gris",
+      "Ciudadela Colsubsidio",
+      "EDGE",
+      "sostenible",
+      "Bogotá",
+      "zona BBQ",
+      "gimnasio"
+    ]
+  },
+  "legal": "Los apartamentos se entregan en obra gris. Las áreas construidas y privadas son aproximadas y pueden variar por ajustes técnicos o requerimientos de autoridades. Precios según ubicación y disponibilidad, sujetos a variación. Condiciones definitivas de compraventa se establecen en promesa de compraventa. Aplica subsidio; precio estimado en SMMLV del año 2027."
+}

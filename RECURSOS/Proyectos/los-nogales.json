@@ -1,0 +1,171 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "los-nogales",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/9dd9bf814e.html",
+    "flipbook_id": "9dd9bf814e",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/9dd9bf814e85b164faadfbd527568e36735154d7-1.pdf",
+    "num_paginas": 18,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Los Nogales",
+    "tagline": "Apartamentos con terminaciones de alta calidad, parqueadero privado y depósito, diseñados para ofrecerte el confort que mereces.",
+    "tipo": null,
+    "estado_entrega": null,
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [],
+    "constructor": "Colsubsidio",
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Calle 83 No. 111A-41",
+    "sector": "Ciudadela Calle 80",
+    "ciudad": "Bogotá",
+    "departamento": null,
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 3,
+    "pisos_por_torre": "7",
+    "ascensor": true,
+    "apartamentos_totales": 168,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO A",
+      "area_construida_m2": 74.0,
+      "area_privada_m2": 67.0,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [
+        "Hall",
+        "Salón",
+        "Comedor",
+        "Balcón (uso común exclusivo)",
+        "Cocina",
+        "Zona de ropas",
+        "Alcoba principal con vestier",
+        "Baño alcoba principal"
+      ],
+      "estado_entrega": null
+    },
+    {
+      "codigo": "TIPO B",
+      "area_construida_m2": 91.0,
+      "area_privada_m2": 83.0,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [
+        "Hall",
+        "Salón comedor",
+        "Balcón (uso común exclusivo)",
+        "Cocina",
+        "Zona de ropas",
+        "Estar",
+        "Alcoba principal con vestier",
+        "Baño alcoba principal"
+      ],
+      "estado_entrega": null
+    }
+  ],
+  "amenities": [
+    "Portería tipo lobby",
+    "Salón social",
+    "Gimnasio",
+    "Zonas verdes",
+    "Salón de juegos",
+    "Pista de trote",
+    "Coworking",
+    "Terraza BBQ",
+    "Parque infantil",
+    "Parqueadero privado",
+    "Depósito"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Colegio Colsubsidio Ciudadela",
+      "Universidad Minuto de Dios",
+      "Uniagustiniana"
+    ],
+    "recreacion": [
+      "Bodytech Portal 80",
+      "Smartfit Unicentro de Occidente",
+      "Parque Ciudadela Colsubsidio",
+      "Parque Juan Amarillo"
+    ],
+    "supermercados": [
+      "Tiendas ARA",
+      "Éxito Gran Granada",
+      "Easy Gran Granada"
+    ],
+    "centros_comerciales": [
+      "Centro Comercial Nuestro Bogotá",
+      "Centro Comercial Diverplaza",
+      "Centro Comercial Calle 80",
+      "Centro Comercial Unicentro de Occidente",
+      "Centro Comercial Portal 80"
+    ],
+    "transporte": [
+      "Estación Portal Dorado (Transmilenio)",
+      "Estación Portal Calle 80 (Transmilenio)",
+      "Avenida Mutis",
+      "Calle 72",
+      "Avenida Cali",
+      "Calle 80",
+      "Avenida El Dorado"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": null,
+    "aplica_subsidio": null,
+    "programas_subsidio": [],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": null
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Calle 83 No. 111A-41 Ciudadela Colsubsidio Calle 80",
+    "como_llegar": null,
+    "email": "servicioalcliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Proyecto Ciudadela Calle 80 es un conjunto de 3 torres de 7 pisos con 168 apartamentos de 2 y 3 alcobas en la zona de Calle 80, Bogotá. Ubicado cerca de colegios, centros comerciales y con excelente acceso a transporte público, ofrece apartamentos con terminaciones de alta calidad, parqueadero privado y amenidades completas como gimnasio, zonas verdes y coworking.",
+    "perfil_comprador": "Familias jóvenes y parejas que buscan vivienda en zona céntrica de Bogotá con buena conectividad, cerca de instituciones educativas y centros comerciales, con presupuesto para apartamentos de calidad en zona consolidada.",
+    "argumentos_venta": [
+      "3 torres de 7 pisos con ascensor y 168 apartamentos disponibles",
+      "Ubicación privilegiada en Ciudadela Calle 80 con acceso a vías principales y Transmilenio",
+      "Terminaciones de alta calidad con parqueadero privado y depósito en cada unidad",
+      "Amenidades completas: gimnasio, coworking, terraza BBQ, zonas verdes y parque infantil",
+      "Cercanía a colegios, universidades y centros comerciales de importancia",
+      "Diseño contemporáneo que integra funcionalidad y bienestar"
+    ],
+    "keywords": [
+      "Bogotá",
+      "Calle 80",
+      "Ciudadela Colsubsidio",
+      "apartamentos 3 alcobas",
+      "apartamentos 2 alcobas",
+      "parqueadero privado",
+      "gimnasio",
+      "coworking",
+      "Transmilenio",
+      "zona céntrica",
+      "terminaciones de calidad",
+      "terraza BBQ",
+      "parque infantil"
+    ]
+  },
+  "legal": "Las áreas construidas y áreas privadas son aproximadas y pueden sufrir cambios debido a ajustes técnicos, procesos constructivos o modificaciones ordenadas por la curaduría o alcaldía. Los planos y renders son representaciones digitales que pueden variar respecto al producto final. Las condiciones definitivas del negocio serán fijadas en la correspondiente promesa de compraventa."
+}

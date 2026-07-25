@@ -1,0 +1,8 @@
+.env
+vertex-credentials.json
+*credentials*.json
+__pycache__/
+*.pyc
+.venv/
+~$*
+.pytest_cache/

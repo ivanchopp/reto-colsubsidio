@@ -1,0 +1,169 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "la-macarena-maipore",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/b168b2f5ba.html",
+    "flipbook_id": "b168b2f5ba",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/b168b2f5ba52412aa3cebe352a90c6f95b73fe2c-2.pdf",
+    "num_paginas": 20,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "La Macarena Maiporé",
+    "tagline": "Tu proyecto de vida hecho realidad",
+    "tipo": "Apartamentos",
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [
+      "EDGE"
+    ],
+    "constructor": null,
+    "macroproyecto": {
+      "nombre": "Ciudadela Colsubsidio Maiporé",
+      "descripcion": "Es una ciudad dentro de la ciudad, donde vivienda, servicios, educación, salud y zonas verdes se integran para que todo esté a pocos minutos de tu hogar. Un entorno planeado para ahorrar tiempo, vivir mejor y construir tu proyecto de vida con mayor tranquilidad y bienestar.",
+      "viviendas": "+16.000",
+      "equipamientos_m2": 249000.0,
+      "parques_zonas_proteccion_m2": 81912.0,
+      "hectareas": 87.0
+    }
+  },
+  "ubicacion": {
+    "direccion": "Carrera 1 # 31A sur - 72",
+    "sector": "Ciudadela Colsubsidio Maiporé",
+    "ciudad": "Soacha",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 6,
+    "pisos_por_torre": "10",
+    "ascensor": true,
+    "apartamentos_totales": 702,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "Tipo A",
+      "area_construida_m2": 38.78,
+      "area_privada_m2": 34.42,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor",
+        "1 Baño",
+        "1 disponible Alcoba 2",
+        "1 Alcoba Principal"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Tipo B",
+      "area_construida_m2": 34.94,
+      "area_privada_m2": 31.33,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor",
+        "1 Baño",
+        "1 Alcoba Principal"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Portería tipo lobby",
+    "Sala de espera",
+    "Salón social (2)",
+    "Terraza BBQ",
+    "Zonas de juegos (2)",
+    "Gimnasio Biosaludable",
+    "Cancha múltiple",
+    "Zona para mascotas",
+    "Zona para lavandería",
+    "Zona de coworking y social living por torre",
+    "Parqueaderos comunales"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Colegio Colsubsidio",
+      "Institución Educativa Santa Ana",
+      "Colegio Nuestra Señora Del Carmen",
+      "Universidad Uniminuto",
+      "Universidad de Cundinamarca"
+    ],
+    "recreacion": [
+      "Bloc Colsubsidio La Casona",
+      "Bloc Colsubsidio Bosa",
+      "Club deportivo Los Primos",
+      "Parque Público de Nemesis",
+      "Polideportivo Lagos de Malibú"
+    ],
+    "supermercados": [
+      "Tiendas Ara"
+    ],
+    "centros_comerciales": [
+      "Centro Comercial Ventura Terreros",
+      "Mercurio Centro Comercial",
+      "Gran Plaza Soacha",
+      "Centro Comercial Unisur"
+    ],
+    "transporte": [
+      "Futuro Portal de Transmilenio El Vínculo"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Subsidio de Vivienda"
+    ],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": "Crédito hipotecario, más el de consumo complementario",
+    "nota": null
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Calle 30 Sur # 2 - 201, Soacha - Autopista sur",
+    "como_llegar": null,
+    "email": "servicioalcliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "La Macarena Maiporé es un proyecto de apartamentos VIS ubicado en la Ciudadela Colsubsidio Maiporé, Soacha. Ofrecemos 702 apartamentos en 6 torres de 10 pisos con excelentes amenities y acceso a subsidio de vivienda. Todo integrado en una ciudadela planeada con +16.000 viviendas, comercio, educación y zonas verdes cercanas.",
+    "perfil_comprador": "Familias jóvenes, parejas e individuos con ingresos moderados que buscan acceder a vivienda propia en el área metropolitana, aprovechando beneficios de subsidio y ubicación estratégica con buena conectividad.",
+    "argumentos_venta": [
+      "Clasificación VIS con acceso a subsidio de vivienda",
+      "6 torres con 702 apartamentos de 1 alcoba, entregas en obra gris",
+      "Certificación EDGE: ahorra hasta 20% en consumo de agua y energía",
+      "Ubicación en Ciudadela Colsubsidio con +16.000 viviendas, comercio, educación y recreación integrados",
+      "Amplias zonas sociales: gimnasio, canchas, salones, terraza BBQ, parques infantiles",
+      "Acompañamiento permanente durante la preventa, venta y posventa"
+    ],
+    "keywords": [
+      "Soacha",
+      "Apartamentos VIS",
+      "1 alcoba",
+      "Subsidio vivienda",
+      "Certificación EDGE",
+      "Obra gris",
+      "Ciudadela Colsubsidio",
+      "Cundinamarca",
+      "Financiación vivienda",
+      "Amenities comunales",
+      "702 apartamentos"
+    ]
+  },
+  "legal": "Aplican términos y condiciones. Los apartamentos se entregan en obra gris. Especificaciones técnicas, áreas, precios y otros detalles están sujetos a cambios por ajustes de construcción. Consultar con la constructora para información completa sobre documentación requerida, procesos y disponibilidad."
+}

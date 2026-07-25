@@ -1,0 +1,170 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "zarzal",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/56764c1e33.html",
+    "flipbook_id": "56764c1e33",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/56764c1e33d876d67bcca41b3cda5414f36cb8cf-1.pdf",
+    "num_paginas": 16,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Zarzal",
+    "tagline": "Proyecto de vida, Bienestar y comodidad para ti",
+    "tipo": "Apartamentos",
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [],
+    "constructor": "Colsubsidio",
+    "macroproyecto": {
+      "nombre": "Ciudadela Colsubsidio Maiporé",
+      "descripcion": "Una ciudad dentro de la ciudad, donde vivienda, servicios, educación, salud y zonas verdes se integran para que todo esté a pocos minutos de tu hogar. Un entorno planeado para ahorrar tiempo, vivir mejor y construir tu proyecto de vida con mayor tranquilidad y bienestar.",
+      "viviendas": "+16.000",
+      "equipamientos_m2": 249000.0,
+      "parques_zonas_proteccion_m2": 81912.0,
+      "hectareas": 87.0
+    }
+  },
+  "ubicacion": {
+    "direccion": "Calle 30 sur n.° 2-201, Soacha, Autopista Sur, sentido sur-norte, frente a Alfagres",
+    "sector": "Maiporé",
+    "ciudad": "Soacha",
+    "departamento": null,
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 21,
+    "pisos_por_torre": "6",
+    "ascensor": null,
+    "apartamentos_totales": 504,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "Tipo 1",
+      "area_construida_m2": 43.3,
+      "area_privada_m2": 38.51,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "Alcoba 2",
+        "Baño adicional en Alcoba Principal"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Tipo 2",
+      "area_construida_m2": 39.06,
+      "area_privada_m2": 34.89,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "Alcoba 2",
+        "Baño adicional en Alcoba Principal"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Portería tipo lobby",
+    "Zona de juegos",
+    "Zona BBQ",
+    "Salón comunal",
+    "Parqueaderos",
+    "Gimnasio biosaludable",
+    "Zonas verdes",
+    "Salón Social",
+    "Terraza"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Colegio Colsubsidio Maiporé",
+      "Universidad de Cundinamarca extensión Soacha",
+      "Universidad Minuto de Dios Regional Soacha"
+    ],
+    "recreacion": [
+      "Humedal El Vínculo Maiporé",
+      "BLOC Maiporé Colsubsidio",
+      "Polideportivo",
+      "Club deportivo Los Primos"
+    ],
+    "supermercados": [],
+    "centros_comerciales": [
+      "Unisur",
+      "Ventura",
+      "Terreros",
+      "Vívelo Mercurio",
+      "Gran Plaza Soacha"
+    ],
+    "transporte": [
+      "Transmilenio - Portal El Vínculo",
+      "Estación 11 del Metro",
+      "Estación Bicentenario",
+      "Estación Hortúa",
+      "Estación San Bernardo",
+      "Estación Policarpa",
+      "Estación Los Andes",
+      "Estación Hospital"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": null,
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Subsidio de vivienda"
+    ],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": "Crédito hipotecario más crédito de consumo complementario",
+    "nota": "El precio que está determinado es un valor de referencia que, en todo caso, el valor de la vivienda será pactado en SMMLV del año en que se escriture."
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Calle 30 sur n.° 2-201, Soacha, Autopista Sur, sentido sur-norte, frente a Alfagres",
+    "como_llegar": null,
+    "email": null,
+    "web": null,
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Zarzal es un proyecto de 504 apartamentos en obra gris ubicado en Soacha, en la Ciudadela Colsubsidio Maiporé, a pocos minutos de Bogotá. Con diseño moderno y sostenible, ofrece apartamentos de 1 alcoba con espacios ampliables, zonas verdes y acceso a educación, salud y centros comerciales. El proyecto aplica subsidio de vivienda y brinda opciones de crédito hipotecario con acompañamiento integral.",
+    "perfil_comprador": "Compradores primerizos, parejas jóvenes, pequeñas familias y personas que buscan vivienda económica cerca de Bogotá con acceso a subsidios, en un entorno urbano planificado con servicios completos.",
+    "argumentos_venta": [
+      "Ubicado en sector de alta valorización de Soacha con fácil acceso a Bogotá",
+      "21 torres con 504 apartamentos en Ciudadela Colsubsidio Maiporé de +16.000 viviendas",
+      "Apartamentos de 1 alcoba ampliables con espacios flexibles desde 39 m²",
+      "Zonas verdes, parques, gimnasio, salones comunales y espacios de integración social",
+      "Aplica subsidio de vivienda con crédito hipotecario y de consumo complementario",
+      "Entrega en obra gris con acompañamiento en preventa, venta y posventa"
+    ],
+    "keywords": [
+      "Soacha",
+      "1 alcoba",
+      "obra gris",
+      "subsidio vivienda",
+      "Colsubsidio",
+      "apartamentos económicos",
+      "Ciudadela Maiporé",
+      "Autopista Sur",
+      "crédito hipotecario",
+      "zonas verdes",
+      "cerca de Bogotá",
+      "primera vivienda"
+    ]
+  },
+  "legal": "Los apartamentos se entregan en obra gris. Planos y renders son representaciones digitales que pueden variar respecto al producto final. Áreas construidas y privadas son aproximadas y pueden modificarse por ajustes técnicos o disposiciones de autoridades. Precios pueden variar según área, ubicación, disponibilidad y política comercial; valor definitivo en promesa de compraventa. Muebles, enseres y acabados exhibidos no forman parte del inmueble. Aplican subsidios conforme a requisitos y condiciones vigentes."
+}

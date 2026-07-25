@@ -1,0 +1,182 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "araucaria",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/26d2b013cf.html",
+    "flipbook_id": "26d2b013cf",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/26d2b013cf7225db703c2bde5ff96c5f81fb1906-2.pdf",
+    "num_paginas": 16,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Araucaria",
+    "tagline": null,
+    "tipo": null,
+    "estado_entrega": null,
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [],
+    "constructor": null,
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Carrera 111 A, Diagonal 86A",
+    "sector": "Ciudadela Calle 80",
+    "ciudad": "Bogotá",
+    "departamento": null,
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 4,
+    "pisos_por_torre": "7",
+    "ascensor": true,
+    "apartamentos_totales": 252,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO A1",
+      "area_construida_m2": 105.4,
+      "area_privada_m2": 97.15,
+      "alcobas": 3,
+      "banos": 3,
+      "ampliable": [],
+      "espacios": [
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor",
+        "Balcón",
+        "Walking closet",
+        "Espacio para estudio o sala de TV"
+      ],
+      "estado_entrega": null
+    },
+    {
+      "codigo": "TIPO B",
+      "area_construida_m2": 86.93,
+      "area_privada_m2": 80.14,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor",
+        "Balcón",
+        "Walking closet",
+        "Espacio para estudio o sala de TV"
+      ],
+      "estado_entrega": null
+    },
+    {
+      "codigo": "TIPO C",
+      "area_construida_m2": 74.36,
+      "area_privada_m2": 68.06,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor",
+        "Walking closet",
+        "Espacio para estudio"
+      ],
+      "estado_entrega": null
+    }
+  ],
+  "amenities": [
+    "Portería tipo lobby",
+    "Salón social",
+    "Gimnasio",
+    "Zonas verdes",
+    "Salón de juegos",
+    "Pista de trote",
+    "Coworking",
+    "Terraza BBQ",
+    "Parque infantil",
+    "Parqueadero privado",
+    "Depósito"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Colegio Colsubsidio Ciudadela",
+      "Universidad Minuto de Dios",
+      "Uniagustiniana"
+    ],
+    "recreacion": [
+      "Bodytech Portal 80",
+      "Smartfit Unicentro de Occidente",
+      "Parque Ciudadela Colsubsidio",
+      "Parque Juan Amarillo"
+    ],
+    "supermercados": [
+      "Tiendas ARA",
+      "Éxito Gran Granada",
+      "Easy Gran Granada"
+    ],
+    "centros_comerciales": [
+      "Centro Comercial Nuestro Bogotá",
+      "Centro Comercial Diverplaza",
+      "Centro Comercial Calle 80",
+      "Centro Comercial Unicentro de Occidente",
+      "Centro Comercial Portal 80"
+    ],
+    "transporte": [
+      "Estación Transmilenio Portal Dorado",
+      "Estación Transmilenio Portal Calle 80",
+      "Avenida Mutis",
+      "Calle 72",
+      "Avenida Cali",
+      "Calle 80",
+      "Avenida El Dorado"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": null,
+    "aplica_subsidio": null,
+    "programas_subsidio": [],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": null
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": null,
+    "como_llegar": null,
+    "email": "servicioalcliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Proyecto residencial ubicado en la Ciudadela Calle 80 de Bogotá con 252 apartamentos modernos de 3 alcobas en diferentes tamaños. Ofrece parqueadero privado, depósito y acabados de alta calidad con acceso a colegios, centros comerciales y transporte público cercano.",
+    "perfil_comprador": "Familias que buscan apartamentos de 3 alcobas con diseño contemporáneo, funcionalidad y confort en una zona bien conectada con comercio, educación y servicios; disponible en múltiples opciones de área.",
+    "argumentos_venta": [
+      "4 torres modernas de 7 pisos con ascensor y parqueadero privado incluido",
+      "3 opciones de tipologías (74 a 105 m²) para diferentes necesidades y presupuestos",
+      "Amplias zonas sociales: gimnasio, salón social, terraza BBQ, coworking y parque infantil",
+      "Ubicación estratégica en Ciudadela Calle 80 cerca de colegios, centros médicos y comerciales",
+      "Acabados de alta calidad con walking closet, zona de ropas independiente y espacio para estudio",
+      "Excelente acceso a Transmilenio y vías principales (Av. Cali, Calle 80, Av. Mutis)"
+    ],
+    "keywords": [
+      "Bogotá",
+      "Ciudadela Calle 80",
+      "3 alcobas",
+      "apartamentos",
+      "parqueadero privado",
+      "gimnasio",
+      "zonas verdes",
+      "Transmilenio",
+      "acabados de alta calidad",
+      "depósito",
+      "coworking",
+      "terraza BBQ"
+    ]
+  },
+  "legal": "Las áreas construidas y privadas son aproximadas y pueden cambiar por ajustes técnicos, procesos constructivos o modificaciones ordenadas por curaduría o alcaldía. La ubicación, disponibilidad y política comercial pueden variar. Las condiciones definitivas del negocio (inmueble, precio, forma de pago, fecha de escritura y entrega) se establecerán en la promesa de compraventa."
+}

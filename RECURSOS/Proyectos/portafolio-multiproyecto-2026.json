@@ -1,0 +1,458 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "portafolio",
+  "slug": "portafolio-multiproyecto-2026",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/1de36642fc.html",
+    "flipbook_id": "1de36642fc",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/v3/1de36642fc03010e335a632401ce2fad82df2f67-1.pdf",
+    "num_paginas": 80,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Colsubsidio - Portafolio de Proyectos",
+    "tagline": "Más que espacios de vivienda, creamos proyectos de vida",
+    "tipo": "Residencial",
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [
+      "EDGE"
+    ],
+    "constructor": "Colsubsidio",
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Múltiples ubicaciones en Bogotá y Cundinamarca",
+    "sector": "Varios sectores",
+    "ciudad": "Bogotá y Cundinamarca",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": null,
+    "pisos_por_torre": null,
+    "ascensor": true,
+    "apartamentos_totales": null,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "ABETO",
+      "area_construida_m2": 47.0,
+      "area_privada_m2": null,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Habitación",
+        "Baño",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "ARAUCARIA",
+      "area_construida_m2": 74.0,
+      "area_privada_m2": 68.06,
+      "alcobas": 2,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Habitación principal con baño",
+        "Habitación auxiliar",
+        "Habitación auxiliar",
+        "Vestier",
+        "Zona de ropas",
+        "Balcón",
+        "Estudio"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "LOS_NOGALES",
+      "area_construida_m2": 77.95,
+      "area_privada_m2": 67.08,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Habitación",
+        "Habitación",
+        "Habitación",
+        "Vestier",
+        "Zona de ropas",
+        "Balcón",
+        "Estudio"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "PAMPLONA",
+      "area_construida_m2": 49.95,
+      "area_privada_m2": 45.55,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño adicional",
+        "Vestier"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina abierta",
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Zona de ropas"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "LA_MACARENA",
+      "area_construida_m2": 34.94,
+      "area_privada_m2": 31.33,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "Habitación",
+        "Estudio"
+      ],
+      "espacios": [
+        "Baño social",
+        "Habitación principal",
+        "Zona de ropas independiente"
+      ],
+      "estado_entrega": "2025"
+    },
+    {
+      "codigo": "MONGUÍ",
+      "area_construida_m2": 45.76,
+      "area_privada_m2": 40.55,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño adicional",
+        "Vestier"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina abierta",
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Zona de ropas"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "VERSALLES",
+      "area_construida_m2": 51.41,
+      "area_privada_m2": 46.31,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño adicional",
+        "Vestier"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina abierta",
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Zona de ropas"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "ZARZAL",
+      "area_construida_m2": 43.0,
+      "area_privada_m2": 46.31,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño adicional",
+        "Vestier"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina abierta",
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Zona de ropas"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "BOSQUE_DE_ARRAYÁN",
+      "area_construida_m2": 48.05,
+      "area_privada_m2": 43.53,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [
+        "Habitación",
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Baño social",
+        "Zona de ropas independiente",
+        "Balcón"
+      ],
+      "estado_entrega": "2026"
+    },
+    {
+      "codigo": "BOSQUE_DE_TURPIAL",
+      "area_construida_m2": 47.0,
+      "area_privada_m2": 42.86,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [
+        "Habitación",
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Baño social",
+        "Zona de ropas independiente",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "KARAKALÍ",
+      "area_construida_m2": 28.97,
+      "area_privada_m2": 23.71,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Habitación",
+        "Baño",
+        "Cocina abierta",
+        "Zona de ropas"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "VIBO_ONCE",
+      "area_construida_m2": 42.03,
+      "area_privada_m2": 36.74,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño",
+        "Vestier"
+      ],
+      "espacios": [
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Zona de ropas independiente"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "LA_ARBOLEDA",
+      "area_construida_m2": 39.96,
+      "area_privada_m2": 35.25,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño",
+        "Vestier"
+      ],
+      "espacios": [
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Zona de ropas independiente"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "PAYANDÉ",
+      "area_construida_m2": 44.0,
+      "area_privada_m2": 38.89,
+      "alcobas": 3,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Habitación",
+        "Habitación",
+        "Habitación",
+        "Baño social",
+        "Zona de ropas independiente",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "SAMÁN",
+      "area_construida_m2": 52.53,
+      "area_privada_m2": 44.19,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño",
+        "Habitación",
+        "Estudio"
+      ],
+      "espacios": [
+        "Habitación",
+        "Habitación",
+        "Cocina",
+        "Baño",
+        "Zona de ropas"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "RESERVA_DE_GUAYACÁN",
+      "area_construida_m2": 52.98,
+      "area_privada_m2": 46.98,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Baño",
+        "Habitación",
+        "Estudio"
+      ],
+      "espacios": [
+        "Habitación",
+        "Habitación",
+        "Cocina",
+        "Baño",
+        "Zona de ropas"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "INARI",
+      "area_construida_m2": 35.79,
+      "area_privada_m2": 31.77,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Habitación",
+        "Estudio"
+      ],
+      "espacios": [
+        "Habitación",
+        "Habitación",
+        "Cocina",
+        "Baño social",
+        "Zona de ropas"
+      ],
+      "estado_entrega": "2024"
+    }
+  ],
+  "amenities": [
+    "Portería con lobby",
+    "Coworking",
+    "Gimnasio",
+    "Zonas verdes",
+    "Parqueadero",
+    "Salón social",
+    "Zona BBQ",
+    "Piscina",
+    "Cancha múltiple",
+    "Parque infantil",
+    "Lavandería comunal",
+    "Zona de mascotas",
+    "Terraza",
+    "Zona yoga",
+    "Bicicleteros",
+    "Sala de juntas",
+    "Salón de juegos",
+    "Social living",
+    "Senderos peatonales",
+    "Parque biosaludable"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Universidad de La Sabana",
+      "Universidad de Cundinamarca",
+      "Hospital San Antonio",
+      "Clínica de Marly"
+    ],
+    "recreacion": [
+      "Parque principal de Chía",
+      "Centro Comercial Centro Chía",
+      "Parques cercanos"
+    ],
+    "supermercados": [],
+    "centros_comerciales": [
+      "Unicentro de Occidente",
+      "Centro Comercial Centro Chía"
+    ],
+    "transporte": [
+      "Estación Once del Metro",
+      "Portal de Transmilenio",
+      "SITP"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Subsidio de Arrendamiento",
+      "Subsidio para Vivienda Nueva",
+      "Subsidio para Mejoramiento de Vivienda",
+      "Subsidio para Construcción en Lote Propio"
+    ],
+    "valor_desde": null,
+    "moneda": "COP",
+    "cuota_inicial": "Financiable con crédito complementario",
+    "credito": "Crédito hipotecario hasta 80% del valor de la vivienda. Sistema de amortización en UVR y PESOS. Crédito complementario para cuota inicial, escrituración, acabados y electrodomésticos.",
+    "nota": "Aplica subsidio. El valor de la vivienda será pactado en SMMLV del año en que se escriture."
+  },
+  "contacto": {
+    "telefono": "601 745 7900 / 018000 947 900 / 314 216 0550",
+    "direccion_sala_ventas": "Múltiples sedes según proyecto",
+    "como_llegar": null,
+    "email": "servicioalcliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": null,
+    "whatsapp": null
+  },
+  "bot": {
+    "resumen": "Colsubsidio ofrece un portafolio completo de proyectos de vivienda VIS en Bogotá y Cundinamarca, con financiamiento flexible y subsidios de vivienda disponibles. Acceso a crédito hipotecario hasta 80%, crédito complementario para completar la cuota inicial, y acompañamiento integral desde la preventa hasta la posventa. Ideal para familias que buscan vivienda propia con apoyo de programas estatales y beneficios sostenibles.",
+    "perfil_comprador": "Familias de ingresos bajos a medios que califican para crédito hipotecario y subsidios de vivienda; colaboradores de Colsubsidio; personas que buscan vivienda sostenible con certificación EDGE; compradores que valoran cercanía a transporte público, colegios y servicios.",
+    "argumentos_venta": [
+      "Múltiples opciones de proyectos en Bogotá y Cundinamarca, desde apartaestudios hasta viviendas de 3 habitaciones",
+      "Financiamiento de hasta 80% del valor con crédito hipotecario y complementario",
+      "Acceso a subsidios de vivienda nueva, arrendamiento y mejoramiento",
+      "Proyectos con certificación EDGE reduciendo consumo de agua y energía hasta 20%",
+      "Acompañamiento integral en preventa, venta y posventa con programas de integración comunitaria",
+      "Zonas comunes completas con gimnasio, coworking, parques infantiles, piscinas y espacios verdes"
+    ],
+    "keywords": [
+      "vivienda VIS",
+      "subsidio de vivienda",
+      "crédito hipotecario",
+      "Bogotá",
+      "Cundinamarca",
+      "2 alcobas",
+      "3 alcobas",
+      "obra gris",
+      "financiamiento flexible",
+      "vivienda sostenible",
+      "EDGE",
+      "colaboradores Colsubsidio",
+      "apartaestudio",
+      "Ciudadela Maiporé",
+      "Chapinero",
+      "San Cristóbal Sur",
+      "Chía"
+    ]
+  },
+  "legal": "Los apartamentos se entregan en obra gris. Planos y renders pueden variar del producto final. Muebles y acabados mostrados son decoración no incluida. Áreas construidas son aproximadas y pueden variar por ajustes técnicos o disposiciones de autoridades. Precios pueden variar según ubicación, disponibilidad y política comercial. Condiciones definitivas se fijan en la promesa de compraventa. El valor será pactado en SMMLV del año de escrituración."
+}

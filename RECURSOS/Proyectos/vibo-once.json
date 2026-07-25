@@ -1,0 +1,162 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "vibo-once",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/d3d1f61d6b.html",
+    "flipbook_id": "d3d1f61d6b",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/v3/d3d1f61d6b986af8f5cfe8fac078aa5ea8c96a02-1.pdf",
+    "num_paginas": 20,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "VIBO ONCE",
+    "tagline": "Vive Bogotá en movimiento",
+    "tipo": null,
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": 2027,
+    "certificaciones": [],
+    "constructor": null,
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Carrera 14 # 3-58",
+    "sector": "Centro de Bogotá",
+    "ciudad": "Bogotá",
+    "departamento": null,
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 2,
+    "pisos_por_torre": "20",
+    "ascensor": null,
+    "apartamentos_totales": 310,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO A",
+      "area_construida_m2": 50.44,
+      "area_privada_m2": 43.12,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "Baño en Alcoba Principal"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Alcoba Principal",
+        "Alcoba 2"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO B2",
+      "area_construida_m2": 42.03,
+      "area_privada_m2": 36.74,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "Baño en Alcoba Principal"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Alcoba Principal",
+        "Alcoba 2"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Portería tipo lobby",
+    "Salón de juegos",
+    "Parqueaderos comunales",
+    "Zona de Gimnasio",
+    "Terraza con Fogata y BBQ",
+    "Coworking",
+    "Salón social",
+    "Bicicleteros",
+    "Parque infantil",
+    "Plazoleta pública"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "U. La Gran Colombia",
+      "U. Externado",
+      "U. de la Salle Candelaria",
+      "U. de los Andes",
+      "U. de América"
+    ],
+    "recreacion": [
+      "Parque San Bernardo",
+      "Parque Tercer Milenio",
+      "Parque Eduardo Santos",
+      "Plaza de Bolivar",
+      "Parque de La Mariposa"
+    ],
+    "supermercados": [],
+    "centros_comerciales": [
+      "San Andresito",
+      "Zona de comercio San Victorino",
+      "Plaza España"
+    ],
+    "transporte": [
+      "Estación 11 del metro",
+      "Estación Bicentenario",
+      "Estación Hortua",
+      "Estación San Bernardo",
+      "Estación Policarpa",
+      "Estación Los Andes",
+      "Estación Hospital"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [],
+    "valor_desde": null,
+    "moneda": "SMLV",
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": "Precio desde $175 SMLV (Tipo A) y $150 SMLV (Tipo B2). Precio proyectado con base en salario mínimo legal vigente estimado para año de escrituración 2027."
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Cra 14 # 3-58",
+    "como_llegar": null,
+    "email": null,
+    "web": null,
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "VIBO ONCE es un proyecto VIS en el corazón de Bogotá, frente a la estación 11 del Metro. Te ofrecemos apartamentos de 1 alcoba en obra gris desde $150 SMLV (Tipo B2) y $175 SMLV (Tipo A), con subsidio aplicable. Una ubicación estratégica para movilidad y valorización en una zona de transformación urbana.",
+    "perfil_comprador": "Compradores primera vivienda, jóvenes profesionales y familias pequeñas que buscan vivienda VIS con subsidio en zona céntrica, con acceso a transporte público y servicios urbanos.",
+    "argumentos_venta": [
+      "Ubicación frente a estación 11 del Metro: máxima movilidad y conectividad",
+      "Proyecto VIS con subsidio aplicable: accesibilidad financiera",
+      "310 apartamentos y 2 torres de 20 pisos en zona de transformación urbana",
+      "Áreas comunes completas: gimnasio, parque infantil, terraza con BBQ, coworking, salón social",
+      "Apartamentos ampliables con opción de baño adicional en alcoba principal",
+      "Entrega en obra gris: flexibilidad de personalización"
+    ],
+    "keywords": [
+      "Bogotá",
+      "Centro",
+      "1 alcoba",
+      "VIS",
+      "Subsidio",
+      "Metro",
+      "Obra gris",
+      "Apartamentos desde $150 SMLV",
+      "Primera vivienda",
+      "Estación Once"
+    ]
+  },
+  "legal": "Las áreas construidas y privadas son aproximadas y pueden variar por ajustes técnicos o autorizaciones de curaduría/alcaldía. Los acabados y muebles mostrados son decorativos, no incluidos. Las condiciones finales (precio, forma de pago, fecha de entrega) se fijan en la promesa de compraventa. El precio se proyecta en SMLV estimado para 2027."
+}

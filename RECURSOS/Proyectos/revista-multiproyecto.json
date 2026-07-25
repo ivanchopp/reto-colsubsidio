@@ -1,0 +1,319 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "portafolio",
+  "slug": "revista-multiproyecto",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/1cdf69c6d5.html",
+    "flipbook_id": "1cdf69c6d5",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/1cdf69c6d5e12951de6af1a9403eccadc8e80f41-2.pdf",
+    "num_paginas": 24,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Colsubsidio - Portafolio de Proyectos",
+    "tagline": "Más que espacios de vivienda, creamos proyectos de vida",
+    "tipo": "Apartamentos",
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [
+      "EDGE - Certificación de edificios ecológicos"
+    ],
+    "constructor": "Colsubsidio",
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Múltiples ubicaciones en Bogotá y Cundinamarca",
+    "sector": "Bogotá (Chapinero, San Cristóbal Sur, Centro, Calle 80), Tocancipá, Chía, Ricaurte, Girardot, Soacha",
+    "ciudad": "Bogotá y Cundinamarca",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": null,
+    "pisos_por_torre": "Varía según proyecto (6 a 21 pisos)",
+    "ascensor": true,
+    "apartamentos_totales": null,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "Zarzal",
+      "area_construida_m2": 43.3,
+      "area_privada_m2": 38.51,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "La Macarena",
+      "area_construida_m2": 34.94,
+      "area_privada_m2": 31.33,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Monguí",
+      "area_construida_m2": 45.76,
+      "area_privada_m2": 40.55,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Entrega inmediata"
+    },
+    {
+      "codigo": "Pamplona",
+      "area_construida_m2": 49.95,
+      "area_privada_m2": 45.55,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Versalles",
+      "area_construida_m2": 51.41,
+      "area_privada_m2": 46.31,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Tocancipá - Proyecto 1",
+      "area_construida_m2": 47.0,
+      "area_privada_m2": 42.86,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [
+        "Ascensor",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Tocancipá - Proyecto 2",
+      "area_construida_m2": 48.05,
+      "area_privada_m2": 43.53,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [
+        "Ascensor",
+        "Balcón"
+      ],
+      "estado_entrega": "Entrega inmediata"
+    },
+    {
+      "codigo": "Chapinero",
+      "area_construida_m2": 28.97,
+      "area_privada_m2": 23.71,
+      "alcobas": 1,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [
+        "Apartaestudio"
+      ],
+      "estado_entrega": "Últimas unidades"
+    },
+    {
+      "codigo": "San Cristóbal Sur",
+      "area_construida_m2": 39.96,
+      "area_privada_m2": 35.25,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Centro",
+      "area_construida_m2": 42.03,
+      "area_privada_m2": 36.74,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Girardot",
+      "area_construida_m2": 52.98,
+      "area_privada_m2": 46.98,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Ricaurte - Proyecto 1",
+      "area_construida_m2": 44.0,
+      "area_privada_m2": 38.89,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Ricaurte - Proyecto 2",
+      "area_construida_m2": 52.53,
+      "area_privada_m2": 44.19,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [
+        "Balcón"
+      ],
+      "estado_entrega": "Entrega inmediata"
+    },
+    {
+      "codigo": "Chía",
+      "area_construida_m2": 34.7,
+      "area_privada_m2": 31.77,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Calle 80",
+      "area_construida_m2": 37.13,
+      "area_privada_m2": 33.58,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [
+        "Ascensor",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Bosque de Arrayán - Proyecto 1",
+      "area_construida_m2": 74.0,
+      "area_privada_m2": 68.06,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Bosque de Arrayán - Proyecto 2",
+      "area_construida_m2": 74.0,
+      "area_privada_m2": 68.06,
+      "alcobas": 3,
+      "banos": 2,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Bosque de Turpial - Proyecto 1",
+      "area_construida_m2": 74.0,
+      "area_privada_m2": 68.06,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Bosque de Turpial - Proyecto 2",
+      "area_construida_m2": 77.95,
+      "area_privada_m2": 67.08,
+      "alcobas": null,
+      "banos": null,
+      "ampliable": [],
+      "espacios": [],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Coworking",
+    "Terraza comunal",
+    "Portería con lobby",
+    "Salón social",
+    "Zona fitness",
+    "Salón de juegos",
+    "Lavandería",
+    "Ascensor"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [],
+    "recreacion": [],
+    "supermercados": [],
+    "centros_comerciales": [],
+    "transporte": [
+      "Autopista Central",
+      "Vía Bogotá-Girardot"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Subsidio para Vivienda Nueva",
+      "Subsidio para Construcción en Lote Propio",
+      "Subsidio para Mejoramiento de Vivienda",
+      "Subsidio de Arrendamiento"
+    ],
+    "valor_desde": 149000000.0,
+    "moneda": "COP",
+    "cuota_inicial": "Subsidio facilita acceso a cuota inicial",
+    "credito": "Crédito Hipotecario (hasta 80% del valor de vivienda en UVR o PESOS). Crédito Complementario para completar cuota inicial, gastos de escrituración, acabados y electrodomésticos.",
+    "nota": "Subsidios de hasta $94 millones aplicables. Tasas de crédito especiales para compradores. Financiamiento disponible para vivienda nueva VIS o VIP para afiliados categorías A y B."
+  },
+  "contacto": {
+    "telefono": "601 745 7900 / 018000 947 900 / 314 216 0550",
+    "direccion_sala_ventas": "Múltiples sedes: Calle 30 Sur # 2 - 201 Soacha; Km 22 Autopista Central vía La Caro-Tocancipá; Calle 12 # 2 - 125 Barrio 20 Julio Chía; Km 125 vía Bogotá-Girardot; Carrera 111C # 86-05 Centro Comercial Unicentro de Occidente, local 101",
+    "como_llegar": "Autopista sur sentido sur-norte (Soacha); Al lado de FEMSA Coca-Cola (Tocancipá); Junto al Hotel Bosques (Girardot)",
+    "email": "servicioalcliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": null,
+    "whatsapp": null
+  },
+  "bot": {
+    "resumen": "Colsubsidio ofrece una amplia variedad de proyectos VIS de apartamentos en Bogotá y Cundinamarca (Zarzal, Monguí, Versalles, Tocancipá, Chía, Girardot y más). Contamos con subsidios de vivienda de hasta $94 millones y crédito hipotecario flexible para que cumplas tu sueño de tener hogar, con acompañamiento integral desde preventa hasta posventa.",
+    "perfil_comprador": "Personas que buscan vivienda VIS en áreas estratégicas de Bogotá y región, con ingresos moderados que califiquen para subsidios de vivienda; ideal para familias jóvenes, parejas y profesionales que requieren financiamiento flexible y acompañamiento integral.",
+    "argumentos_venta": [
+      "Subsidios de hasta $94 millones para reducir tu cuota inicial",
+      "Crédito hipotecario flexible hasta 80% del valor de vivienda con tasas especiales",
+      "Múltiples proyectos en ubicaciones estratégicas de Bogotá y Cundinamarca",
+      "Proyectos certificados EDGE con ahorro en servicios públicos hasta 20%",
+      "Acompañamiento permanente en preventa, venta y posventa",
+      "Seguros de hogar y arrendamiento para proteger tu inversión"
+    ],
+    "keywords": [
+      "VIS",
+      "apartamentos",
+      "subsidio vivienda",
+      "Bogotá",
+      "Cundinamarca",
+      "crédito hipotecario",
+      "obra gris",
+      "Tocancipá",
+      "Chía",
+      "Girardot",
+      "Soacha",
+      "financiación vivienda",
+      "Colsubsidio",
+      "EDGE certificado",
+      "2 alcobas",
+      "3 alcobas"
+    ]
+  },
+  "legal": "Los apartamentos se entregan en obra gris. Planos e imágenes son ilustrativos y pueden variar. Las áreas construidas y privadas son aproximadas y podrán modificarse por ajustes técnicos o disposiciones de autoridades. Los valores se determinan por área, ubicación, disponibilidad y política comercial vigente, pudiendo variar; el valor definitivo será el de la promesa de compraventa. Muebles, enseres y acabados no incluidos. Los subsidios aplican conforme a requisitos y condiciones vigentes."
+}

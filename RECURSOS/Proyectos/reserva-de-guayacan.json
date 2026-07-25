@@ -1,0 +1,177 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "reserva-de-guayacan",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/aa430852c2.html",
+    "flipbook_id": "aa430852c2",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/aa430852c2281902b828c27bf027af0655989584.pdf",
+    "num_paginas": 24,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Reserva de Guayacán",
+    "tagline": "Tu nuevo hogar en Girardot te espera",
+    "tipo": null,
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [],
+    "constructor": "Colsubsidio",
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Calle 35A n.° 24-99",
+    "sector": null,
+    "ciudad": "Girardot",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 4,
+    "pisos_por_torre": null,
+    "ascensor": true,
+    "apartamentos_totales": 436,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO A",
+      "area_construida_m2": 52.98,
+      "area_privada_m2": 46.98,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "1 disponible para futuro baño"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Alcoba principal",
+        "Alcoba 2",
+        "Baño",
+        "Zona de ropas",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO B",
+      "area_construida_m2": 43.53,
+      "area_privada_m2": 38.24,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Alcoba principal",
+        "Baño",
+        "Zona de ropas",
+        "Balcón",
+        "Espacio disponible"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO C",
+      "area_construida_m2": 53.41,
+      "area_privada_m2": 47.11,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [
+        "1 disponible baño",
+        "Disponible vestier"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Alcoba principal",
+        "Baño",
+        "Zona de ropas",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Piscinas para adultos y niños",
+    "Parque infantil",
+    "Cancha de voleibol",
+    "Salón social",
+    "Zona BBQ",
+    "Parqueaderos comunales",
+    "Bicicleteros",
+    "Senderos peatonales",
+    "Portería con recepción",
+    "Lobby"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Universidad de Cundinamarca",
+      "Uniminuto",
+      "Institución Educativa Técnica Francisco Manzanera Henríquez",
+      "Seminario Mayor de la Inmaculada Concepción"
+    ],
+    "recreacion": [
+      "Estadio de Girardot"
+    ],
+    "supermercados": [
+      "Olímpica Avenida Nariño",
+      "Tienda Ara",
+      "Éxito Girardot"
+    ],
+    "centros_comerciales": [
+      "C.C. Unicentro"
+    ],
+    "transporte": []
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Colsubsidio"
+    ],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": "Aplican subsidios conforme a los requisitos y condiciones vigentes."
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Kilómetro 125 vía Bogotá-Girardot, junto al hotel Bosques de Colsubsidio",
+    "como_llegar": null,
+    "email": "servicioalcliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Reserva de Guayacán es un proyecto VIS en Girardot con 436 apartamentos en 4 torres con ascensor. Ubicado estratégicamente cerca del estadio, supermercados y universidades, ofrece apartamentos desde 38 m² en obra gris con excelentes amenidades. Como proyecto Colsubsidio, aplica subsidios de vivienda para clientes que cumplan requisitos.",
+    "perfil_comprador": "Personas buscando vivienda económica (VIS) en Girardot con acceso a subsidios de vivienda, trabajadores y familias de ingresos medios-bajos que valoren ubicación estratégica y amenidades comunitarias.",
+    "argumentos_venta": [
+      "Clasificación VIS con acceso a subsidios Colsubsidio",
+      "Excelente ubicación cerca de universidades, estadio y centros comerciales",
+      "4 torres con ascensor y 436 apartamentos disponibles",
+      "Amplias zonas comunes: piscinas, parque infantil, cancha de voleibol, salón social y zona BBQ",
+      "Opciones desde 38 m² con espacios ampliables según necesidad",
+      "Entrega en obra gris permitiendo personalización"
+    ],
+    "keywords": [
+      "Girardot",
+      "Cundinamarca",
+      "VIS",
+      "Subsidio",
+      "2 alcobas",
+      "1 alcoba",
+      "Obra gris",
+      "Piscina",
+      "Parque infantil",
+      "Colsubsidio",
+      "Apartamentos económicos",
+      "Vivienda de interés social"
+    ]
+  },
+  "legal": "Las áreas construidas y privadas son aproximadas y pueden variar por ajustes técnicos, procesos constructivos o disposiciones de autoridad competente. Los apartamentos se entregan en obra gris. Las condiciones definitivas (precio, forma de pago, fecha de escritura y entrega) se establecen en la promesa de compraventa. Aplican subsidios conforme a requisitos y condiciones vigentes."
+}

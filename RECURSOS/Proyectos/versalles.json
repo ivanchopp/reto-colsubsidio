@@ -1,0 +1,204 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "slug": "versalles",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/be784b0d5c.html",
+    "flipbook_id": "be784b0d5c",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/v3/be784b0d5ce02e83deebea0cad55f3a04829ae9c.pdf",
+    "num_paginas": 22,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "VERSALLES",
+    "tagline": "Tu proyecto de vida en Soacha",
+    "tipo": null,
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": 2027,
+    "certificaciones": [
+      "EDGE"
+    ],
+    "constructor": null,
+    "macroproyecto": {
+      "nombre": "Ciudadela Colsubsidio Maiporé",
+      "descripcion": "Una ciudad dentro de la ciudad, donde vivienda, servicios, educación, salud y zonas verdes se integran para que todo esté a pocos minutos de tu hogar. Un entorno planeado para ahorrar tiempo, vivir mejor y construir tu proyecto de vida con mayor tranquilidad y bienestar.",
+      "viviendas": "+16.000",
+      "equipamientos_m2": 249000.0,
+      "parques_zonas_proteccion_m2": 81912.0,
+      "hectareas": 87.0
+    }
+  },
+  "ubicacion": {
+    "direccion": "Calle 30A Sur No. 2-125, Ciudadela Colsubsidio Maiporé",
+    "sector": "Ciudadela Colsubsidio Maiporé",
+    "ciudad": "Soacha",
+    "departamento": null,
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 4,
+    "pisos_por_torre": "10",
+    "ascensor": true,
+    "apartamentos_totales": 560,
+    "porcentaje_zonas_verdes_recreativas": 50.0
+  },
+  "tipologias": [
+    {
+      "codigo": "TIPO A",
+      "area_construida_m2": 56.29,
+      "area_privada_m2": 50.54,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Alcoba 3",
+        "Futuro baño"
+      ],
+      "espacios": [
+        "Alcoba principal",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO B",
+      "area_construida_m2": 51.41,
+      "area_privada_m2": 46.31,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Alcoba 3",
+        "Futuro baño en Alcoba Principal"
+      ],
+      "espacios": [
+        "Alcoba principal",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO C",
+      "area_construida_m2": 45.05,
+      "area_privada_m2": 40.58,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Futuro baño"
+      ],
+      "espacios": [
+        "Alcoba principal",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "TIPO E",
+      "area_construida_m2": 56.29,
+      "area_privada_m2": 50.6,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Alcoba 3",
+        "Futuro baño"
+      ],
+      "espacios": [
+        "Alcoba principal",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Sala comedor"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Portería tipo lobby",
+    "Cancha múltiple",
+    "Ecogym",
+    "Terraza BBQ",
+    "Coworking",
+    "Salón social",
+    "Zonas verdes",
+    "Parque infantil"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Colegio Colsubsidio",
+      "Institución Educativa Santa Ana",
+      "Colegio Nuestra Señora Del Carmen",
+      "Universidad Uniminuto",
+      "Universidad de Cundinamarca"
+    ],
+    "recreacion": [
+      "Bloc Colsubsidio La Casona",
+      "Bloc Colsubsidio Bosa",
+      "Club Deportivo Los Primos",
+      "Parque público de Nemesis",
+      "Polideportivo Lagos de Malibú",
+      "Parroquia San Jose de Soacha"
+    ],
+    "supermercados": [
+      "Tiendas ARA"
+    ],
+    "centros_comerciales": [
+      "Centro comercial Ventura Terreros",
+      "Centro comercial Mercurio",
+      "Centro comercial Gran Plaza",
+      "Centro comercial Unisur"
+    ],
+    "transporte": [
+      "Portal de Transmilenio El Vínculo"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": null,
+    "aplica_subsidio": true,
+    "programas_subsidio": [],
+    "valor_desde": null,
+    "moneda": "SMMLV",
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": "El precio se proyecta con base en el salario mínimo legal vigente estimado para el año de escrituración 2027. El valor de la vivienda será pactado en SMMLV del año en que se escriture."
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Calle 30 Sur # 2 - 201, Soacha",
+    "como_llegar": "Autopista sur, sentido sur-norte, frente a Alfagrés",
+    "email": null,
+    "web": null,
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "VERSALLES es un proyecto de 560 apartamentos en la Ciudadela Colsubsidio Maiporé en Soacha, diseñado para vivir en armonía con la naturaleza con certificación EDGE. Con 4 torres de 10 pisos, ofrece tipologías de 2 alcobas desde 45 m² con amplias zonas verdes (50% del área) y amenities completos. Aplica subsidio de vivienda, con precio en SMMLV estimado para escritura en 2027.",
+    "perfil_comprador": "Familias jóvenes con ingresos bajos o medios que buscan vivienda con subsidio en zona consolidada con servicios, educación y transporte. Personas que desean vivir en un proyecto sustentable con buena comunidad.",
+    "argumentos_venta": [
+      "Ubicación estratégica en Ciudadela Colsubsidio con +16.000 viviendas, servicios y equipamientos integrados a minutos del hogar",
+      "50% del área destinada a zonas verdes y recreativas: parques, cancha múltiple, ecogym, terraza BBQ y parque infantil",
+      "Certificación EDGE: vivienda amigable con el medio ambiente y eficiente en servicios públicos",
+      "Tipologías versátiles de 2 alcobas ampliables a 3, con espacios bien distribuidos desde 45 m²",
+      "Entorno educativo y comercial consolidado: 3 colegios, 2 universidades, centros comerciales y Transmilenio cercanos",
+      "Aplica subsidio de vivienda con precio pactado en SMMLV para año 2027"
+    ],
+    "keywords": [
+      "Soacha",
+      "vivienda",
+      "apartamentos",
+      "2 alcobas",
+      "subsidio",
+      "obra gris",
+      "Ciudadela Colsubsidio",
+      "zonas verdes",
+      "EDGE",
+      "sustentable",
+      "Transmilenio",
+      "familia",
+      "económico"
+    ]
+  },
+  "legal": "Los apartamentos se entregan en obra gris. Las áreas construidas y privadas son aproximadas y pueden variar por ajustes técnicos, procesos constructivos u órdenes de curaduría/alcaldía. Precios, ubicación, disponibilidad y política comercial pueden variar. Las condiciones definitivas se establecerán en la promesa de compraventa. Muebles y acabados en renders no incluyen. Aplica subsidio; el precio se fija en SMMLV del año de escrituración 2027."
+}

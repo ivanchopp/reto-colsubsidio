@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Colsubsidio Vivienda — Asesor Digital</title>
+<link rel="stylesheet" href="/static/style.css?v=4" />
+</head>
+<body>
+
+<header class="sitio-header">
+  <div class="contenedor sitio-header-interior">
+    <img class="logo-wordmark" src="/static/img/logo-wordmark-blanco.png?v=4" alt="Colsubsidio" />
+    <nav class="sitio-nav">
+      <a href="#proyectos">Proyectos</a>
+      <a href="#asesor-panel">Panel de pruebas</a>
+      <button class="btn btn-amarillo" id="btn-abrir-chat-nav">Habla con el asesor</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="contenedor hero-interior">
+      <div class="hero-texto">
+        <span class="etiqueta">Asesor digital de vivienda</span>
+        <h1>Encuentra el proyecto de vivienda que se ajusta a tu vida</h1>
+        <p>
+          Cuéntanos qué buscas y en minutos te ayudamos a identificar el proyecto
+          Colsubsidio ideal para ti, si aplicas a subsidios de vivienda, y te
+          conectamos con un asesor humano para dar el siguiente paso.
+        </p>
+        <button class="btn btn-azul btn-grande" id="btn-abrir-chat-hero">
+          Iniciar conversación
+        </button>
+      </div>
+      <div class="hero-marca" aria-hidden="true">
+        <img src="/static/img/logo-mark.png?v=4" alt="" />
+      </div>
+    </div>
+  </section>
+
+  <section class="proyectos" id="proyectos">
+    <div class="contenedor">
+      <h2>Proyectos de vivienda Colsubsidio</h2>
+      <p class="proyectos-sub">Cargando catálogo…</p>
+      <div class="proyectos-grid" id="proyectos-grid"></div>
+    </div>
+  </section>
+
+  <section class="asesor-panel" id="asesor-panel">
+    <div class="contenedor">
+      <div class="asesor-panel-encabezado">
+        <h2>Panel del asesor comercial</h2>
+        <span class="chip-prueba">Vista de pruebas internas</span>
+      </div>
+      <p class="proyectos-sub">
+        Al finalizar una conversación, este correo se envía automáticamente al asesor —
+        no requiere ninguna acción manual. Termina una conversación en el chat para ver
+        el resultado aquí.
+      </p>
+      <div id="resumen-vacio">Todavía no hay una conversación finalizada.</div>
+      <pre id="resumen-contenido" class="oculto"></pre>
+      <button id="btn-enviar-asesor" class="btn btn-azul oculto">Enviar correo al asesor</button>
+      <div id="estado-envio"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="sitio-footer">
+  <div class="contenedor">
+    <p>Demo del Asesor Digital de Vivienda — Colsubsidio.</p>
+  </div>
+</footer>
+
+<!-- Widget de chat flotante -->
+<button id="btn-chat-flotante" class="chat-flotante-btn" aria-label="Abrir chat con el asesor">
+  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+  </svg>
+</button>
+
+<div id="ventana-chat" class="ventana-chat oculto">
+  <div class="chat-header">
+    <img class="chat-header-avatar" src="/static/img/logo-mark.png?v=4" alt="" />
+    <div class="chat-header-texto">
+      <div class="chat-header-nombre">Asesor Digital de Vivienda</div>
+      <div class="chat-header-estado">en línea</div>
+    </div>
+    <button id="btn-cerrar-chat" class="chat-header-cerrar" aria-label="Cerrar chat">✕</button>
+  </div>
+
+  <div id="pantalla-inicio" class="chat-inicio">
+    <p>Para empezar, cuéntanos tu número de teléfono.</p>
+    <input id="input-telefono" placeholder="Ej: 3143178108" />
+    <button class="btn btn-azul" id="btn-iniciar">Iniciar conversación</button>
+    <p class="ayuda">Prueba con un número real del Excel de usuarios, o uno que no exista para ver el flujo alterno.</p>
+  </div>
+
+  <div id="pantalla-chat" class="chat-cuerpo oculto">
+    <div id="mensajes" class="chat-mensajes"></div>
+    <div class="chat-input-bar">
+      <input id="input-mensaje" placeholder="Escribe un mensaje" />
+      <button id="btn-enviar" aria-label="Enviar">➤</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js?v=4"></script>
+</body>
+</html>

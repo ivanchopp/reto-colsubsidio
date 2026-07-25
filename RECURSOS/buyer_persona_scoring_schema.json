@@ -1,0 +1,80 @@
+{
+    "model_metadata": {
+        "architecture": "Branching Decision Tree",
+        "primary_split_node": "project_segment (VIS / No VIS)",
+        "target_variable": "purchase_probability_score"
+    },
+    "features": {
+        "income_level_smlv": {
+            "type": "numeric",
+            "role": "capacity_ceiling"
+        },
+        "employer_tier": {
+            "type": "categorical",
+            "values": [
+                "Tier 1",
+                "Tier 2",
+                "Tier 3"
+            ],
+            "role": "stability_multiplier"
+        },
+        "has_caja_compensacion": {
+            "type": "boolean",
+            "role": "vis_exclusion_filter"
+        },
+        "family_structure": {
+            "type": "categorical",
+            "values": [
+                "Monoparental Joven",
+                "Nuclear Integrada",
+                "Sin Grupo"
+            ],
+            "role": "interaction_term"
+        },
+        "credit_history_score": {
+            "type": "numeric",
+            "role": "no_vis_exclusion_filter"
+        },
+        "savings_fna_cesantias": {
+            "type": "boolean",
+            "role": "liquidity_indicator"
+        }
+    },
+    "scoring_logic": {
+        "VIS_Segment": {
+            "base_weight_income": 0.4,
+            "rules": [
+                {
+                    "condition": "has_caja_compensacion == false",
+                    "action": "multiply_score",
+                    "value": 0.2
+                },
+                {
+                    "condition": "family_structure == 'Monoparental Joven' AND has_caja_compensacion == true",
+                    "action": "add_score",
+                    "value": 20
+                },
+                {
+                    "condition": "family_structure == 'Monoparental Joven' AND has_caja_compensacion == false",
+                    "action": "subtract_score",
+                    "value": 30
+                }
+            ]
+        },
+        "No_VIS_Segment": {
+            "base_weight_income": 0.7,
+            "rules": [
+                {
+                    "condition": "credit_history_score < threshold",
+                    "action": "set_score",
+                    "value": 0
+                },
+                {
+                    "condition": "has_caja_compensacion == true",
+                    "action": "add_score",
+                    "value": 5
+                }
+            ]
+        }
+    }
+}

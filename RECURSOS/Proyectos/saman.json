@@ -1,0 +1,140 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "saman",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/1daa8c80c5.html",
+    "flipbook_id": "1daa8c80c5",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/1daa8c80c56cffb9b0cdd3882c88831412249af9-3.pdf",
+    "num_paginas": 18,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Samán",
+    "tagline": "Vivir cerca de todo, nuestra ubicación estratégica, tu proyecto de vida",
+    "tipo": "Apartamentos",
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [],
+    "constructor": null,
+    "macroproyecto": null
+  },
+  "ubicacion": {
+    "direccion": "Calle 7.ª n.º 18-108",
+    "sector": null,
+    "ciudad": "Ricaurte",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 2,
+    "pisos_por_torre": "10",
+    "ascensor": true,
+    "apartamentos_totales": 280,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "Tipo A",
+      "area_construida_m2": 52.53,
+      "area_privada_m2": 44.19,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Balcón",
+        "Baño",
+        "Zona de ropas",
+        "Habitación disponible para baño",
+        "Espacio y tercera habitación"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Portería con lobby",
+    "Salón social",
+    "Juegos infantiles",
+    "Zona BBQ",
+    "Senderos peatonales",
+    "Piscinas para adultos y niños",
+    "Gimnasio",
+    "Arenero"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Iglesia Manantial de Vida Eterna, sede Girardot"
+    ],
+    "recreacion": [
+      "Humedal El Yulo",
+      "El puerto y muelle turístico del río Magdalena",
+      "Piscilago",
+      "Club Puerto Peñalisa",
+      "Parque Sacúdete"
+    ],
+    "supermercados": [
+      "Tiendas D1",
+      "Carulla Peñalisa",
+      "Tienda Ara - Peñalisa"
+    ],
+    "centros_comerciales": [
+      "C.C. Peñalisa Plaza"
+    ],
+    "transporte": [
+      "Antonio Ricaurte",
+      "Ricaurte Policía Nacional",
+      "Club Vacacional ETB"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Subsidio Colsubsidio"
+    ],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": "Crédito hipotecario, más el de consumo complementario",
+    "nota": "Un proyecto Colsubsidio. Vigilado Supersubsidio"
+  },
+  "contacto": {
+    "telefono": "314 216 0550",
+    "direccion_sala_ventas": "Kilómetro 125 vía Bogotá-Girardot, junto al hotel Bosques de Colsubsidio",
+    "como_llegar": null,
+    "email": "servicioalcliente@colsubsidio.com",
+    "web": "www.colsubsidio.com",
+    "telefono_e164": "+573142160550",
+    "whatsapp": "https://wa.me/573142160550"
+  },
+  "bot": {
+    "resumen": "Samán es un proyecto de 280 apartamentos VIS ubicado estratégicamente en Ricaurte, Cundinamarca, con acceso a centros comerciales, recreación y servicios. Dirigido a familias que buscan vivienda con subsidio Colsubsidio, entrega en obra gris, acompañamiento permanente en el proceso de compra, y acceso a zonas sociales completas con piscinas, gimnasio y áreas verdes.",
+    "perfil_comprador": "Familias de ingresos medios a bajos que califican para subsidio de vivienda Colsubsidio, buscando apartamentos de 2 alcobas con buena ubicación, servicios cercanos y opciones de financiamiento con apoyo institucional.",
+    "argumentos_venta": [
+      "Clasificación VIS con acceso a subsidio Colsubsidio y apoyo en el proceso de compra",
+      "Ubicación estratégica en Ricaurte con centros comerciales, recreación y servicios de salud a corta distancia",
+      "280 apartamentos distribuidos en 2 torres de 10 pisos con 14 unidades por nivel",
+      "Amenities completos: piscinas, gimnasio, salón social, zona BBQ, juegos infantiles y senderos",
+      "Entrega en obra gris con sugerencia de acabados y mobiliario opcional",
+      "Acompañamiento permanente mediante el Programa de Acompañamiento Social Pertenéser"
+    ],
+    "keywords": [
+      "Ricaurte",
+      "Cundinamarca",
+      "VIS",
+      "subsidio Colsubsidio",
+      "2 alcobas",
+      "apartamentos",
+      "obra gris",
+      "piscina",
+      "gimnasio",
+      "financiamiento vivienda",
+      "subsidio de vivienda",
+      "proyecto de vida"
+    ]
+  },
+  "legal": "Los apartamentos se entregan en obra gris. Los planos y renders son representación digital del diseño y pueden variar respecto al producto final. Los muebles, enseres y acabados utilizados en el modelo son elementos de decoración que no hacen parte del apartamento. Las modificaciones por ajustes técnicos o procesos constructivos pueden ocurrir. El precio es un valor de referencia sujeto a cambios. Aplica subsidio."
+}

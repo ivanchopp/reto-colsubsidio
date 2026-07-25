@@ -1,0 +1,204 @@
+{
+  "_esquema": "brochure-inmobiliario-v2",
+  "_tipo_documento": "proyecto",
+  "slug": "bosque-de-turpial",
+  "fuente": {
+    "flipbook_url": "https://heyzine.com/flip-book/5eec0a2afc.html",
+    "flipbook_id": "5eec0a2afc",
+    "pdf_url": "https://cdnc.heyzine.com/files/uploaded/5eec0a2afc8e6f34dac69258ab26b67724d528ee.pdf",
+    "num_paginas": 20,
+    "extraido_el": "2026-07-24"
+  },
+  "proyecto": {
+    "nombre": "Bosque de Turpial",
+    "tagline": "Ofrece un estilo de vida cómodo y accesible",
+    "tipo": null,
+    "estado_entrega": "Obra gris",
+    "ano_escrituracion_estimado": null,
+    "certificaciones": [
+      "EDGE"
+    ],
+    "constructor": "Colsubsidio",
+    "macroproyecto": {
+      "nombre": "Urbanización San Agustín",
+      "descripcion": null,
+      "viviendas": null,
+      "equipamientos_m2": null,
+      "parques_zonas_proteccion_m2": null,
+      "hectareas": null
+    }
+  },
+  "ubicacion": {
+    "direccion": "Calle 2 n.° 9F-32, Kilómetro 22 autopista central, vía La Caro - Tocancipa, sentido sur - norte",
+    "sector": "Vereda El Vergazo, Anillo Vial El Vergazo",
+    "ciudad": "Tocancipá",
+    "departamento": "Cundinamarca",
+    "pais": "Colombia",
+    "coordenadas": null
+  },
+  "edificacion": {
+    "torres": 9,
+    "pisos_por_torre": "6",
+    "ascensor": true,
+    "apartamentos_totales": 432,
+    "porcentaje_zonas_verdes_recreativas": null
+  },
+  "tipologias": [
+    {
+      "codigo": "Tipo A",
+      "area_construida_m2": 47.0,
+      "area_privada_m2": 42.86,
+      "alcobas": 1,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Tipo B",
+      "area_construida_m2": 57.52,
+      "area_privada_m2": 52.33,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [
+        "Futuro baño"
+      ],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Walking closet",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Tipo C",
+      "area_construida_m2": 57.52,
+      "area_privada_m2": 53.33,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Walking closet",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    },
+    {
+      "codigo": "Tipo D",
+      "area_construida_m2": 57.52,
+      "area_privada_m2": 52.55,
+      "alcobas": 2,
+      "banos": 1,
+      "ampliable": [],
+      "espacios": [
+        "Sala comedor",
+        "Cocina",
+        "Zona de ropas independiente",
+        "Walking closet",
+        "Balcón"
+      ],
+      "estado_entrega": "Obra gris"
+    }
+  ],
+  "amenities": [
+    "Cancha múltiple",
+    "Social living",
+    "Portería con lobby",
+    "Zona BBQ",
+    "Zona kids",
+    "Zonas verdes",
+    "Sabana",
+    "Bicicleteros",
+    "Parqueaderos comunales"
+  ],
+  "lugares_cercanos": {
+    "colegios_universidades": [
+      "Instituto Técnico Industrial"
+    ],
+    "recreacion": [
+      "Parque de los Novios",
+      "Parque Jaime Duque",
+      "Museo Aeroespacial de la Fuerza Aérea Colombiana",
+      "Museo de las Fuerzas Militares",
+      "Autódromo de Tocancipá",
+      "SmartFit",
+      "Bomberos Tocancipá"
+    ],
+    "supermercados": [
+      "D1",
+      "Ara",
+      "Olímpica",
+      "PriceSmart",
+      "Tiendas D1",
+      "Unimercas Tocancipá"
+    ],
+    "centros_comerciales": [
+      "Milán Plaza",
+      "Caminos de Sie"
+    ],
+    "transporte": [
+      "Anillo Vial El Vergazo"
+    ]
+  },
+  "financiacion": {
+    "clasificacion_vivienda": "VIS",
+    "aplica_subsidio": true,
+    "programas_subsidio": [
+      "Subsidio de Caja de Compensación (Colsubsidio)",
+      "Subsidio de Vivienda"
+    ],
+    "valor_desde": null,
+    "moneda": null,
+    "cuota_inicial": null,
+    "credito": null,
+    "nota": "Aplican subsidios conforme a los requisitos y condiciones vigentes"
+  },
+  "contacto": {
+    "telefono": null,
+    "direccion_sala_ventas": "Calle 2 n.° 9F-32, Tocancipá, Cundinamarca",
+    "como_llegar": "Kilómetro 22 autopista central, vía La Caro - Tocancipa, sentido sur - norte. Al lado de FEMSA Coca - Cola.",
+    "email": null,
+    "web": null,
+    "telefono_e164": null,
+    "whatsapp": null
+  },
+  "bot": {
+    "resumen": "Proyecto de vivienda en Tocancipá, Cundinamarca, dentro de la urbanización San Agustín. Ofrece apartamentos de 1 y 2 alcobas con áreas entre 47 y 57 m², entregados en obra gris. Destaca por su certificación EDGE, sostenibilidad y eficiencia, con acceso a subsidios de Colsubsidio y ubicación estratégica cerca de centros comerciales, parques y equipamientos.",
+    "perfil_comprador": "Familias jóvenes, parejas y compradores primerizos que buscan vivienda cómoda en zona accesible con buena infraestructura, orientación hacia sostenibilidad, y opciones de financiamiento con subsidio.",
+    "argumentos_venta": [
+      "Certificación EDGE: vivienda sostenible y eficiente en energía",
+      "Ubicación estratégica: Anillo Vial El Vergazo con acceso rápido a Bogotá, Tunja y Zipaquirá",
+      "Múltiples opciones de tipología: desde 1 alcoba (47 m²) hasta 2 alcobas con walking closet (hasta 57 m²)",
+      "Zonas sociales completas: cancha múltiple, social living, zona BBQ, zona kids y parqueaderos",
+      "Subsidios disponibles: financiamiento a través de programas de Colsubsidio",
+      "Entorno consolidado: cercanía a centros comerciales, parques, museos y equipamientos educativos"
+    ],
+    "keywords": [
+      "Tocancipá",
+      "Cundinamarca",
+      "apartamentos 1 alcoba",
+      "apartamentos 2 alcobas",
+      "obra gris",
+      "subsidio Colsubsidio",
+      "vivienda sostenible",
+      "EDGE",
+      "Anillo Vial",
+      "47 m²",
+      "52 m²",
+      "57 m²",
+      "parqueaderos",
+      "zonas verdes"
+    ]
+  },
+  "legal": "Los apartamentos se entregan en obra gris. Los planos, imágenes y renders son ilustrativos y pueden variar. Las áreas construidas y privadas son aproximadas y pueden modificarse por ajustes técnicos o disposiciones de autoridades. Los valores se determinan según área, ubicación, disponibilidad y política comercial vigente, y pueden variar sin previo aviso. Muebles, enseres y acabados no hacen parte del inmueble. Aplican subsidios conforme a requisitos y condiciones vigentes."
+}
