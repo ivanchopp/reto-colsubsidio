@@ -20,6 +20,13 @@ CREDIT_SCORE_NO_REPORTADO = 750
 
 EMPLOYER_TIER_MULTIPLIER = {"Tier 1": 1.15, "Tier 2": 1.0, "Tier 3": 0.85}
 
+# penalizacion fija (no formula) para leads sin registro en el sistema: no hay
+# como verificar ingreso, estabilidad laboral ni antecedentes en centrales de
+# riesgo, asi que no corren el modelo de reglas real -- se les asigna este
+# score bajo por defecto en vez de dejarlos sin calificar ("SIN DATOS"), para
+# que el asesor los vea como lead de baja confianza y no los pierda de vista.
+SCORE_NO_REGISTRADO = 15.0
+
 
 @dataclass
 class ResultadoScoring:
@@ -189,4 +196,23 @@ def calcular_score(usuario: dict, family_structure: str | None = None) -> Result
         razones=razones,
         peer_stats=peer_stats,
         subsidios_elegibles=subsidios_elegibles,
+    )
+
+
+def calcular_score_no_registrado() -> ResultadoScoring:
+    """Score para leads que no tienen registro en el sistema (numero de
+    telefono no encontrado en la base). No reutiliza calcular_score porque
+    esa formula depende de datos duros -- rango salarial, estado laboral,
+    afiliacion, datacredito -- que un no registrado no tiene; en vez de eso
+    aplica la penalizacion fija SCORE_NO_REGISTRADO, siempre FRIO."""
+    return ResultadoScoring(
+        score=SCORE_NO_REGISTRADO,
+        segmento_lead="FRIO",
+        project_segment="Sin dato (no registrado)",
+        razones=[
+            "Numero no encontrado en el sistema: no hay forma de verificar ingreso, "
+            "estabilidad laboral ni antecedentes en centrales de riesgo.",
+            f"Se asigna una penalizacion fija de {SCORE_NO_REGISTRADO:.0f}/100 (FRIO) hasta "
+            "que se registre o un asesor verifique sus datos manualmente.",
+        ],
     )

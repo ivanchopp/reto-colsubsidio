@@ -184,3 +184,16 @@ def test_menos_de_3_peers_no_aplica_blend_de_peers(make_usuario, monkeypatch):
     # sin peers suficientes, ese peso vuelve a reglas: 0.8*85.5 + 0.2*50.0(vectorial) = 78.4
     assert resultado.score == pytest.approx(78.4)
     assert resultado.peer_stats["total_peers"] == 2
+
+
+# ---------------------------------------------------------------------
+# calcular_score_no_registrado: penalizacion fija para leads sin registro
+# ---------------------------------------------------------------------
+
+def test_calcular_score_no_registrado_es_penalizacion_fija_y_fria():
+    resultado = scoring.calcular_score_no_registrado()
+
+    assert resultado.score == scoring.SCORE_NO_REGISTRADO
+    assert resultado.segmento_lead == "FRIO"
+    assert resultado.subsidios_elegibles == []
+    assert len(resultado.razones) >= 1

@@ -285,6 +285,11 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
         # de verdad en este mismo mensaje, asi que el correo se puede
         # disparar ya (ver main.py)
         sesion.interaccion_cerrada = True
+        # sin registro no se puede correr calcular_score (depende de rango
+        # salarial/estado laboral/afiliacion/datacredito), pero igual se le
+        # asigna un score penalizado fijo para que el correo al asesor no
+        # quede en "SIN DATOS" y el lead no se pierda de vista
+        sesion.resultado_scoring = scoring.calcular_score_no_registrado()
         instruccion = (
             "[INSTRUCCION INTERNA] No tienes datos financieros de este usuario en el sistema. "
             "Agradece la conversacion, explica con calidez que un asesor se pondra en contacto "
