@@ -44,5 +44,9 @@ SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 ASESOR_EMAIL_DESTINO = os.getenv("ASESOR_EMAIL_DESTINO", "")
 
+# Contrasena compartida para entrar al panel del asesor comercial (/asesor).
+# Si queda vacia, ese panel se deshabilita por completo (ver app/auth.py).
+ASESOR_PASSWORD = os.getenv("ASESOR_PASSWORD", "")
+
 # SMLV usado para normalizar ingresos. Ajustar al valor vigente real.
 SMLV_COP = 1_423_500

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Panel del asesor — Colsubsidio Vivienda</title>
+<link rel="stylesheet" href="/static/style.css?v=4" />
+<link rel="stylesheet" href="/static/asesor.css?v=1" />
+</head>
+<body class="pagina-asesor">
+
+<div class="asesor-topbar">
+  <img src="/static/img/logo-wordmark-blanco.png?v=4" alt="Colsubsidio" />
+  <div class="divisor"></div>
+  <div class="titulo">Panel del asesor</div>
+  <div class="fecha" id="fecha-hoy"></div>
+  <button id="btn-cerrar-sesion" class="asesor-btn-cerrar-sesion">Cerrar sesión</button>
+</div>
+
+<div class="asesor-contenido">
+  <div class="asesor-encabezado">
+    <div>
+      <h1>Leads de hoy</h1>
+      <div class="sub" id="resumen-sub">Cargando…</div>
+    </div>
+  </div>
+
+  <div class="asesor-tiles">
+    <div class="asesor-tile total">
+      <div class="num" id="tile-total">—</div>
+      <div class="asesor-etiqueta">Leads hoy</div>
+    </div>
+    <div class="asesor-tile caliente">
+      <div class="num" id="tile-caliente">—</div>
+      <div class="asesor-etiqueta">Caliente</div>
+    </div>
+    <div class="asesor-tile tibio">
+      <div class="num" id="tile-tibio">—</div>
+      <div class="asesor-etiqueta">Tibio</div>
+    </div>
+    <div class="asesor-tile frio">
+      <div class="num" id="tile-frio">—</div>
+      <div class="asesor-etiqueta">Frío</div>
+    </div>
+  </div>
+
+  <div class="asesor-cuerpo">
+    <div class="asesor-panel-caja">
+      <div class="asesor-panel-header">
+        <h2>Conversaciones</h2>
+        <span class="conteo" id="conteo-leads">—</span>
+      </div>
+      <div class="asesor-lista" id="lista-leads">
+        <div class="asesor-vacio">Cargando…</div>
+      </div>
+    </div>
+
+    <div class="asesor-panel-caja">
+      <div class="asesor-detalle-scroll" id="detalle">
+        <div class="asesor-vacio-detalle">Selecciona una conversación de la lista para ver el detalle.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/asesor.js?v=1"></script>
+</body>
+</html>

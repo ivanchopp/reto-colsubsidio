@@ -1,11 +1,15 @@
+import logging
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import conversation, data_store, email_sender, handoff
+from app import auth, conversation, data_store, email_sender, handoff, leads_store
+
+ZONA_BOGOTA = ZoneInfo("America/Bogota")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
@@ -62,6 +66,7 @@ def proyectos():
 @app.post("/api/iniciar")
 def iniciar(req: IniciarRequest):
     sesion, mensaje = conversation.iniciar_sesion(req.telefono)
+    _guardar_lead(sesion)
     return {"session_id": sesion.id, "mensaje": mensaje, "usuario_encontrado": sesion.usuario is not None}
 
 
@@ -72,6 +77,48 @@ def _enviar_correo_asesor(sesion: conversation.Sesion) -> dict:
     if ok:
         sesion.enviado_al_asesor = True
     return {"enviado": ok, "detalle": detalle, "asunto": asunto, "cuerpo": cuerpo}
+
+
+def _lead_payload(sesion: conversation.Sesion) -> dict:
+    """Traduce una Sesion en memoria al shape que espera leads_store.upsert_lead.
+    Vive aqui (no en conversation.py) para que ese modulo siga sin conocer
+    nada de la base de datos -- conversation.py es logica de conversacion
+    pura, la persistencia es un detalle de la capa HTTP."""
+    usuario = sesion.usuario or {}
+    resultado = sesion.resultado_scoring
+    documento = usuario.get("Documento")
+    return {
+        "session_id": sesion.id,
+        "telefono": sesion.telefono,
+        "nombre": usuario.get("Nombre") or sesion.datos_declarados_no_registrado,
+        "ciudad": usuario.get("Ciudad"),
+        "usuario_registrado": sesion.usuario is not None,
+        "documento": int(documento) if documento not in (None, "") else None,
+        "score": resultado.score if resultado else None,
+        "segmento_lead": resultado.segmento_lead if resultado else None,
+        "project_segment": resultado.project_segment if resultado else None,
+        "razones": resultado.razones if resultado else None,
+        "peer_stats": resultado.peer_stats if resultado else None,
+        "subsidios_elegibles": (
+            [{"nombre": s.nombre, "requisito_salarial_texto": s.requisito_salarial_texto}
+             for s in resultado.subsidios_elegibles]
+            if resultado else None
+        ),
+        "contribuciones": resultado.contribuciones if resultado else None,
+        "fase": sesion.fase,
+        "finalizada": sesion.finalizada,
+        "interaccion_cerrada": sesion.interaccion_cerrada,
+        "enviado_al_asesor": sesion.enviado_al_asesor,
+    }
+
+
+def _guardar_lead(sesion: conversation.Sesion) -> None:
+    try:
+        leads_store.upsert_lead(**_lead_payload(sesion))
+    except Exception:
+        # nunca tumbar el chat del usuario final por un problema de
+        # persistencia del panel del asesor (ej. Supabase caido/lento)
+        logging.exception("No se pudo guardar el lead %s en Supabase", sesion.id)
 
 
 @app.post("/api/mensaje")
@@ -89,6 +136,7 @@ def mensaje(req: MensajeRequest):
         # hasta que la interaccion de verdad termine
         envio_asesor = _enviar_correo_asesor(sesion)
 
+    _guardar_lead(sesion)
     return {"mensaje": respuesta, "finalizada": sesion.finalizada, "envio_asesor": envio_asesor}
 
 
@@ -107,6 +155,7 @@ def finalizar(session_id: str, req: FinalizarRequest):
     if sesion.interaccion_cerrada and not sesion.enviado_al_asesor:
         envio_asesor = _enviar_correo_asesor(sesion)
 
+    _guardar_lead(sesion)
     return {"mensaje": respuesta, "finalizada": sesion.finalizada, "envio_asesor": envio_asesor}
 
 
@@ -130,3 +179,108 @@ def enviar_asesor(session_id: str):
     if sesion is None:
         raise HTTPException(404, "Sesion no encontrada")
     return _enviar_correo_asesor(sesion)
+
+
+# ---------------------------------------------------------------------
+# Panel del asesor comercial -- protegido con contrasena compartida
+# (ver app/auth.py). Nada de lo de arriba (chat del cliente) pasa por aqui.
+# ---------------------------------------------------------------------
+
+@app.get("/asesor")
+def asesor_page(_: str = Depends(auth.verificar_asesor)):
+    return FileResponse(STATIC_DIR / "asesor.html")
+
+
+@app.get("/api/asesor/leads/hoy")
+def asesor_leads_hoy(_: str = Depends(auth.verificar_asesor)):
+    leads = leads_store.listar_leads_hoy()
+    return [
+        {
+            "session_id": lead["session_id"],
+            "nombre": lead["nombre"] or "Sin nombre",
+            "telefono": lead["telefono"],
+            "ciudad": lead["ciudad"],
+            "usuario_registrado": lead["usuario_registrado"],
+            "score": lead["score"],
+            "segmento_lead": lead["segmento_lead"],
+            "fase": lead["fase"],
+            "finalizada": lead["finalizada"],
+            "interaccion_cerrada": lead["interaccion_cerrada"],
+            "hora": lead["creado_en"].astimezone(ZONA_BOGOTA).strftime("%H:%M"),
+        }
+        for lead in leads
+    ]
+
+
+@app.get("/api/asesor/leads/{session_id}")
+def asesor_lead_detalle(session_id: str, _: str = Depends(auth.verificar_asesor)):
+    sesion = conversation.obtener_sesion(session_id)
+
+    if sesion is not None:
+        # sesion todavia viva en memoria: es la fuente mas fresca (incluye
+        # el transcript completo, que no se persiste en la base de datos)
+        resultado = sesion.resultado_scoring
+        usuario = sesion.usuario or {}
+        return {
+            "session_id": sesion.id,
+            "telefono": sesion.telefono,
+            "nombre": usuario.get("Nombre") or sesion.datos_declarados_no_registrado or "Sin nombre",
+            "ciudad": usuario.get("Ciudad"),
+            "usuario_registrado": sesion.usuario is not None,
+            "fase": sesion.fase,
+            "finalizada": sesion.finalizada,
+            "interaccion_cerrada": sesion.interaccion_cerrada,
+            "enviado_al_asesor": sesion.enviado_al_asesor,
+            "scoring": (
+                {
+                    "score": resultado.score,
+                    "segmento_lead": resultado.segmento_lead,
+                    "project_segment": resultado.project_segment,
+                    "razones": resultado.razones,
+                    "peer_stats": resultado.peer_stats,
+                    "subsidios_elegibles": [
+                        {"nombre": s.nombre, "requisito_salarial_texto": s.requisito_salarial_texto}
+                        for s in resultado.subsidios_elegibles
+                    ],
+                    "contribuciones": resultado.contribuciones,
+                }
+                if resultado else None
+            ),
+            "chat_disponible": True,
+            "historial": sesion.historial,
+            "chat_mensaje": None,
+        }
+
+    lead = leads_store.obtener_lead(session_id)
+    if lead is None:
+        raise HTTPException(404, "Lead no encontrado")
+
+    return {
+        "session_id": lead["session_id"],
+        "telefono": lead["telefono"],
+        "nombre": lead["nombre"] or "Sin nombre",
+        "ciudad": lead["ciudad"],
+        "usuario_registrado": lead["usuario_registrado"],
+        "fase": lead["fase"],
+        "finalizada": lead["finalizada"],
+        "interaccion_cerrada": lead["interaccion_cerrada"],
+        "enviado_al_asesor": lead["enviado_al_asesor"],
+        "scoring": (
+            {
+                "score": lead["score"],
+                "segmento_lead": lead["segmento_lead"],
+                "project_segment": lead["project_segment"],
+                "razones": lead["razones"],
+                "peer_stats": lead["peer_stats"],
+                "subsidios_elegibles": lead["subsidios_elegibles"],
+                "contribuciones": lead["contribuciones"],
+            }
+            if lead["score"] is not None else None
+        ),
+        "chat_disponible": False,
+        "historial": None,
+        "chat_mensaje": (
+            "El servidor se reinicio o la sesion ya no esta en memoria; "
+            "el transcript de esta conversacion no esta disponible."
+        ),
+    }

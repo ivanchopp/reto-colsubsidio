@@ -1,0 +1,253 @@
+/* Estilos del panel del asesor comercial (/asesor). Reutiliza las
+   variables de marca y los componentes (.btn, .burbuja, etc.) definidos en
+   style.css -- este archivo solo agrega lo que es especifico del dashboard. */
+
+:root {
+  --azul-tinta: #e7f0f8;
+  --panel-fondo: #eef2f6;
+  --texto-tenue: #767b82;
+
+  --caliente: #c43d3d;    --caliente-bg: #fbe8e7;
+  --tibio: #b9791a;       --tibio-bg: #fbf1de;
+  --frio: #3e6e93;        --frio-bg: #e9f1f7;
+  --sindatos: #6b6b6a;    --sindatos-bg: #ececec;
+}
+
+body.pagina-asesor {
+  background: var(--panel-fondo);
+}
+
+.asesor-topbar {
+  background: var(--azul);
+  color: white;
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.asesor-topbar img { height: 24px; display: block; }
+.asesor-topbar .divisor { width: 1px; height: 22px; background: rgba(255, 255, 255, 0.35); }
+.asesor-topbar .titulo { font-size: 15px; font-weight: 600; }
+.asesor-topbar .fecha { margin-left: auto; font-size: 12.5px; opacity: 0.9; }
+.asesor-btn-cerrar-sesion {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+.asesor-btn-cerrar-sesion:hover { opacity: 1; background: rgba(255, 255, 255, 0.12); }
+
+.asesor-contenido {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 26px 28px 60px;
+}
+
+.asesor-encabezado {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.asesor-encabezado h1 { font-size: 21px; margin: 0; font-weight: 700; }
+.asesor-encabezado .sub { color: var(--texto-tenue); font-size: 13px; margin-top: 3px; }
+
+/* --- Tiles de resumen --- */
+.asesor-tiles {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.asesor-tile {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 2px rgba(20, 30, 45, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+.asesor-tile::before {
+  content: "";
+  position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: var(--raya, var(--azul));
+}
+.asesor-tile .num { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.asesor-tile .asesor-etiqueta {
+  font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--texto-tenue); margin-top: 7px;
+}
+.asesor-tile.total { --raya: var(--azul); }
+.asesor-tile.caliente { --raya: var(--caliente); }
+.asesor-tile.tibio { --raya: var(--tibio); }
+.asesor-tile.frio { --raya: var(--frio); }
+.asesor-tile.caliente .num { color: var(--caliente); }
+.asesor-tile.tibio .num { color: var(--tibio); }
+.asesor-tile.frio .num { color: var(--frio); }
+
+/* --- Layout de dos columnas --- */
+.asesor-cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.asesor-panel-caja {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(20, 30, 45, 0.06);
+}
+.asesor-panel-header {
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--borde);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.asesor-panel-header h2 { font-size: 14.5px; margin: 0; font-weight: 700; }
+.asesor-panel-header .conteo { font-size: 12px; color: var(--texto-tenue); }
+
+/* --- Lista de leads --- */
+.asesor-lista { max-height: 640px; overflow-y: auto; }
+.asesor-fila {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 18px; border-bottom: 1px solid var(--borde);
+  cursor: pointer; transition: background 0.12s ease;
+}
+.asesor-fila:last-child { border-bottom: none; }
+.asesor-fila:hover { background: var(--azul-tinta); }
+.asesor-fila.activa { background: var(--azul-tinta); box-shadow: inset 3px 0 0 var(--azul); }
+.asesor-fila .iniciales {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--fondo); border: 1px solid var(--borde);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--grafito); flex-shrink: 0;
+}
+.asesor-fila .info { flex: 1; min-width: 0; }
+.asesor-fila .nombre {
+  font-size: 13.5px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 6px;
+}
+.asesor-fila .meta {
+  font-size: 11.5px; color: var(--texto-tenue); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.asesor-fila .derecha { text-align: right; flex-shrink: 0; }
+.asesor-fila .score { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.asesor-fila .hora { font-size: 11px; color: var(--texto-tenue); margin-top: 2px; }
+
+.asesor-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+  padding: 3px 9px; border-radius: 999px;
+}
+.asesor-pill.caliente { background: var(--caliente-bg); color: var(--caliente); }
+.asesor-pill.tibio { background: var(--tibio-bg); color: var(--tibio); }
+.asesor-pill.frio { background: var(--frio-bg); color: var(--frio); }
+.asesor-pill.sindatos { background: var(--sindatos-bg); color: var(--sindatos); }
+
+.asesor-punto-en-curso {
+  width: 6px; height: 6px; border-radius: 50%; background: #2fa84f; flex-shrink: 0;
+  animation: asesor-pulso-verde 1.8s infinite;
+}
+@keyframes asesor-pulso-verde {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(47, 168, 79, 0.5); }
+  70% { box-shadow: 0 0 0 5px rgba(47, 168, 79, 0); }
+}
+
+.asesor-vacio {
+  padding: 30px 18px; text-align: center; color: var(--texto-tenue); font-size: 13px;
+}
+
+/* --- Panel de detalle --- */
+.asesor-detalle-scroll { padding: 20px 22px 26px; }
+.asesor-detalle-encabezado {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 18px;
+}
+.asesor-detalle-encabezado .quien { display: flex; align-items: center; gap: 12px; }
+.asesor-avatar-grande {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--azul-tinta); color: var(--azul);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; flex-shrink: 0;
+}
+.asesor-detalle-encabezado h3 { margin: 0; font-size: 17px; font-weight: 700; }
+.asesor-detalle-encabezado .telefono { font-size: 12.5px; color: var(--texto-tenue); margin-top: 2px; }
+.asesor-estado-fase {
+  font-size: 11.5px; font-weight: 700; color: var(--texto-tenue);
+  text-transform: uppercase; letter-spacing: 0.03em;
+  display: flex; align-items: center; gap: 6px; margin-top: 6px;
+}
+
+.asesor-seccion-titulo {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--texto-tenue); margin: 26px 0 10px;
+}
+.asesor-seccion-titulo:first-of-type { margin-top: 0; }
+
+/* --- Torta del score --- */
+.asesor-torta-wrap {
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  background: var(--fondo); border: 1px solid var(--borde); border-radius: 12px; padding: 16px;
+}
+.asesor-torta-wrap svg { width: 150px; height: 150px; flex-shrink: 0; }
+.asesor-torta-leyenda { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 200px; }
+.asesor-torta-leyenda li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding: 5px 0; }
+.asesor-torta-leyenda .swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.asesor-torta-leyenda .etiqueta-item { flex: 1; min-width: 0; }
+.asesor-torta-leyenda .valor-item { font-weight: 700; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.asesor-torta-leyenda .pct-item { color: var(--texto-tenue); font-size: 11px; flex-shrink: 0; width: 34px; text-align: right; }
+
+.asesor-sin-score {
+  background: var(--sindatos-bg); color: var(--sindatos);
+  border-radius: 12px; padding: 16px; font-size: 13px; line-height: 1.5;
+}
+
+/* --- Tarjetas de apoyo --- */
+.asesor-tarjetas-apoyo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.asesor-tarjeta-apoyo { border: 1px solid var(--borde); border-radius: 10px; padding: 12px 13px; }
+.asesor-tarjeta-apoyo .titulo-mini {
+  font-size: 11px; font-weight: 700; color: var(--texto-tenue);
+  text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 7px;
+}
+.asesor-tarjeta-apoyo .dato-linea { display: flex; justify-content: space-between; font-size: 12.5px; padding: 3px 0; }
+.asesor-tarjeta-apoyo .dato-linea span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; }
+.asesor-subsidio-item { font-size: 12.5px; padding: 6px 0; border-bottom: 1px dashed var(--borde); }
+.asesor-subsidio-item:last-child { border-bottom: none; }
+.asesor-subsidio-item .nombre-sub { font-weight: 700; }
+.asesor-subsidio-item .req-sub { color: var(--texto-tenue); font-size: 11.5px; }
+
+/* --- Transcript (reutiliza .burbuja de style.css) --- */
+.asesor-chat-transcript {
+  background: var(--fondo); border: 1px solid var(--borde); border-radius: 12px; padding: 14px;
+  display: flex; flex-direction: column; gap: 9px; max-height: 340px; overflow-y: auto;
+}
+.asesor-chat-nota {
+  text-align: center; font-size: 12px; color: var(--texto-tenue); padding: 10px 0 2px;
+}
+.asesor-no-disponible {
+  background: var(--sindatos-bg); color: var(--texto-tenue);
+  border-radius: 10px; padding: 14px; font-size: 12.5px; text-align: center;
+}
+
+.asesor-vacio-detalle {
+  padding: 60px 20px; text-align: center; color: var(--texto-tenue); font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .asesor-tiles { grid-template-columns: repeat(2, 1fr); }
+  .asesor-cuerpo { grid-template-columns: 1fr; }
+  .asesor-tarjetas-apoyo { grid-template-columns: 1fr; }
+}

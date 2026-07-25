@@ -36,6 +36,11 @@ class ResultadoScoring:
     razones: list[str] = field(default_factory=list)
     peer_stats: dict | None = None
     subsidios_elegibles: list = field(default_factory=list)
+    # desglose {etiqueta, valor, peso, categoria} de como el blend final
+    # (reglas/peers/vectorial + bono de subsidios) llego al score -- lo usa
+    # el panel del asesor para el grafico de torta. None cuando el score no
+    # viene de ese blend (ver calcular_score_no_registrado).
+    contribuciones: list[dict] | None = None
 
 
 def _midpoint_rango_salarial(rango: str) -> float:
@@ -169,6 +174,21 @@ def calcular_score(usuario: dict, family_structure: str | None = None) -> Result
 
     score = sum(pesos[k] * senales[k] for k in senales)
 
+    _ETIQUETAS_CONTRIBUCION = {
+        "reglas": "Reglas (ingreso, estabilidad, afiliación)",
+        "peers": "Perfiles similares",
+        "vectorial": "Similitud vectorial",
+    }
+    contribuciones = [
+        {
+            "etiqueta": _ETIQUETAS_CONTRIBUCION[k],
+            "valor": round(pesos[k] * senales[k], 1),
+            "peso": pesos[k],
+            "categoria": k,
+        }
+        for k in senales
+    ]
+
     # bono por subsidios de vivienda a los que aplica: poder aportar un
     # subsidio a la cuota inicial mejora su capacidad real de compra
     from app import subsidios  # import diferido: subsidios.py importa de este modulo
@@ -179,6 +199,9 @@ def calcular_score(usuario: dict, family_structure: str | None = None) -> Result
         score += bono
         nombres = ", ".join(s.nombre for s in subsidios_elegibles)
         razones.append(f"Aplica a {len(subsidios_elegibles)} subsidio(s) de vivienda (+{bono:.0f} pts): {nombres}")
+        contribuciones.append(
+            {"etiqueta": "Bono por subsidios", "valor": round(bono, 1), "peso": None, "categoria": "subsidios"}
+        )
 
     score = max(0.0, min(100.0, score))
 
@@ -196,6 +219,7 @@ def calcular_score(usuario: dict, family_structure: str | None = None) -> Result
         razones=razones,
         peer_stats=peer_stats,
         subsidios_elegibles=subsidios_elegibles,
+        contribuciones=contribuciones,
     )
 
 

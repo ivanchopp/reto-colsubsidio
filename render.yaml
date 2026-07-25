@@ -39,3 +39,5 @@ services:
         sync: false
       - key: SUPABASE_DB_URL
         sync: false
+      - key: ASESOR_PASSWORD
+        sync: false

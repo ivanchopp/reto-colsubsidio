@@ -36,3 +36,34 @@ create table if not exists proyectos (
     slug text primary key,
     data jsonb not null
 );
+
+-- Leads (sesiones de chat) para el panel del asesor comercial. A diferencia
+-- de usuarios/subsidios/proyectos (catalogo estatico que se recarga con
+-- migrar_a_supabase.py), esta tabla la escribe la app en vivo: una fila por
+-- sesion de chat, actualizada varias veces durante la conversacion. Ver
+-- scripts/crear_tabla_leads.py para aplicar esta migracion (puramente
+-- aditiva, nunca hace truncate/delete).
+create table if not exists leads (
+    session_id uuid primary key,
+    telefono text not null,
+    nombre text,
+    ciudad text,
+    usuario_registrado boolean not null default false,
+    documento bigint,
+    score numeric(5,1),
+    segmento_lead text,            -- CALIENTE / TIBIO / FRIO
+    project_segment text,          -- VIS / No VIS / "Sin dato (no registrado)"
+    razones jsonb,
+    peer_stats jsonb,
+    subsidios_elegibles jsonb,
+    contribuciones jsonb,          -- desglose {etiqueta, valor, peso, categoria} para el grafico de torta
+    fase text not null,
+    finalizada boolean not null default false,
+    interaccion_cerrada boolean not null default false,
+    enviado_al_asesor boolean not null default false,
+    creado_en timestamptz not null default now(),
+    actualizado_en timestamptz not null default now()
+);
+
+create index if not exists idx_leads_creado_en on leads (creado_en desc);
+create index if not exists idx_leads_telefono on leads (telefono);
