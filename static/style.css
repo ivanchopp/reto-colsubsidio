@@ -267,8 +267,14 @@ a { color: var(--azul); }
   padding: 5px;
   object-fit: contain;
 }
-.chat-header-texto { flex: 1; }
-.chat-header-nombre { font-weight: 600; font-size: 14.5px; }
+.chat-header-texto { flex: 1; min-width: 0; }
+.chat-header-nombre {
+  font-weight: 600;
+  font-size: 14.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .chat-header-estado { font-size: 12px; opacity: 0.85; }
 .chat-header-cerrar {
   background: none;
@@ -280,6 +286,19 @@ a { color: var(--azul); }
   padding: 4px;
 }
 .chat-header-cerrar:hover { opacity: 1; }
+.chat-header-finalizar {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.6);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+.chat-header-finalizar:hover { opacity: 1; background: rgba(255,255,255,0.12); }
 
 .chat-inicio {
   padding: 22px;
@@ -383,6 +402,27 @@ a { color: var(--azul); }
   flex-shrink: 0;
 }
 .chat-input-bar button:hover { background: var(--azul-oscuro); }
+.chat-input-bar input:disabled, .chat-input-bar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chat-finalizado-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  background: white;
+  border-top: 1px solid var(--borde);
+  font-size: 13px;
+  color: var(--grafito);
+}
+.chat-finalizado-barra .btn {
+  padding: 8px 14px;
+  font-size: 13px;
+  white-space: nowrap;
+}
 
 .oculto { display: none !important; }
 
@@ -394,11 +434,21 @@ a { color: var(--azul); }
   .sitio-nav { gap: 12px; }
   .sitio-nav a { display: none; }
   .ventana-chat {
-    right: 12px;
-    left: 12px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: auto;
-    bottom: 90px;
-    height: 70vh;
+    max-height: none;
+    border-radius: 0;
+    /* pantalla completa en movil: si se usara una caja flotante con bottom
+       fijo + vh, el teclado en pantalla la desalinea (el header y el boton
+       de cerrar quedan tapados/fuera de la vista al escribir). 100dvh se
+       ajusta al viewport visible cuando el teclado esta abierto; el 100vh
+       de respaldo es para navegadores que no soportan dvh (la declaracion
+       invalida se ignora, no pisa la anterior). */
+    height: 100vh;
+    height: 100dvh;
   }
   .chat-flotante-btn { right: 18px; bottom: 18px; }
 }

@@ -87,6 +87,7 @@
       <div class="chat-header-nombre">Asesor Digital de Vivienda</div>
       <div class="chat-header-estado">en línea</div>
     </div>
+    <button id="btn-finalizar-chat" class="chat-header-finalizar oculto">Finalizar</button>
     <button id="btn-cerrar-chat" class="chat-header-cerrar" aria-label="Cerrar chat">✕</button>
   </div>
 
@@ -99,9 +100,13 @@
 
   <div id="pantalla-chat" class="chat-cuerpo oculto">
     <div id="mensajes" class="chat-mensajes"></div>
-    <div class="chat-input-bar">
+    <div id="barra-chat-input" class="chat-input-bar">
       <input id="input-mensaje" placeholder="Escribe un mensaje" />
       <button id="btn-enviar" aria-label="Enviar">➤</button>
+    </div>
+    <div id="barra-chat-finalizado" class="chat-finalizado-barra oculto">
+      <span>La conversación ha finalizado.</span>
+      <button id="btn-nueva-conversacion" class="btn btn-azul">Iniciar nueva conversación</button>
     </div>
   </div>
 </div>

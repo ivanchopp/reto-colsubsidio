@@ -23,6 +23,10 @@ class MensajeRequest(BaseModel):
     texto: str
 
 
+class FinalizarRequest(BaseModel):
+    motivo: str = "manual"
+
+
 @app.get("/")
 def index():
     return FileResponse(STATIC_DIR / "index.html")
@@ -69,6 +73,24 @@ def mensaje(req: MensajeRequest):
     if sesion.finalizada and not sesion.enviado_al_asesor:
         # la conversacion acaba de cerrar: se notifica al asesor automaticamente,
         # sin esperar un clic manual
+        envio_asesor = _enviar_correo_asesor(sesion)
+
+    return {"mensaje": respuesta, "finalizada": sesion.finalizada, "envio_asesor": envio_asesor}
+
+
+@app.post("/api/finalizar/{session_id}")
+def finalizar(session_id: str, req: FinalizarRequest):
+    """Cierre explicito de la conversacion: boton 'Finalizar' en el chat o
+    inactividad de 5 minutos del lado del cliente (ver static/app.js).
+    Reusa el mismo mecanismo de envio automatico de correo al asesor que el
+    cierre natural en /api/mensaje."""
+    sesion = conversation.obtener_sesion(session_id)
+    if sesion is None:
+        raise HTTPException(404, "Sesion no encontrada")
+    respuesta = conversation.finalizar_sesion(sesion, req.motivo)
+
+    envio_asesor = None
+    if sesion.finalizada and not sesion.enviado_al_asesor:
         envio_asesor = _enviar_correo_asesor(sesion)
 
     return {"mensaje": respuesta, "finalizada": sesion.finalizada, "envio_asesor": envio_asesor}

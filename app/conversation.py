@@ -189,6 +189,34 @@ def procesar_mensaje(sesion: Sesion, texto_usuario: str) -> str:
     return "Disculpa, ¿me lo puedes repetir?"
 
 
+def finalizar_sesion(sesion: Sesion, motivo: str = "manual") -> str:
+    """Cierra la conversacion a peticion explicita: boton 'Finalizar' del
+    usuario o inactividad de 5 min (ver /api/finalizar en main.py). Es
+    independiente del cierre natural que ocurre al llegar a una recomendacion
+    (_pasar_a_recomendacion). Idempotente: si ya estaba finalizada no genera
+    un nuevo mensaje de despedida, solo repite el ultimo."""
+    if sesion.finalizada:
+        return sesion.historial[-1]["content"] if sesion.historial else ""
+
+    if motivo == "inactividad":
+        instruccion = (
+            "[INSTRUCCION INTERNA] La conversacion se esta cerrando automaticamente porque "
+            "el usuario no respondio en varios minutos. Despidete de forma breve y calida, "
+            "sin sonar brusco, dejando claro que puede escribir de nuevo cuando quiera retomar."
+        )
+    else:
+        instruccion = (
+            "[INSTRUCCION INTERNA] El usuario decidio finalizar la conversacion voluntariamente "
+            "desde el chat. Agradece su tiempo y despidete de forma breve y calida."
+        )
+
+    respuesta = llm_client.generar_respuesta(construir_system_prompt(), sesion.historial, instruccion)
+    sesion.historial.append({"role": "assistant", "content": respuesta})
+    sesion.fase = "cierre"
+    sesion.finalizada = True
+    return respuesta
+
+
 def _describir_proyecto_para_llm(proyecto: dict) -> str:
     """Arma la ficha de datos verificados del proyecto que se le pasa al LLM.
     Si el proyecto viene de un brochure real (RECURSOS/PROYECTOS/*.json) se

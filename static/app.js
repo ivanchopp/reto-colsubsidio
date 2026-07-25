@@ -1,16 +1,28 @@
 let sessionId = null;
+let sesionFinalizada = false;
+let timerAvisoInactividad = null;
+let timerCierreInactividad = null;
 
 const pantallaInicio = document.getElementById("pantalla-inicio");
 const pantallaChat = document.getElementById("pantalla-chat");
 const mensajesDiv = document.getElementById("mensajes");
 const inputTelefono = document.getElementById("input-telefono");
 const inputMensaje = document.getElementById("input-mensaje");
+const btnEnviarMensaje = document.getElementById("btn-enviar");
 const resumenVacio = document.getElementById("resumen-vacio");
 const resumenContenido = document.getElementById("resumen-contenido");
 const btnEnviarAsesor = document.getElementById("btn-enviar-asesor");
 const estadoEnvio = document.getElementById("estado-envio");
+const btnFinalizarChat = document.getElementById("btn-finalizar-chat");
+const barraChatInput = document.getElementById("barra-chat-input");
+const barraChatFinalizado = document.getElementById("barra-chat-finalizado");
+const btnNuevaConversacion = document.getElementById("btn-nueva-conversacion");
 
-const RETARDO_RESPUESTA_MS = 3000;
+const RETARDO_MINIMO_MS = 700;
+const AVISO_INACTIVIDAD_MS = 4 * 60 * 1000;
+const CIERRE_INACTIVIDAD_MS = 5 * 60 * 1000;
+const MENSAJE_AVISO_INACTIVIDAD =
+  "¿Sigues ahí? Si no recibo respuesta en un minuto voy a cerrar esta conversación por inactividad.";
 
 function agregarBurbuja(texto, quien) {
   const div = document.createElement("div");
@@ -37,43 +49,61 @@ function esperar(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function agregarBurbujaBotConRetardo(texto) {
+// Muestra la burbuja de "escribiendo" DESDE que arranca la peticion (no
+// despues de que ya llego la respuesta), para que la espera real del LLM
+// tenga retroalimentacion visible. Si la respuesta llega muy rapido, se
+// completa un minimo de RETARDO_MINIMO_MS para que la animacion no parpadee;
+// si tarda mas (ej. el turno de recomendacion, que arma un prompt mas largo),
+// el usuario ve "escribiendo..." durante toda la espera real, sin sumarle
+// un retardo artificial encima.
+async function pedirConIndicadorEscribiendo(peticion) {
   mostrarEscribiendo();
-  await esperar(RETARDO_RESPUESTA_MS);
+  const inicio = Date.now();
+  const data = await peticion();
+  const transcurrido = Date.now() - inicio;
+  if (transcurrido < RETARDO_MINIMO_MS) {
+    await esperar(RETARDO_MINIMO_MS - transcurrido);
+  }
   ocultarEscribiendo();
-  agregarBurbuja(texto, "bot");
+  return data;
 }
 
 async function iniciar() {
   const telefono = inputTelefono.value.trim();
   if (!telefono) return;
 
-  const resp = await fetch("/api/iniciar", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ telefono }),
-  });
-  const data = await resp.json();
-  sessionId = data.session_id;
-
   pantallaInicio.classList.add("oculto");
   pantallaChat.classList.remove("oculto");
-  await agregarBurbujaBotConRetardo(data.mensaje);
+  btnFinalizarChat.classList.remove("oculto");
+
+  const data = await pedirConIndicadorEscribiendo(() =>
+    fetch("/api/iniciar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ telefono }),
+    }).then((r) => r.json())
+  );
+  sessionId = data.session_id;
+  sesionFinalizada = false;
+  agregarBurbuja(data.mensaje, "bot");
+  reiniciarTemporizadorInactividad();
 }
 
 async function enviarMensaje() {
   const texto = inputMensaje.value.trim();
-  if (!texto || !sessionId) return;
+  if (!texto || !sessionId || sesionFinalizada) return;
   inputMensaje.value = "";
   agregarBurbuja(texto, "user");
+  reiniciarTemporizadorInactividad();
 
-  const resp = await fetch("/api/mensaje", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ session_id: sessionId, texto }),
-  });
-  const data = await resp.json();
-  await agregarBurbujaBotConRetardo(data.mensaje);
+  const data = await pedirConIndicadorEscribiendo(() =>
+    fetch("/api/mensaje", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, texto }),
+    }).then((r) => r.json())
+  );
+  agregarBurbuja(data.mensaje, "bot");
 
   if (data.finalizada) {
     await cargarResumen();
@@ -81,6 +111,67 @@ async function enviarMensaje() {
       mostrarEstadoEnvio(data.envio_asesor);
     }
   }
+}
+
+// ---------- Finalizar conversacion (boton manual o inactividad) ----------
+function limpiarTemporizadoresInactividad() {
+  clearTimeout(timerAvisoInactividad);
+  clearTimeout(timerCierreInactividad);
+}
+
+function reiniciarTemporizadorInactividad() {
+  limpiarTemporizadoresInactividad();
+  if (sesionFinalizada || !sessionId) return;
+  timerAvisoInactividad = setTimeout(() => {
+    agregarBurbuja(MENSAJE_AVISO_INACTIVIDAD, "bot");
+  }, AVISO_INACTIVIDAD_MS);
+  timerCierreInactividad = setTimeout(() => {
+    finalizarConversacion("inactividad");
+  }, CIERRE_INACTIVIDAD_MS);
+}
+
+async function finalizarConversacion(motivo) {
+  if (sesionFinalizada || !sessionId) return;
+  sesionFinalizada = true;
+  limpiarTemporizadoresInactividad();
+
+  const data = await pedirConIndicadorEscribiendo(() =>
+    fetch(`/api/finalizar/${sessionId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ motivo }),
+    }).then((r) => r.json())
+  );
+  agregarBurbuja(data.mensaje, "bot");
+  bloquearChat();
+  await cargarResumen();
+  if (data.envio_asesor) {
+    mostrarEstadoEnvio(data.envio_asesor);
+  }
+}
+
+function bloquearChat() {
+  inputMensaje.disabled = true;
+  btnEnviarMensaje.disabled = true;
+  btnFinalizarChat.classList.add("oculto");
+  barraChatInput.classList.add("oculto");
+  barraChatFinalizado.classList.remove("oculto");
+}
+
+function reiniciarChatCompleto() {
+  limpiarTemporizadoresInactividad();
+  sesionFinalizada = false;
+  sessionId = null;
+  mensajesDiv.innerHTML = "";
+  inputTelefono.value = "";
+  inputMensaje.disabled = false;
+  btnEnviarMensaje.disabled = false;
+  barraChatInput.classList.remove("oculto");
+  barraChatFinalizado.classList.add("oculto");
+  btnFinalizarChat.classList.add("oculto");
+  pantallaChat.classList.add("oculto");
+  pantallaInicio.classList.remove("oculto");
+  inputTelefono.focus();
 }
 
 function mostrarEstadoEnvio({ enviado, detalle }) {
@@ -113,6 +204,8 @@ document.getElementById("btn-enviar").addEventListener("click", enviarMensaje);
 inputMensaje.addEventListener("keydown", (e) => { if (e.key === "Enter") enviarMensaje(); });
 inputTelefono.addEventListener("keydown", (e) => { if (e.key === "Enter") iniciar(); });
 btnEnviarAsesor.addEventListener("click", enviarAAsesor);
+btnFinalizarChat.addEventListener("click", () => finalizarConversacion("manual"));
+btnNuevaConversacion.addEventListener("click", reiniciarChatCompleto);
 
 // ---------- Widget de chat flotante ----------
 const ventanaChat = document.getElementById("ventana-chat");
