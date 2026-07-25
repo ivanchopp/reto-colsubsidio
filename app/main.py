@@ -14,6 +14,17 @@ app = FastAPI(title="Asesor Digital de Vivienda Colsubsidio - Demo")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
+@app.middleware("http")
+async def no_cache(request, call_next):
+    """Sin esto, algunos navegadores (sobre todo moviles, que "congelan" la
+    pestana en vez de recargarla) siguen mostrando index.html/app.js/style.css
+    viejos despues de un deploy nuevo, aunque el servidor ya tenga el cambio.
+    no-cache obliga a revalidar con el servidor (ETag) en cada carga."""
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 class IniciarRequest(BaseModel):
     telefono: str
 
