@@ -77,6 +77,7 @@ class Sesion:
     recomendacion: recommender.Recomendacion | None = None
     finalizada: bool = False
     enviado_al_asesor: bool = False
+    datos_declarados_no_registrado: str | None = None
 
 
 _SESIONES: dict[str, Sesion] = {}
@@ -128,6 +129,10 @@ def procesar_mensaje(sesion: Sesion, texto_usuario: str) -> str:
     sesion.historial.append({"role": "user", "content": texto_usuario})
 
     if sesion.fase == "captura_basica":
+        # se guarda tal cual (sin parsear nombre/ciudad por separado) para no
+        # arriesgar una extraccion equivocada; el asesor lo lee como texto
+        # libre en el correo de handoff (ver handoff.formatear_email)
+        sesion.datos_declarados_no_registrado = texto_usuario.strip()
         instruccion = (
             f"[INSTRUCCION INTERNA] El usuario respondio: '{texto_usuario}'. "
             "Agradece y continua con la primera pregunta aspiracional: "
@@ -229,6 +234,13 @@ def _describir_proyecto_para_llm(proyecto: dict) -> str:
             for t in tipologias
         ) or "sin detalle de tipologias"
         argumentos = "; ".join(proyecto.get("argumentos_venta", [])) or "sin argumentos registrados"
+        brochure_url = proyecto.get("brochure_url", "")
+        nota_brochure = (
+            f"Brochure digital del proyecto (link real, compartelo tal cual, sin modificarlo ni "
+            f"inventar otro): {brochure_url} -- al final de tu mensaje, invita al usuario con una "
+            "frase natural a revisarlo si quiere conocer mas del proyecto, e incluye el link."
+            if brochure_url else ""
+        )
         return (
             f"Proyecto sugerido: {proyecto['nombre_proyecto']} en {proyecto['ciudad']} "
             f"(segmento {proyecto['segmento_poblacional']}, estado: {proyecto.get('etapa_actual', 'sin dato')}). "
@@ -239,7 +251,7 @@ def _describir_proyecto_para_llm(proyecto: dict) -> str:
             f"Argumentos de venta verificados (elige los 2-3 mas relevantes para este usuario, no los repitas todos): {argumentos}. "
             f"Sobre el precio: {proyecto.get('nota_financiacion') or 'no se tiene un valor fijo en pesos, se pacta en salarios minimos al momento de escriturar'}. "
             "Si el usuario pregunta por un precio exacto en pesos, dile con honestidad que el asesor "
-            "se lo confirma, sin inventar una cifra."
+            f"se lo confirma, sin inventar una cifra. {nota_brochure}"
         )
 
     precio = proyecto.get("precio_promedio_millones_cop")
@@ -259,7 +271,10 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
         instruccion = (
             "[INSTRUCCION INTERNA] No tienes datos financieros de este usuario en el sistema. "
             "Agradece la conversacion, explica con calidez que un asesor se pondra en contacto "
-            "para continuar el proceso, y despidete."
+            "para continuar el proceso. Ademas, invitalo (de forma calida, sin sonar a venta "
+            "agresiva) a registrarse como afiliado de Colsubsidio para que pueda disfrutar de "
+            "todos los beneficios de pertenecer a Colsubsidio, y comparte este link para hacerlo: "
+            "https://www.colsubsidio.com/afiliaciones -- luego despidete."
         )
         respuesta = llm_client.generar_respuesta(construir_system_prompt(), sesion.historial, instruccion)
         sesion.historial.append({"role": "assistant", "content": respuesta})

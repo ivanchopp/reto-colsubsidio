@@ -100,6 +100,7 @@ def _normalizar_proyecto_real(brochure: dict) -> dict:
         "resumen": bot_info.get("resumen", ""),
         "perfil_comprador": bot_info.get("perfil_comprador", ""),
         "argumentos_venta": bot_info.get("argumentos_venta", []),
+        "brochure_url": brochure.get("fuente", {}).get("flipbook_url", ""),
     }
 
 

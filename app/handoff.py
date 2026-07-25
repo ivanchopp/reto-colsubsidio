@@ -27,6 +27,8 @@ def construir_resumen(sesion: Sesion) -> dict:
             "ciudad": usuario.get("Ciudad", ""),
             "afiliado_colsubsidio": usuario.get("Afiliado a colsubsidio", ""),
         },
+        "usuario_registrado": sesion.usuario is not None,
+        "datos_declarados_no_registrado": sesion.datos_declarados_no_registrado,
         "proyecto_recomendado": (
             {
                 "nombre": recomendacion.proyecto["nombre_proyecto"],
@@ -66,14 +68,13 @@ def formatear_email(resumen: dict) -> tuple[str, str]:
     proyecto = resumen["proyecto_recomendado"]
     prob = resumen["probabilidad_compra"]
     subsidios = resumen["subsidios_aplicables"]
+    registrado = resumen.get("usuario_registrado", True)
+    datos_declarados = resumen.get("datos_declarados_no_registrado")
 
     segmento_lead = prob["segmento_lead"] if prob else "SIN DATOS"
-    asunto = f"Nuevo lead {segmento_lead}: {u['nombre']}"
+    nombre_asunto = u["nombre"] if registrado or not datos_declarados else datos_declarados
+    asunto = f"Nuevo lead {segmento_lead}: {nombre_asunto}"
 
-    afiliado_txt = (
-        "esta afiliado a Colsubsidio" if str(u["afiliado_colsubsidio"]).strip().lower() == "si"
-        else "no esta afiliado a Colsubsidio todavia"
-    )
     contacto_partes = [p for p in [u["telefono"], u["correo"]] if p]
     contacto_txt = " o ".join(str(p) for p in contacto_partes) or "sin datos de contacto"
 
@@ -82,9 +83,24 @@ def formatear_email(resumen: dict) -> tuple[str, str]:
         "",
         f"Te comparto un lead que acaba de terminar su conversacion con el Asesor Digital de Vivienda.",
         "",
-        f"{u['nombre']} ({u['documento']}) vive en {u['ciudad']} y {afiliado_txt}. "
-        f"Se puede contactar al {contacto_txt}.",
     ]
+
+    if registrado:
+        afiliado_txt = (
+            "esta afiliado a Colsubsidio" if str(u["afiliado_colsubsidio"]).strip().lower() == "si"
+            else "no esta afiliado a Colsubsidio todavia"
+        )
+        parrafos.append(
+            f"{u['nombre']} ({u['documento']}) vive en {u['ciudad']} y {afiliado_txt}. "
+            f"Se puede contactar al {contacto_txt}."
+        )
+    else:
+        parrafos.append(
+            "Este contacto todavia no esta registrado en el sistema de Colsubsidio. "
+            f"Se puede contactar al {contacto_txt}."
+        )
+        if datos_declarados:
+            parrafos.append(f"Al iniciar la conversacion, comento: \"{datos_declarados}\".")
 
     if resumen.get("dato_interesante"):
         parrafos.append("")

@@ -53,6 +53,7 @@ def proyectos():
             "segmento": p["segmento_poblacional"],
             "categoria": p.get("categoria_dominante", ""),
             "amenities": p.get("amenities", [])[:4],
+            "brochure_url": p.get("brochure_url", ""),
         }
         for p in catalogo
     ]

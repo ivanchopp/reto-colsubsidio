@@ -1,5 +1,7 @@
 let sessionId = null;
 let sesionFinalizada = false;
+let usuarioEncontrado = true;
+let esperandoRespuesta = false;
 let timerAvisoInactividad = null;
 let timerCierreInactividad = null;
 
@@ -19,8 +21,8 @@ const barraChatFinalizado = document.getElementById("barra-chat-finalizado");
 const btnNuevaConversacion = document.getElementById("btn-nueva-conversacion");
 
 const RETARDO_MINIMO_MS = 700;
-const AVISO_INACTIVIDAD_MS = 4 * 60 * 1000;
-const CIERRE_INACTIVIDAD_MS = 5 * 60 * 1000;
+const AVISO_INACTIVIDAD_MS = 2 * 60 * 1000;
+const CIERRE_INACTIVIDAD_MS = 3 * 60 * 1000;
 const MENSAJE_AVISO_INACTIVIDAD =
   "¿Sigues ahí? Si no recibo respuesta en un minuto voy a cerrar esta conversación por inactividad.";
 
@@ -55,8 +57,12 @@ function esperar(ms) {
 // completa un minimo de RETARDO_MINIMO_MS para que la animacion no parpadee;
 // si tarda mas (ej. el turno de recomendacion, que arma un prompt mas largo),
 // el usuario ve "escribiendo..." durante toda la espera real, sin sumarle
-// un retardo artificial encima.
+// un retardo artificial encima. Mientras tanto, el input queda bloqueado
+// para que no se puedan mandar mensajes mientras el agente "esta pensando".
 async function pedirConIndicadorEscribiendo(peticion) {
+  esperandoRespuesta = true;
+  inputMensaje.disabled = true;
+  btnEnviarMensaje.disabled = true;
   mostrarEscribiendo();
   const inicio = Date.now();
   const data = await peticion();
@@ -65,6 +71,11 @@ async function pedirConIndicadorEscribiendo(peticion) {
     await esperar(RETARDO_MINIMO_MS - transcurrido);
   }
   ocultarEscribiendo();
+  esperandoRespuesta = false;
+  if (!sesionFinalizada) {
+    inputMensaje.disabled = false;
+    btnEnviarMensaje.disabled = false;
+  }
   return data;
 }
 
@@ -85,13 +96,14 @@ async function iniciar() {
   );
   sessionId = data.session_id;
   sesionFinalizada = false;
+  usuarioEncontrado = data.usuario_encontrado;
   agregarBurbuja(data.mensaje, "bot");
   reiniciarTemporizadorInactividad();
 }
 
 async function enviarMensaje() {
   const texto = inputMensaje.value.trim();
-  if (!texto || !sessionId || sesionFinalizada) return;
+  if (!texto || !sessionId || sesionFinalizada || esperandoRespuesta) return;
   inputMensaje.value = "";
   agregarBurbuja(texto, "user");
   reiniciarTemporizadorInactividad();
@@ -106,6 +118,16 @@ async function enviarMensaje() {
   agregarBurbuja(data.mensaje, "bot");
 
   if (data.finalizada) {
+    if (!usuarioEncontrado) {
+      // no se encontraron datos del usuario: el mensaje que se acaba de
+      // mostrar ya es la despedida (no hay recomendacion ni fue el usuario
+      // quien pidio cerrar), asi que se cierra de inmediato en vez de
+      // esperar los 5 min de inactividad -- esa espera solo aplica a los
+      // mensajes previos a la despedida.
+      sesionFinalizada = true;
+      limpiarTemporizadoresInactividad();
+      bloquearChat();
+    }
     await cargarResumen();
     if (data.envio_asesor) {
       mostrarEstadoEnvio(data.envio_asesor);
@@ -161,6 +183,7 @@ function bloquearChat() {
 function reiniciarChatCompleto() {
   limpiarTemporizadoresInactividad();
   sesionFinalizada = false;
+  usuarioEncontrado = true;
   sessionId = null;
   mensajesDiv.innerHTML = "";
   inputTelefono.value = "";
@@ -243,6 +266,11 @@ async function cargarProyectos() {
           <h3>${p.nombre}</h3>
           <div class="ciudad">${p.ciudad} · ${p.categoria}</div>
           <ul class="amenities">${p.amenities.map((a) => `<li>${a}</li>`).join("")}</ul>
+          ${
+            p.brochure_url
+              ? `<a class="brochure-link" href="${p.brochure_url}" target="_blank" rel="noopener noreferrer">Ver brochure digital →</a>`
+              : ""
+          }
         </article>`
       )
       .join("");
