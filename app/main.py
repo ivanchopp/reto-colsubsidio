@@ -7,7 +7,10 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import auth, conversation, data_store, email_sender, handoff, leads_store
+from app import (
+    auth, conversation, data_store, email_sender, extraccion, handoff,
+    leads_store, nutricion, scoring,
+)
 
 ZONA_BOGOTA = ZoneInfo("America/Bogota")
 
@@ -31,6 +34,9 @@ async def no_cache(request, call_next):
 
 class IniciarRequest(BaseModel):
     telefono: str
+    # canal de entrada del lead; el frontend lo toma del parametro ?origen=
+    # de la URL de la pauta. Se normaliza en leads_store.normalizar_origen.
+    origen: str | None = None
 
 
 class MensajeRequest(BaseModel):
@@ -65,7 +71,9 @@ def proyectos():
 
 @app.post("/api/iniciar")
 def iniciar(req: IniciarRequest):
-    sesion, mensaje = conversation.iniciar_sesion(req.telefono)
+    sesion, mensaje = conversation.iniciar_sesion(
+        req.telefono, leads_store.normalizar_origen(req.origen)
+    )
     _guardar_lead(sesion)
     return {"session_id": sesion.id, "mensaje": mensaje, "usuario_encontrado": sesion.usuario is not None}
 
@@ -97,6 +105,11 @@ def estado_sesion(session_id: str):
         "finalizada": sesion.finalizada,
         "interaccion_cerrada": sesion.interaccion_cerrada,
         "recomendacion": recomendacion,
+        # lo que la charla aporto al perfil. Se expone el conteo y las lineas
+        # legibles, nunca el score ni el segmento: el usuario no debe ver su
+        # calificacion (ver SOBRE MI/SOBREMI.md, lineas rojas).
+        "datos_declarados": len(sesion.datos_declarados),
+        "datos_declarados_legibles": extraccion.resumir_para_asesor(sesion.datos_declarados),
     }
 
 
@@ -139,6 +152,25 @@ def _lead_payload(sesion: conversation.Sesion) -> dict:
         "finalizada": sesion.finalizada,
         "interaccion_cerrada": sesion.interaccion_cerrada,
         "enviado_al_asesor": sesion.enviado_al_asesor,
+        "origen": sesion.origen,
+        # afiliacion verificada contra la base. None para un no registrado:
+        # no es "no afiliado", es "no se sabe", y el cupo 90/10 lo trata
+        # distinto (ver leads_store._es_afiliado)
+        "afiliado": (
+            str(usuario.get("Afiliado a colsubsidio", "")).strip().lower() == "si"
+            if sesion.usuario
+            else None
+        ),
+        "bloqueantes": (
+            nutricion.detectar_bloqueantes(
+                usuario or scoring._perfil_desde_declarados(sesion.datos_declarados),
+                resultado,
+                sesion.datos_declarados,
+            )
+            if resultado
+            else None
+        ),
+        "datos_declarados": sesion.datos_declarados or None,
     }
 
 
@@ -236,10 +268,24 @@ def asesor_leads_hoy(_: str = Depends(auth.verificar_asesor)):
             "fase": lead["fase"],
             "finalizada": lead["finalizada"],
             "interaccion_cerrada": lead["interaccion_cerrada"],
+            "origen": lead.get("origen"),
+            "afiliado": lead.get("afiliado"),
+            "bloqueantes": lead.get("bloqueantes") or [],
             "hora": lead["creado_en"].astimezone(ZONA_BOGOTA).strftime("%H:%M"),
         }
         for lead in leads
     ]
+
+
+@app.get("/api/asesor/resumen-dia")
+def asesor_resumen_dia(_: str = Depends(auth.verificar_asesor)):
+    """Vista agregada del dia: cupo 90/10 y calidad por canal.
+
+    Son las dos cosas que un lead individual no puede responder. La regla
+    90/10 es una cuota sobre el total, no un descuento por persona, y la
+    comparacion de canales es lo que permite decidir donde recortar pauta.
+    """
+    return leads_store.calcular_stats(leads_store.listar_leads_hoy())
 
 
 @app.get("/api/asesor/leads/{session_id}")
@@ -273,6 +319,11 @@ def asesor_lead_detalle(session_id: str, _: str = Depends(auth.verificar_asesor)
                         for s in resultado.subsidios_elegibles
                     ],
                     "contribuciones": resultado.contribuciones,
+                    "bloqueantes": nutricion.detectar_bloqueantes(
+                        usuario or scoring._perfil_desde_declarados(sesion.datos_declarados),
+                        resultado,
+                        sesion.datos_declarados,
+                    ),
                 }
                 if resultado else None
             ),

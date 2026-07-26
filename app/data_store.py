@@ -45,7 +45,9 @@ SQL_PROYECTOS = "select slug, data from proyectos order by slug"
 
 @lru_cache(maxsize=1)
 def cargar_usuarios() -> pd.DataFrame:
-    df = pd.read_sql(SQL_USUARIOS, db.get_engine())
+    df = pd.read_sql(SQL_USUARIOS, db.get_engine()).copy()
+    # asignacion de columna completa (no .loc): el telefono pasa de numerico a
+    # texto, y .loc conserva el dtype original en vez de reemplazarlo
     df["Telefono"] = df["Telefono"].astype(str).str.replace(r"\D", "", regex=True)
     return df
 
@@ -164,3 +166,15 @@ def peers_con_perfil_similar(usuario: dict) -> pd.DataFrame:
     if "Documento" in usuario:
         peers = peers[peers["Documento"] != usuario.get("Documento")]
     return peers
+
+
+@lru_cache(maxsize=1)
+def tasa_base_conversion() -> float:
+    """Porcentaje de TODA la base que termino 'Con vivienda propia'. Es la
+    linea de base contra la que se mide un grupo de peers: una conversion del
+    30% no dice nada por si sola, dice mucho si el promedio general es 15% y
+    poco si es 45%."""
+    df = cargar_usuarios()
+    if df.empty:
+        return 0.0
+    return float((df["Estado de vivienda propia"] == "Con vivienda propia").mean() * 100)

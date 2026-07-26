@@ -7,20 +7,66 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from app import config, data_store, llm_client, recommender, scoring
+from app import config, data_store, extraccion, llm_client, recommender, scoring
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SOBRE_MI_DIR = BASE_DIR / "SOBRE MI"
 
-PREGUNTAS_ASPIRACIONALES_SUGERIDAS = [
-    "que suenos o planes tiene con este paso de comprar vivienda",
-    "si esta pensando en comprar para vivir ahi o como inversion",
-    "como se imagina o donde se ve viviendo en los proximos 5 anios",
-    "que es indispensable para el/ella en su proxima casa (espacio, ubicacion, zonas comunes)",
-    "como es su estilo de vida hoy (trabajo, familia, deporte, rutina)",
+# Temas de la conversacion, en el orden en que se preguntan. Los que tienen
+# califica=True alimentan el scoring (ver app/extraccion.py): no se preguntan
+# de frente ("cuanto ganas", "estas afiliado") sino de costado, como indica
+# SOBREMI.md, y van intercalados con los aspiracionales para que la charla no
+# se sienta como un formulario.
+# El campo de cada tema que califica es el dato que esa pregunta busca: si el
+# usuario ya lo conto por su cuenta antes de que le tocara el turno, la
+# pregunta se salta (ver _preguntas_restantes). Preguntar algo que la persona
+# acaba de responder es la forma mas rapida de que la charla se sienta un
+# formulario automatico.
+TEMAS = [
+    {
+        "pregunta": "que suenos o planes tiene con este paso de comprar vivienda",
+        "campo": None,
+    },
+    {
+        "pregunta": "en que empresa trabaja actualmente o a que se dedica hoy",
+        "campo": "situacion_laboral",
+    },
+    {
+        "pregunta": "si esta pensando en comprar para vivir ahi o como inversion",
+        "campo": None,
+    },
+    {
+        "pregunta": "si ya viene ahorrando o tiene cesantias pensando en la cuota inicial",
+        "campo": "ahorro_cuota_inicial",
+    },
+    {
+        "pregunta": "con quien se estaria mudando (solo/a, en pareja, con hijos)",
+        "campo": "estructura_familiar",
+    },
+    {
+        "pregunta": "que es indispensable para el/ella en su proxima casa (espacio, ubicacion, zonas comunes)",
+        "campo": None,
+    },
+    {
+        "pregunta": "como se imagina o donde se ve viviendo en los proximos 5 anios",
+        "campo": None,
+    },
+    {
+        "pregunta": "como es su estilo de vida hoy (trabajo, familia, deporte, rutina)",
+        "campo": None,
+    },
 ]
-MIN_PREGUNTAS = 3
-MAX_PREGUNTAS = 5
+
+PREGUNTAS_ASPIRACIONALES_SUGERIDAS = [t["pregunta"] for t in TEMAS]
+PREGUNTAS_QUE_CALIFICAN = {t["pregunta"] for t in TEMAS if t["campo"]}
+CAMPO_POR_PREGUNTA = {t["pregunta"]: t["campo"] for t in TEMAS if t["campo"]}
+
+# MIN sube de 3 a 4 y MAX de 5 a 6 para que la conversacion alcance a pasar
+# por los tres temas que califican (posiciones 2, 4 y 5 de TEMAS) antes de
+# recomendar. Con los valores viejos la charla cerraba habiendo preguntado uno
+# solo, y el score seguia saliendo entero de la base.
+MIN_PREGUNTAS = 4
+MAX_PREGUNTAS = 6
 LIMITE_EVASION = 2
 
 FRASES_EVASION = {
@@ -45,10 +91,14 @@ def construir_system_prompt() -> str:
 {estilo}
 
 ## ADAPTACIONES PARA ESTE MVP (tienen prioridad sobre cualquier instruccion anterior que las contradiga)
-- Canal: WhatsApp, solo texto (no hay notas de voz ni widget web en esta version).
-- El usuario ya fue identificado por su numero de telefono de WhatsApp de forma
-  automatica por el sistema (como pasaria en WhatsApp real). NUNCA pidas la cedula
-  ni el numero de telefono, ya los tienes.
+- Canal: widget de chat en el portal web, al que el usuario llego desde WhatsApp.
+  Puede escribirte por texto o dictarte por voz, asi que sus mensajes a veces
+  llegan como transcripciones habladas: pueden traer muletillas, frases cortadas
+  o errores de transcripcion. Interpreta la intencion sin corregirlo ni
+  mencionar que hablo en vez de escribir.
+- El usuario ya fue identificado por el numero de telefono con el que inicio en
+  WhatsApp, de forma automatica por el sistema. NUNCA pidas la cedula ni el
+  numero de telefono, ya los tienes.
 - NUNCA digas que "consultaste una base de datos" ni menciones el cruce de
   informacion. Simplemente usa lo que sabes del usuario con naturalidad.
 - Preguntas aspiracionales: entre 3 y 5 durante la conversacion, una a la vez,
@@ -66,6 +116,10 @@ def construir_system_prompt() -> str:
 class Sesion:
     id: str
     telefono: str
+    # canal por el que llego el lead (meta, google, whatsapp, organico...).
+    # El scoring no lo usa: sirve para comparar calidad por fuente de pauta,
+    # que es el costo que abre el planteo del reto.
+    origen: str = "organico"
     usuario: dict | None = None
     resultado_scoring: scoring.ResultadoScoring | None = None
     fase: str = "saludo"
@@ -85,6 +139,9 @@ class Sesion:
     interaccion_cerrada: bool = False
     enviado_al_asesor: bool = False
     datos_declarados_no_registrado: str | None = None
+    # variables de calificacion extraidas de lo que la persona conto en la
+    # charla (ver app/extraccion.py). Alimentan el scoring junto con la base.
+    datos_declarados: dict = field(default_factory=dict)
 
 
 _SESIONES: dict[str, Sesion] = {}
@@ -98,10 +155,53 @@ def _es_evasion(texto: str) -> bool:
     return any(frase in texto_low for frase in FRASES_EVASION)
 
 
-def iniciar_sesion(telefono: str) -> tuple[Sesion, str]:
+def _preguntas_restantes(sesion: Sesion) -> list[str]:
+    """Temas que faltan por preguntar. Se descartan los que califican cuyo dato
+    la persona ya conto espontaneamente: no tiene sentido preguntar 'en que
+    empresa trabajas' a alguien que abrio la charla diciendo donde trabaja."""
+    return [
+        pregunta
+        for pregunta in PREGUNTAS_ASPIRACIONALES_SUGERIDAS
+        if pregunta not in sesion.preguntas_hechas
+        and CAMPO_POR_PREGUNTA.get(pregunta) not in sesion.datos_declarados
+    ]
+
+
+def _capturar_datos_declarados(sesion: Sesion, texto_usuario: str, tema: str | None) -> None:
+    """Extrae variables de calificacion del mensaje y recalcula el score.
+
+    Corre en TODOS los turnos de la fase aspiracional, no solo en los temas
+    que califican: la gente aporta datos duros cuando quiere, no cuando se los
+    preguntan. En una prueba real el usuario dijo "tengo unas cesantias
+    guardadas para la cuota inicial" respondiendo a una pregunta aspiracional,
+    y ese dato se perdia porque la extraccion solo miraba los temas
+    calificadores. Cuesta una llamada extra al LLM por turno y evita tirar a
+    la basura justamente la informacion que el reto pide capturar.
+
+    El score se recalcula aqui mismo para que el panel de explicabilidad lo
+    muestre moverse durante la conversacion, no solo al final.
+    """
+    if _es_evasion(texto_usuario):
+        return
+
+    nuevos = extraccion.extraer_de_mensaje(texto_usuario, tema)
+    if not nuevos:
+        return
+
+    sesion.datos_declarados.update(nuevos)
+
+    if sesion.usuario:
+        sesion.resultado_scoring = scoring.calcular_score(
+            sesion.usuario, datos_declarados=sesion.datos_declarados
+        )
+    else:
+        sesion.resultado_scoring = scoring.calcular_score_no_registrado(sesion.datos_declarados)
+
+
+def iniciar_sesion(telefono: str, origen: str = "organico") -> tuple[Sesion, str]:
     session_id = str(uuid.uuid4())
     usuario = data_store.buscar_usuario_por_telefono(telefono)
-    sesion = Sesion(id=session_id, telefono=telefono, usuario=usuario)
+    sesion = Sesion(id=session_id, telefono=telefono, origen=origen, usuario=usuario)
 
     if usuario:
         sesion.resultado_scoring = scoring.calcular_score(usuario)
@@ -140,6 +240,9 @@ def procesar_mensaje(sesion: Sesion, texto_usuario: str) -> str:
         # arriesgar una extraccion equivocada; el asesor lo lee como texto
         # libre en el correo de handoff (ver handoff.formatear_email)
         sesion.datos_declarados_no_registrado = texto_usuario.strip()
+        # el primer mensaje de un no registrado suele traer nombre y ciudad,
+        # pero a veces tambien a que se dedica: se extrae igual
+        _capturar_datos_declarados(sesion, texto_usuario, None)
         instruccion = (
             f"[INSTRUCCION INTERNA] El usuario respondio: '{texto_usuario}'. "
             "Agradece y continua con la primera pregunta aspiracional: "
@@ -154,6 +257,7 @@ def procesar_mensaje(sesion: Sesion, texto_usuario: str) -> str:
 
     if sesion.fase == "aspiracional":
         tema = sesion.tema_actual
+        _capturar_datos_declarados(sesion, texto_usuario, tema)
         if _es_evasion(texto_usuario):
             sesion.intentos_evasion[tema] = sesion.intentos_evasion.get(tema, 0) + 1
             if sesion.intentos_evasion[tema] < LIMITE_EVASION:
@@ -167,10 +271,20 @@ def procesar_mensaje(sesion: Sesion, texto_usuario: str) -> str:
             sesion.respuestas_aspiracionales[tema] = texto_usuario
             instruccion = None
 
-        preguntas_restantes = [
-            t for t in PREGUNTAS_ASPIRACIONALES_SUGERIDAS if t not in sesion.preguntas_hechas
-        ]
-        suficientes = len(sesion.respuestas_aspiracionales) >= MIN_PREGUNTAS or len(sesion.preguntas_hechas) >= MAX_PREGUNTAS
+        preguntas_restantes = _preguntas_restantes(sesion)
+        # no se recomienda hasta haber cubierto los temas que califican, ya sea
+        # porque se preguntaron o porque la persona los conto sola. El tope de
+        # MAX_PREGUNTAS sigue mandando, para que la charla no se estire
+        # indefinidamente si evade todo.
+        califican_pendientes = {
+            pregunta
+            for pregunta in PREGUNTAS_QUE_CALIFICAN
+            if pregunta not in sesion.preguntas_hechas
+            and CAMPO_POR_PREGUNTA[pregunta] not in sesion.datos_declarados
+        }
+        suficientes = (
+            not califican_pendientes and len(sesion.respuestas_aspiracionales) >= MIN_PREGUNTAS
+        ) or len(sesion.preguntas_hechas) >= MAX_PREGUNTAS
 
         if instruccion is None:
             if suficientes or not preguntas_restantes:
@@ -285,11 +399,11 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
         # de verdad en este mismo mensaje, asi que el correo se puede
         # disparar ya (ver main.py)
         sesion.interaccion_cerrada = True
-        # sin registro no se puede correr calcular_score (depende de rango
-        # salarial/estado laboral/afiliacion/datacredito), pero igual se le
-        # asigna un score penalizado fijo para que el correo al asesor no
-        # quede en "SIN DATOS" y el lead no se pierda de vista
-        sesion.resultado_scoring = scoring.calcular_score_no_registrado()
+        # sin registro el score se arma con lo que la persona conto en la
+        # charla, con un factor de confianza por no estar verificado; si no
+        # conto nada, cae en la penalizacion fija. En ningun caso queda "SIN
+        # DATOS": el lead no se pierde de vista.
+        sesion.resultado_scoring = scoring.calcular_score_no_registrado(sesion.datos_declarados)
         instruccion = (
             "[INSTRUCCION INTERNA] No tienes datos financieros de este usuario en el sistema. "
             "Agradece la conversacion, explica con calidez que un asesor se pondra en contacto "
@@ -303,7 +417,9 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
         return respuesta
 
     if sesion.resultado_scoring is None:
-        sesion.resultado_scoring = scoring.calcular_score(usuario)
+        sesion.resultado_scoring = scoring.calcular_score(
+            usuario, datos_declarados=sesion.datos_declarados
+        )
 
     sesion.recomendacion = recommender.recomendar_proyecto(
         usuario, sesion.resultado_scoring.project_segment, sesion.respuestas_aspiracionales

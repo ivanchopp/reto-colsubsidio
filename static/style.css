@@ -57,3 +57,21 @@ button { cursor:pointer; }
 
 @media (max-width:720px) { .contenedor { padding:0 20px; }.sitio-nav a { display:none; }.hero-interior { min-height:480px; flex-direction:column; gap:10px; padding-top:46px; text-align:center; }.hero p { font-size:16px; }.hero-ilustracion { width:260px; height:208px; margin-bottom:-58px; }.hero-casa { left:40px; transform:scale(.8); transform-origin:bottom left; }.hero-sol { right:3px; }.proyectos { padding-top:50px; }.chat-flotante-btn { right:16px; bottom:16px; }.ventana-chat { top:0; right:0; bottom:0; left:0; width:auto; height:100vh; height:100dvh; border:0; border-radius:0; }.companera { min-height:122px; }.avatar-wrap { right:0; width:140px; height:140px; }.companera-texto { width:61%; }.companera strong { font-size:16px; }.asesor-panel-encabezado { align-items:flex-start; flex-direction:column; gap:6px; }.chat-header { min-height:52px; } }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+
+/* Simulacion de la llegada por WhatsApp (paso 1 del flujo). Usa el verde de
+   WhatsApp solo en el hilo simulado; el resto sigue la paleta de marca. */
+.wa-simulacion { display:flex; flex:1; flex-direction:column; padding:20px; background:#fff; }
+.wa-encabezado { display:flex; align-items:center; gap:9px; margin-bottom:14px; }
+.wa-encabezado strong { display:block; color:#1c2e3d; font-size:14px; }
+.wa-encabezado small { color:#87939c; font-size:11px; }
+.wa-punto { width:9px; height:9px; flex:none; border-radius:50%; background:#25d366; box-shadow:0 0 0 3px rgba(37,211,102,.16); }
+.wa-hilo { display:flex; flex-direction:column; gap:9px; margin-bottom:18px; padding:14px; border-radius:14px; background:#ece5dd; }
+.wa-burbuja { max-width:88%; padding:9px 12px; border-radius:13px; font-size:13px; line-height:1.42; }
+.wa-saliente { align-self:flex-end; border-bottom-right-radius:4px; color:#0b2e13; background:#dcf8c6; }
+.wa-entrante { align-self:flex-start; border-bottom-left-radius:4px; color:#2c3b45; background:#fff; }
+.wa-etiqueta { margin-bottom:6px; color:#60707b; font-size:12px; font-weight:700; }
+.wa-simulacion input { width:100%; margin-bottom:12px; padding:13px 14px; border:2px solid #dce8ed; border-radius:13px; color:#263948; outline:0; }
+.wa-simulacion input:focus { border-color:#4cb9df; box-shadow:0 0 0 3px rgba(76,185,223,.15); }
+.wa-simulacion .btn { width:100%; }
+.wa-saltar { margin-top:12px; border:0; color:#87939c; background:transparent; font-size:12px; text-decoration:underline; }
+.wa-saltar:hover { color:var(--azul); }

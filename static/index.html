@@ -112,6 +112,32 @@
       <p class="ayuda">Puedes usar un número del Excel de usuarios para probar el flujo completo.</p>
     </div>
 
+    <!-- Paso 1 del flujo: el lead llega desde una pauta click-to-WhatsApp.
+         La conversación de WhatsApp es una simulación (no hay integración con
+         WhatsApp Business API); sirve para mostrar de dónde viene el número
+         que después identifica a la persona sin pedirle la cédula. -->
+    <div id="pantalla-whatsapp" class="wa-simulacion oculto">
+      <div class="wa-encabezado">
+        <span class="wa-punto" aria-hidden="true"></span>
+        <div>
+          <strong>Colsubsidio Vivienda</strong>
+          <small>WhatsApp Business · simulación</small>
+        </div>
+      </div>
+      <div class="wa-hilo">
+        <div class="wa-burbuja wa-saliente">Hola, vi el anuncio y quiero información de vivienda</div>
+        <div class="wa-burbuja wa-entrante">
+          ¡Hola! Soy el Asesor Digital de Vivienda de Colsubsidio. Para darte
+          opciones que de verdad te sirvan, continuemos en este enlace 👇
+        </div>
+      </div>
+      <label class="wa-etiqueta" for="input-telefono-wa">Número desde el que escribes</label>
+      <input id="input-telefono-wa" inputmode="tel" autocomplete="tel" placeholder="Ej. 3155288028" />
+      <button class="btn btn-azul" id="btn-abrir-desde-wa">Abrir el asesor digital →</button>
+      <p class="ayuda">El asesor te reconoce por este número: nunca te va a pedir la cédula.</p>
+      <button type="button" class="wa-saltar" id="btn-saltar-wa">Prefiero entrar directo</button>
+    </div>
+
     <div id="pantalla-chat" class="chat-cuerpo oculto">
       <div id="mensajes" class="chat-mensajes" aria-live="polite"></div>
       <div id="respuestas-rapidas" class="respuestas-rapidas oculto" aria-label="Respuestas sugeridas"></div>

@@ -15,16 +15,44 @@ import pytest
 
 from app import data_store, subsidios, vector_similarity
 
+# Modulos que prueban el sistema real de punta a punta y por eso NO deben
+# recibir los stubs de abajo. Se declara explicito, y no confiando en el orden
+# de instanciacion de fixtures: un fixture de scope module se construye antes
+# que los autouse de scope function, asi que un test de integracion "funciona"
+# por accidente aunque los stubs esten activos, y se vuelve un falso positivo
+# silencioso el dia que alguien le cambia el scope.
+MODULOS_SIN_STUBS = {
+    "test_vector_similarity",   # prueba la funcion vectorial real
+    "test_subsidios",           # prueba la evaluacion de subsidios real
+    "test_distribucion_scoring",  # integracion: mide la distribucion real
+}
+
+
+def _usa_stubs(request) -> bool:
+    return not any(request.module.__name__.endswith(m) for m in MODULOS_SIN_STUBS)
+
 
 @pytest.fixture(autouse=True)
-def sin_peers(monkeypatch):
+def sin_peers(request, monkeypatch):
+    if not _usa_stubs(request):
+        return
     monkeypatch.setattr(data_store, "peers_con_perfil_similar", lambda usuario: pd.DataFrame())
 
 
 @pytest.fixture(autouse=True)
+def tasa_base_fija(request, monkeypatch):
+    """La tasa base de conversion se usa para convertir la conversion de un
+    grupo de peers en lift (ver scoring._lift_de_peers). Se fija en 26.0%, el
+    valor real de la base al momento de calibrar, para que los tests no
+    dependan de una consulta a Supabase ni cambien si la base se recarga."""
+    if not _usa_stubs(request):
+        return
+    monkeypatch.setattr(data_store, "tasa_base_conversion", lambda: 26.0)
+
+
+@pytest.fixture(autouse=True)
 def vectorial_neutro(request, monkeypatch):
-    # test_vector_similarity.py prueba la funcion real: no la estubeamos ahi
-    if request.module.__name__.endswith("test_vector_similarity"):
+    if not _usa_stubs(request):
         return
     stub = lambda usuario: {"score_vectorial": 50.0, "similitudes_por_centroide": {}}
     monkeypatch.setattr(vector_similarity, "calcular_similitud_vectorial", stub)
@@ -32,8 +60,7 @@ def vectorial_neutro(request, monkeypatch):
 
 @pytest.fixture(autouse=True)
 def sin_subsidios(request, monkeypatch):
-    # test_subsidios.py prueba la funcion real: no la estubeamos ahi
-    if request.module.__name__.endswith("test_subsidios"):
+    if not _usa_stubs(request):
         return
     monkeypatch.setattr(subsidios, "evaluar_subsidios", lambda usuario: [])
 

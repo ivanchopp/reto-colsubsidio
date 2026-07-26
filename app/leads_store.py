@@ -9,6 +9,32 @@ from sqlalchemy import text
 from app import db
 
 
+# Regla 90/10: como maximo el 10% de las ventas puede ir a no afiliados.
+PCT_MAXIMO_NO_AFILIADOS = 0.10
+
+# Canales por los que puede entrar un lead. "organico" es la referencia del
+# reto: los leads propios convierten mejor que los de pauta.
+ORIGENES_VALIDOS = ("meta", "google", "whatsapp", "organico", "contact_center")
+ORIGEN_POR_DEFECTO = "organico"
+
+
+def normalizar_origen(valor: str | None) -> str:
+    """El origen llega de un parametro de URL (utm-like), asi que puede venir
+    con cualquier cosa. Se acota al vocabulario conocido en vez de guardar
+    texto libre que despues no se puede agrupar."""
+    normalizado = (valor or "").strip().lower()
+    return normalizado if normalizado in ORIGENES_VALIDOS else ORIGEN_POR_DEFECTO
+
+
+def _es_afiliado(lead: dict) -> bool:
+    """Un lead sin registro no se puede contar como afiliado: no hay con que
+    verificarlo, y frente a una cuota regulatoria conviene el criterio
+    conservador."""
+    if not lead.get("usuario_registrado"):
+        return False
+    return lead.get("afiliado") is True
+
+
 def _a_jsonb(valor):
     return json.dumps(valor) if valor is not None else None
 
@@ -35,6 +61,10 @@ def upsert_lead(
     project_segment: str | None,
     razones: list[str] | None,
     peer_stats: dict | None,
+    origen: str,
+    afiliado: bool | None,
+    bloqueantes: list[dict] | None,
+    datos_declarados: dict | None,
     subsidios_elegibles: list[dict] | None,
     contribuciones: list[dict] | None,
     fase: str,
@@ -50,13 +80,16 @@ def upsert_lead(
                     session_id, telefono, nombre, ciudad, usuario_registrado, documento,
                     score, segmento_lead, project_segment, razones, peer_stats,
                     subsidios_elegibles, contribuciones, fase, finalizada,
-                    interaccion_cerrada, enviado_al_asesor
+                    interaccion_cerrada, enviado_al_asesor,
+                    origen, afiliado, bloqueantes, datos_declarados
                 ) values (
                     :session_id, :telefono, :nombre, :ciudad, :usuario_registrado, :documento,
                     :score, :segmento_lead, :project_segment,
                     cast(:razones as jsonb), cast(:peer_stats as jsonb),
                     cast(:subsidios_elegibles as jsonb), cast(:contribuciones as jsonb),
-                    :fase, :finalizada, :interaccion_cerrada, :enviado_al_asesor
+                    :fase, :finalizada, :interaccion_cerrada, :enviado_al_asesor,
+                    :origen, :afiliado,
+                    cast(:bloqueantes as jsonb), cast(:datos_declarados as jsonb)
                 )
                 on conflict (session_id) do update set
                     telefono = excluded.telefono,
@@ -75,6 +108,10 @@ def upsert_lead(
                     finalizada = excluded.finalizada,
                     interaccion_cerrada = excluded.interaccion_cerrada,
                     enviado_al_asesor = excluded.enviado_al_asesor,
+                    origen = excluded.origen,
+                    afiliado = excluded.afiliado,
+                    bloqueantes = excluded.bloqueantes,
+                    datos_declarados = excluded.datos_declarados,
                     actualizado_en = now()
                 """
             ),
@@ -96,11 +133,18 @@ def upsert_lead(
                 "finalizada": finalizada,
                 "interaccion_cerrada": interaccion_cerrada,
                 "enviado_al_asesor": enviado_al_asesor,
+                "origen": normalizar_origen(origen),
+                "afiliado": afiliado,
+                "bloqueantes": _a_jsonb(bloqueantes),
+                "datos_declarados": _a_jsonb(datos_declarados),
             },
         )
 
 
-_CAMPOS_JSONB = ("razones", "peer_stats", "subsidios_elegibles", "contribuciones")
+_CAMPOS_JSONB = (
+    "razones", "peer_stats", "subsidios_elegibles", "contribuciones",
+    "bloqueantes", "datos_declarados",
+)
 
 
 def _fila_a_dict(fila) -> dict:
@@ -139,7 +183,70 @@ def obtener_lead(session_id: str) -> dict | None:
 def calcular_stats(leads: list[dict]) -> dict:
     """Funcion pura (no toca la DB) para poder testearla sin base de datos."""
     por_segmento: dict[str, int] = {}
+    por_origen: dict[str, int] = {}
     for lead in leads:
         segmento = lead.get("segmento_lead") or "SIN_DATOS"
         por_segmento[segmento] = por_segmento.get(segmento, 0) + 1
-    return {"total": len(leads), "por_segmento": por_segmento}
+        origen = lead.get("origen") or "desconocido"
+        por_origen[origen] = por_origen.get(origen, 0) + 1
+    return {
+        "total": len(leads),
+        "por_segmento": por_segmento,
+        "por_origen": por_origen,
+        "cuota_90_10": calcular_cuota_90_10(leads),
+        "calidad_por_origen": calcular_calidad_por_origen(leads),
+    }
+
+
+def calcular_cuota_90_10(leads: list[dict]) -> dict:
+    """Estado del cupo regulatorio: solo el 10% de las ventas de vivienda de
+    Colsubsidio puede ir a no afiliados.
+
+    El scoring ya penaliza al no afiliado lead por lead, pero la regla es una
+    cuota agregada, no un descuento individual. Sin esta vista el asesor no
+    tiene forma de saber cuanto cupo le queda: puede estar trabajando cinco no
+    afiliados calientes cuando solo va a poder cerrar uno.
+
+    Se cuentan unicamente los leads que llegarian al asesor (CALIENTE), que es
+    donde el cupo se consume de verdad; un no afiliado frio no ocupa cupo.
+    """
+    derivables = [l for l in leads if l.get("segmento_lead") == "CALIENTE"]
+    total = len(derivables)
+    no_afiliados = sum(1 for l in derivables if not _es_afiliado(l))
+    afiliados = total - no_afiliados
+
+    # se redondea en vez de truncar: con 8 derivables el 10% es 0.8, y
+    # truncar daria un cupo de 0, marcando "excedido" apenas aparece un solo
+    # no afiliado. La regla aplica sobre las ventas de un periodo, no sobre
+    # los leads de una tarde, asi que a volumen bajo el redondeo refleja mejor
+    # la intencion sin dejar de ser estricto a escala.
+    cupo_no_afiliados = round(total * PCT_MAXIMO_NO_AFILIADOS) if total else 0
+    return {
+        "derivables": total,
+        "afiliados": afiliados,
+        "no_afiliados": no_afiliados,
+        "cupo_no_afiliados": cupo_no_afiliados,
+        "cupo_disponible": max(0, cupo_no_afiliados - no_afiliados),
+        "excedido": no_afiliados > cupo_no_afiliados,
+        "pct_no_afiliados": round(no_afiliados / total * 100, 1) if total else 0.0,
+    }
+
+
+def calcular_calidad_por_origen(leads: list[dict]) -> list[dict]:
+    """Cuantos leads trae cada canal y que proporcion llega a CALIENTE.
+
+    Es la metrica con la que abre el reto: la pauta paga trae volumen pero
+    convierte peor que el organico, y sin medirlo por canal no se puede
+    decidir donde recortar. Ordenado por volumen para que el canal mas caro
+    quede arriba."""
+    por_origen: dict[str, dict] = {}
+    for lead in leads:
+        origen = lead.get("origen") or "desconocido"
+        acumulado = por_origen.setdefault(origen, {"origen": origen, "total": 0, "calientes": 0})
+        acumulado["total"] += 1
+        if lead.get("segmento_lead") == "CALIENTE":
+            acumulado["calientes"] += 1
+
+    for acumulado in por_origen.values():
+        acumulado["pct_calientes"] = round(acumulado["calientes"] / acumulado["total"] * 100, 1)
+    return sorted(por_origen.values(), key=lambda o: -o["total"])

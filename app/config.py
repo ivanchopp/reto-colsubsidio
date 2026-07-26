@@ -8,7 +8,11 @@ load_dotenv(BASE_DIR / ".env")
 RECURSOS_DIR = BASE_DIR / "RECURSOS"
 EXCEL_USUARIOS = RECURSOS_DIR / "Base_de_datos_usuarios_Colombia.xlsx"
 EXCEL_SUBSIDIOS = RECURSOS_DIR / "Subsidios Vivienda Colombia.xlsx"
-PROYECTOS_REALES_DIR = RECURSOS_DIR / "PROYECTOS"
+# El nombre debe coincidir exacto con la carpeta en disco: macOS no distingue
+# mayusculas y Linux (Render) si, asi que un "PROYECTOS" aqui hace que el glob
+# no encuentre nada en el servidor y la migracion cargue cero proyectos sin
+# lanzar ningun error.
+PROYECTOS_REALES_DIR = RECURSOS_DIR / "Proyectos"
 SCORING_SCHEMA = RECURSOS_DIR / "buyer_persona_scoring_schema.json"
 
 # Base de datos en la nube (Supabase/Postgres) que reemplaza los Excel/JSON
@@ -50,3 +54,39 @@ ASESOR_PASSWORD = os.getenv("ASESOR_PASSWORD", "")
 
 # SMLV usado para normalizar ingresos. Ajustar al valor vigente real.
 SMLV_COP = 1_423_500
+
+# --- Calibracion del scoring (ver scripts/calibrar_scoring.py) ---
+# Techo de normalizacion del ingreso, en SMLV, para cada segmento. Tiene que
+# quedar cerca del ingreso maximo que realmente aparece en la base para ese
+# segmento: si se pone por encima, ningun perfil llega a saturar el aporte de
+# ingreso y todo el scoring queda con un techo artificial que no se ve en
+# ninguna parte. Correr scripts/calibrar_scoring.py despues de cambiar la
+# fuente de datos para verificar que siguen calzando.
+TECHO_SMLV_VIS = 3.1
+TECHO_SMLV_NO_VIS = 4.4
+
+# Porcentaje de leads que deberian caer en CALIENTE. Es una decision de
+# capacidad del equipo comercial, no una propiedad de los datos: cuantos leads
+# puede atender el equipo por dia. Los umbrales de abajo salen de aplicar este
+# porcentaje sobre la distribucion real (scripts/calibrar_scoring.py).
+PCT_OBJETIVO_CALIENTE = 0.12
+PCT_OBJETIVO_TIBIO = 0.38  # el 38% siguiente; el resto queda FRIO (nutricion)
+
+# Ingreso supuesto, en pesos, para un lead sin registro que dice a que se
+# dedica pero no cuanto gana. Sin esto el ingreso entra en 0 y "no sabemos"
+# termina puntuando igual que "no gana nada", que es justo lo que el reto pide
+# evitar ("valida, o infiere razonablemente, capacidad de compra"). Los valores
+# son la mediana real de cada grupo en la base de usuarios; se recalculan con
+# scripts/calibrar_scoring.py. Es un supuesto explicito, y como tal queda
+# escrito en las razones del score para que el asesor lo vea.
+INGRESO_SUPUESTO_POR_SITUACION = {
+    "empleado_formal": 4_377_262,
+    "independiente": 4_377_262,
+    "desempleado": 2_626_358,
+}
+
+# Umbrales de corte del score, calculados con scripts/calibrar_scoring.py
+# sobre los 3.449 usuarios de la base (percentiles 88 y 50). Recalibrar si
+# cambia la base o los porcentajes objetivo de arriba.
+UMBRAL_CALIENTE = 53.6
+UMBRAL_TIBIO = 29.1

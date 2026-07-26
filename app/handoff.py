@@ -1,6 +1,7 @@
 """Arma el resumen estructurado que se le entrega al asesor comercial:
 info del usuario, proyecto recomendado, probabilidad de compra y un dato
 interesante para romper el hielo en la llamada."""
+from app import extraccion, nutricion, scoring
 from app.conversation import Sesion
 
 
@@ -53,6 +54,21 @@ def construir_resumen(sesion: Sesion) -> dict:
         ),
         "dato_interesante": _dato_interesante(sesion),
         "respuestas_aspiracionales": sesion.respuestas_aspiracionales,
+        # lo que la conversacion aporto al perfil, mas alla de lo que ya
+        # estaba en la base (ver app/extraccion.py)
+        "datos_declarados": sesion.datos_declarados,
+        "datos_declarados_legibles": extraccion.resumir_para_asesor(sesion.datos_declarados),
+        # que le falta a este lead para poder comprar: convierte un FRIO en un
+        # caso retomable en vez de un descarte (ver app/nutricion.py)
+        "bloqueantes": (
+            nutricion.detectar_bloqueantes(
+                sesion.usuario or scoring._perfil_desde_declarados(sesion.datos_declarados),
+                resultado,
+                sesion.datos_declarados,
+            )
+            if resultado
+            else []
+        ),
     }
 
 
@@ -102,6 +118,12 @@ def formatear_email(resumen: dict) -> tuple[str, str]:
         if datos_declarados:
             parrafos.append(f"Al iniciar la conversacion, comento: \"{datos_declarados}\".")
 
+    declarados_legibles = resumen.get("datos_declarados_legibles") or []
+    if declarados_legibles:
+        parrafos.append("")
+        parrafos.append("Lo que aporto la conversacion (declarado por la persona, sin verificar):")
+        parrafos.extend(f"  - {linea}" for linea in declarados_legibles)
+
     if resumen.get("dato_interesante"):
         parrafos.append("")
         parrafos.append(f"Durante la conversacion, {resumen['dato_interesante']}.")
@@ -129,6 +151,12 @@ def formatear_email(resumen: dict) -> tuple[str, str]:
     else:
         parrafos.append("")
         parrafos.append("Todavia no hay un proyecto recomendado (informacion insuficiente).")
+
+    bloqueantes = resumen.get("bloqueantes") or []
+    if bloqueantes and segmento_lead != "CALIENTE":
+        parrafos.append("")
+        parrafos.append("Que le falta para poder comprar (flujo de nutricion):")
+        parrafos.extend(f"  - {b['titulo']} -> {b['accion']}" for b in bloqueantes)
 
     if subsidios:
         parrafos.append("")

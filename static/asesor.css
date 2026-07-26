@@ -251,3 +251,33 @@ body.pagina-asesor {
   .asesor-cuerpo { grid-template-columns: 1fr; }
   .asesor-tarjetas-apoyo { grid-template-columns: 1fr; }
 }
+
+/* Cupo regulatorio 90/10 y calidad por canal: la vista agregada del dia que
+   un lead individual no puede responder. */
+.asesor-operacion { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+@media (max-width: 900px) { .asesor-operacion { grid-template-columns:1fr; } }
+.asesor-cuota, .asesor-canales { padding:16px 18px; border:1px solid var(--borde); border-radius:14px; background:#fff; }
+.asesor-cuota header, .asesor-canales header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:10px; }
+.asesor-cuota h2, .asesor-canales h2 { margin:0; font-size:13px; font-weight:800; letter-spacing:.02em; }
+.asesor-cuota-estado { border-radius:999px; padding:3px 10px; font-size:11px; font-weight:800; }
+.asesor-cuota-estado.ok { color:#1c6b3f; background:#e2f4e9; }
+.asesor-cuota-estado.excedido { color:#a32c2c; background:#fbe4e4; }
+.asesor-cuota-estado.neutro { color:#63727e; background:#eef2f5; }
+.asesor-cuota-barra { display:flex; overflow:hidden; height:12px; border-radius:999px; background:#eef2f5; }
+.asesor-cuota-afiliados { background:#0067b1; transition:width .3s ease; }
+.asesor-cuota-no-afiliados { background:#ffd000; transition:width .3s ease; }
+.asesor-cuota-detalle { margin:10px 0 0; color:var(--texto-tenue); font-size:12px; line-height:1.5; }
+
+.asesor-canales-tabla { display:flex; flex-direction:column; gap:9px; }
+.asesor-canal-fila { display:grid; grid-template-columns:1fr auto 90px auto; align-items:center; gap:10px; font-size:12px; }
+.asesor-canal-nombre { font-weight:700; }
+.asesor-canal-total { color:var(--texto-tenue); }
+.asesor-canal-barra { overflow:hidden; height:7px; border-radius:999px; background:#eef2f5; }
+.asesor-canal-barra i { display:block; height:100%; background:#c43d3d; }
+.asesor-canal-pct { color:var(--texto-tenue); font-variant-numeric:tabular-nums; }
+
+/* Plan de nutricion: que le falta al lead para poder comprar */
+.asesor-nutricion { margin:0 0 16px; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px; }
+.asesor-nutricion li { padding:10px 12px; border-left:3px solid #ffd000; border-radius:0 9px 9px 0; background:#fffbe9; font-size:12.5px; }
+.asesor-nutricion strong { display:block; margin-bottom:2px; color:#5c4a00; }
+.asesor-nutricion span { color:#6b6455; line-height:1.45; }
