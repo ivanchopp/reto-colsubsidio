@@ -65,6 +65,36 @@ def iniciar(req: IniciarRequest):
     return {"session_id": sesion.id, "mensaje": mensaje, "usuario_encontrado": sesion.usuario is not None}
 
 
+@app.get("/api/sesion/{session_id}")
+def estado_sesion(session_id: str):
+    """Estado de presentacion para el cliente web.
+
+    No expone scoring, datos personales ni reglas internas: solo los datos
+    necesarios para que la interfaz pueda representar el avance de la charla.
+    """
+    sesion = conversation.obtener_sesion(session_id)
+    if sesion is None:
+        raise HTTPException(404, "Sesion no encontrada")
+    recomendacion = None
+    if sesion.recomendacion:
+        proyecto = sesion.recomendacion.proyecto
+        recomendacion = {
+            "nombre": proyecto.get("nombre_proyecto", "Tu proyecto recomendado"),
+            "ciudad": proyecto.get("ciudad", ""),
+            "categoria": proyecto.get("categoria_dominante", ""),
+            "amenities": proyecto.get("amenities", [])[:3],
+            "brochure_url": proyecto.get("brochure_url", ""),
+        }
+    return {
+        "fase": sesion.fase,
+        "tema_actual": sesion.tema_actual,
+        "respuestas_aspiracionales": len(sesion.respuestas_aspiracionales),
+        "finalizada": sesion.finalizada,
+        "interaccion_cerrada": sesion.interaccion_cerrada,
+        "recomendacion": recomendacion,
+    }
+
+
 def _enviar_correo_asesor(sesion: conversation.Sesion) -> dict:
     resumen_dict = handoff.construir_resumen(sesion)
     asunto, cuerpo = handoff.formatear_email(resumen_dict)
