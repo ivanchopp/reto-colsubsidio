@@ -93,8 +93,25 @@ def calcular_similitud_vectorial(usuario: dict) -> dict:
     }
 
     similitud_positiva = similitudes.get(RESULTADO_POSITIVO, 0.0)
-    # normaliza de [-1, 1] (rango teorico del coseno) a [0, 100]
-    score_vectorial = max(0.0, min(100.0, (similitud_positiva + 1) / 2 * 100))
+
+    # Posicion RELATIVA del usuario entre los centroides, no la similitud
+    # absoluta contra el positivo. El rango teorico del coseno es [-1, 1],
+    # pero las cinco componentes del vector son no negativas, asi que en la
+    # practica vive en [0, 1] y el mapeo (sim + 1) / 2 lo comprimia todo a
+    # [50, 100]: en la base real daba entre 77 y 99.5 para todo el mundo, un
+    # offset casi constante sin poder de discriminacion. Normalizar contra el
+    # centroide mas lejano del propio usuario usa el ranking completo (que ya
+    # se calculaba y se descartaba) y devuelve el rango 0-100 util: 100 si el
+    # centroide de compradores es el mas cercano, 0 si es el mas lejano.
+    valores = list(similitudes.values())
+    rango = max(valores) - min(valores) if valores else 0.0
+    if rango > 0:
+        score_vectorial = (similitud_positiva - min(valores)) / rango * 100
+    else:
+        # un solo centroide (o todos equidistantes): no hay ranking del que
+        # extraer senal, se devuelve el punto medio en vez de un extremo
+        score_vectorial = 50.0
+    score_vectorial = max(0.0, min(100.0, score_vectorial))
 
     return {
         "score_vectorial": round(score_vectorial, 1),

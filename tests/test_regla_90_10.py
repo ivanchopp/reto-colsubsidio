@@ -36,7 +36,12 @@ def _score_reglas_puro(usuario: dict) -> tuple[float, str]:
     ingreso_smlv = ingreso / scoring.config.SMLV_COP
     segmento = "VIS" if ingreso_smlv <= scoring.SEGMENTO_INCOME_THRESHOLD_SMLV else "No VIS"
     peso = 0.4 if segmento == "VIS" else 0.7
-    techo = scoring.SEGMENTO_INCOME_THRESHOLD_SMLV if segmento == "VIS" else 6.0
+    # el techo se lee de config, no se duplica aqui: si se recalibra el
+    # scoring este helper debe seguir a la implementacion, porque lo que
+    # verifica es el coeficiente 0.2/0.8 de la regla 90/10, no el techo
+    techo = (
+        scoring.config.TECHO_SMLV_VIS if segmento == "VIS" else scoring.config.TECHO_SMLV_NO_VIS
+    )
     base = peso * min(ingreso_smlv / techo, 1.0) * 100
     tier = scoring._employer_tier(usuario)
     return base * scoring.EMPLOYER_TIER_MULTIPLIER[tier], segmento

@@ -92,7 +92,9 @@ def test_desempleado_penaliza_fuerte_y_cae_a_frio(make_usuario):
     usuario = make_usuario(**{"Estado laboral": "Desempleado", "Tipo de contrato": "N/A"})
     resultado = scoring.calcular_score(usuario)
 
-    assert resultado.score == pytest.approx(13.2)
+    # 3.16 SMLV satura el techo VIS (3.1) -> base 40; Tier 3 x0.85 = 34;
+    # desempleado x0.15 = 5.1; blend 0.8*5.1 + 10 = 14.1
+    assert resultado.score == pytest.approx(14.1)
     assert resultado.segmento_lead == "FRIO"
     assert any("Sin empleo activo" in r for r in resultado.razones)
 
@@ -102,7 +104,9 @@ def test_vis_no_afiliado_regla_90_10(make_usuario):
     resultado = scoring.calcular_score(usuario)
 
     assert resultado.project_segment == "VIS"
-    assert resultado.score == pytest.approx(15.8)
+    # base 40; Tier 1 x1.15 = 46; no afiliado en VIS x0.2 = 9.2;
+    # blend 0.8*9.2 + 10 = 17.4
+    assert resultado.score == pytest.approx(17.4)
     assert any("regla 90/10" in r for r in resultado.razones)
 
 
@@ -110,8 +114,10 @@ def test_vis_monoparental_joven_afiliado_suma_20(make_usuario):
     usuario = make_usuario()
     resultado = scoring.calcular_score(usuario, family_structure="Monoparental Joven")
 
-    assert resultado.score == pytest.approx(55.1)
-    assert resultado.segmento_lead == "TIBIO"
+    # base 40; Tier 1 x1.15 = 46; monoparental joven afiliado +20 = 66;
+    # blend 0.8*66 + 10 = 62.8
+    assert resultado.score == pytest.approx(62.8)
+    assert resultado.segmento_lead == "CALIENTE"
 
 
 def test_vis_monoparental_joven_no_afiliado_resta_30_y_score_de_reglas_no_baja_de_cero(make_usuario):
@@ -142,7 +148,9 @@ def test_reportado_datacredito_penaliza_tambien_en_vis(make_usuario):
     usuario = make_usuario(**{"Reportado en data crédito": "Reportado"})
     resultado = scoring.calcular_score(usuario)
 
-    assert resultado.score == pytest.approx(12.9)
+    # base 40; Tier 1 x1.15 = 46; reportado x0.10 = 4.6;
+    # blend 0.8*4.6 + 10 = 13.7
+    assert resultado.score == pytest.approx(13.7)
     assert any("casi eliminatoria" in r for r in resultado.razones)
 
 
@@ -166,9 +174,11 @@ def test_peer_blend_pondera_score_con_3_o_mas_peers(make_usuario, monkeypatch):
     usuario = make_usuario(**{"Rango salarial": "de 9.000.000 - 10.000.000"})  # score de reglas puro: 85.5
     resultado = scoring.calcular_score(usuario)
 
-    # con >=3 peers, el blend reparte 0.6 reglas / 0.2 peers / 0.2 vectorial:
-    # 0.6*85.5 + 0.2*50.0(pct_con_vivienda_propia) + 0.2*50.0(stub vectorial) = 71.3
-    assert resultado.score == pytest.approx(71.3)
+    # con >=3 peers, el blend reparte 0.6 reglas / 0.2 peers / 0.2 vectorial.
+    # La senal de peers no es la conversion cruda sino su lift contra la tasa
+    # base (26.0% via el fixture tasa_base_fija): 50/26*50 = 96.2.
+    # 0.6*85.5 + 0.2*96.2 + 0.2*50.0(stub vectorial) = 80.5
+    assert resultado.score == pytest.approx(80.5, abs=0.1)
     assert resultado.segmento_lead == "CALIENTE"
     assert resultado.peer_stats["total_peers"] == 4
     assert resultado.peer_stats["pct_con_vivienda_propia"] == 50.0
