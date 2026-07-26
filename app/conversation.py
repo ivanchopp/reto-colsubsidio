@@ -28,10 +28,6 @@ TEMAS = [
         "campo": None,
     },
     {
-        "pregunta": "en que empresa trabaja actualmente o a que se dedica hoy",
-        "campo": "situacion_laboral",
-    },
-    {
         "pregunta": "si esta pensando en comprar para vivir ahi o como inversion",
         "campo": None,
     },
