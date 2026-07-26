@@ -24,7 +24,7 @@ def _usuario(**overrides):
         "Tipo de contrato": "Indefinido",
         "Afiliado a colsubsidio": "Si",
         "Reportado en data crédito": "No reportado",
-        "Fecha de inicio de labores": pd.Timestamp.now() - pd.Timedelta(days=365 * 5),
+        "Fecha de inicio de labores": pd.Timestamp.now() - pd.to_timedelta(365 * 5, unit="D"),
     }
     base.update(overrides)
     return base
