@@ -6,7 +6,7 @@ import json
 
 from sqlalchemy import text
 
-from app import db
+from app import config, db
 
 
 # Regla 90/10: como maximo el 10% de las ventas puede ir a no afiliados.
@@ -195,6 +195,25 @@ def calcular_stats(leads: list[dict]) -> dict:
         "por_origen": por_origen,
         "cuota_90_10": calcular_cuota_90_10(leads),
         "calidad_por_origen": calcular_calidad_por_origen(leads),
+        "filtrados": calcular_filtrados(leads),
+    }
+
+
+def calcular_filtrados(leads: list[dict]) -> dict:
+    """Leads que terminaron su conversacion y NO se derivaron al asesor.
+
+    Es la metrica que resume para que existe el proyecto: cada uno de estos es
+    tiempo que el equipo comercial no gasto persiguiendo a alguien que hoy no
+    puede comprar, y que igual queda registrado con su plan de nutricion para
+    retomarlo. Solo se cuentan conversaciones cerradas: una en curso todavia
+    puede cambiar de segmento."""
+    cerrados = [l for l in leads if l.get("interaccion_cerrada")]
+    filtrados = [l for l in cerrados if l.get("segmento_lead") not in config.SEGMENTOS_DERIVABLES]
+    return {
+        "cerrados": len(cerrados),
+        "filtrados": len(filtrados),
+        "derivados": len(cerrados) - len(filtrados),
+        "pct_filtrados": round(len(filtrados) / len(cerrados) * 100, 1) if cerrados else 0.0,
     }
 
 

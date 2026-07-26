@@ -13,7 +13,7 @@
       <img class="logo-wordmark" src="/static/img/logo-wordmark-blanco.png?v=4" alt="Colsubsidio" />
       <nav class="sitio-nav" aria-label="Navegación principal">
         <a href="#proyectos">Proyectos</a>
-        <a href="#asesor-panel">Panel de pruebas</a>
+        <a href="/asesor">Panel del asesor</a>
         <button class="btn btn-amarillo" id="btn-abrir-chat-nav">Habla con Lina</button>
       </nav>
     </div>
@@ -46,17 +46,17 @@
       </div>
     </section>
 
+    <!-- El resumen del lead (nombre, documento, correo, score y razones del
+         calculo) es informacion interna del equipo comercial: se consulta en
+         /asesor, detras de autenticacion. Antes se pintaba aca, en la pagina
+         publica, lo que exponia datos personales al propio lead. -->
     <section class="asesor-panel" id="asesor-panel">
       <div class="contenedor">
         <div class="asesor-panel-encabezado">
           <h2>Panel del asesor comercial</h2>
-          <span class="chip-prueba">Vista de pruebas internas</span>
         </div>
-        <p class="proyectos-sub">Al cerrar una conversación, el resumen se envía automáticamente al asesor. Aquí puedes revisar el resultado.</p>
-        <div id="resumen-vacio">Todavía no hay una conversación finalizada.</div>
-        <pre id="resumen-contenido" class="oculto"></pre>
-        <button id="btn-enviar-asesor" class="btn btn-azul oculto">Enviar correo al asesor</button>
-        <div id="estado-envio" role="status"></div>
+        <p class="proyectos-sub">Al cerrar una conversación, el resumen del lead se envía automáticamente al asesor y queda disponible en el panel interno.</p>
+        <a class="btn btn-azul" href="/asesor">Abrir el panel del asesor →</a>
       </div>
     </section>
   </main>
@@ -102,6 +102,9 @@
     <div class="progreso-chat" aria-label="Progreso de la conversación">
       <div class="progreso-label"><span id="progreso-texto">Conociéndote</span><span id="progreso-numero">0 de 3</span></div>
       <div class="progreso-pista"><div id="progreso-barra" class="progreso-barra"></div></div>
+      <!-- Lo que la charla fue aportando al perfil. Nunca el score ni el
+           segmento: el usuario no debe ver su calificacion (SOBREMI.md). -->
+      <ul id="perfil-chips" class="perfil-chips oculto" aria-live="polite" aria-label="Lo que ya sabemos de ti"></ul>
     </div>
 
     <div id="pantalla-inicio" class="chat-inicio">

@@ -163,3 +163,34 @@ def test_cupo_se_redondea_en_volumenes_bajos():
 
     assert cuota["cupo_no_afiliados"] == 1
     assert cuota["excedido"] is False
+
+
+# ---------------------------------------------------------------------
+# Derivacion al asesor: un FRIO no ocupa tiempo del equipo comercial
+# ---------------------------------------------------------------------
+
+def _cerrado(segmento):
+    return {"segmento_lead": segmento, "interaccion_cerrada": True}
+
+
+def test_filtrados_cuenta_solo_conversaciones_cerradas():
+    """Una charla en curso todavia puede cambiar de segmento."""
+    leads = [_cerrado("FRIO"), {"segmento_lead": "FRIO", "interaccion_cerrada": False}]
+    f = leads_store.calcular_filtrados(leads)
+
+    assert f["cerrados"] == 1
+    assert f["filtrados"] == 1
+
+
+def test_calientes_y_tibios_se_derivan_los_frios_no():
+    leads = [_cerrado("CALIENTE"), _cerrado("TIBIO"), _cerrado("FRIO"), _cerrado("FRIO")]
+    f = leads_store.calcular_filtrados(leads)
+
+    assert f["derivados"] == 2
+    assert f["filtrados"] == 2
+    assert f["pct_filtrados"] == 50.0
+
+
+def test_sin_cerradas_no_divide_por_cero():
+    f = leads_store.calcular_filtrados([{"segmento_lead": "CALIENTE"}])
+    assert f == {"cerrados": 0, "filtrados": 0, "derivados": 0, "pct_filtrados": 0.0}

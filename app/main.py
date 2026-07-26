@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app import (
-    auth, conversation, data_store, email_sender, extraccion, handoff,
+    auth, config, conversation, data_store, email_sender, extraccion, handoff,
     leads_store, nutricion, scoring,
 )
 
@@ -128,6 +128,16 @@ def _enviar_correo_asesor(sesion: conversation.Sesion) -> dict:
     return {"enviado": ok, "detalle": detalle, "asunto": asunto, "cuerpo": cuerpo}
 
 
+def _corresponde_derivar(sesion: conversation.Sesion) -> bool:
+    """Si la interaccion cerro, todavia no se envio, y el lead amerita ocupar
+    tiempo del equipo comercial (ver handoff.debe_derivar_al_asesor)."""
+    return (
+        sesion.interaccion_cerrada
+        and not sesion.enviado_al_asesor
+        and handoff.debe_derivar_al_asesor(sesion.resultado_scoring)
+    )
+
+
 def _lead_payload(sesion: conversation.Sesion) -> dict:
     """Traduce una Sesion en memoria al shape que espera leads_store.upsert_lead.
     Vive aqui (no en conversation.py) para que ese modulo siga sin conocer
@@ -197,7 +207,7 @@ def mensaje(req: MensajeRequest):
     respuesta = conversation.procesar_mensaje(sesion, req.texto)
 
     envio_asesor = None
-    if sesion.interaccion_cerrada and not sesion.enviado_al_asesor:
+    if _corresponde_derivar(sesion):
         # ojo: se dispara con interaccion_cerrada, NO con finalizada -- un
         # usuario registrado puede seguir preguntando despues de recibir la
         # recomendacion (ver conversation.py), y el correo no debe salir
@@ -220,7 +230,7 @@ def finalizar(session_id: str, req: FinalizarRequest):
     respuesta = conversation.finalizar_sesion(sesion, req.motivo)
 
     envio_asesor = None
-    if sesion.interaccion_cerrada and not sesion.enviado_al_asesor:
+    if _corresponde_derivar(sesion):
         envio_asesor = _enviar_correo_asesor(sesion)
 
     _guardar_lead(sesion)
@@ -228,7 +238,10 @@ def finalizar(session_id: str, req: FinalizarRequest):
 
 
 @app.get("/api/resumen/{session_id}")
-def resumen(session_id: str):
+def resumen(session_id: str, _: str = Depends(auth.verificar_asesor)):
+    """Cuerpo del correo de handoff: trae nombre, documento, correo, score y
+    razones del calculo. Es informacion interna del equipo comercial, no del
+    lead -- va detras de la misma auth que el panel."""
     sesion = conversation.obtener_sesion(session_id)
     if sesion is None:
         raise HTTPException(404, "Sesion no encontrada")
@@ -238,7 +251,7 @@ def resumen(session_id: str):
 
 
 @app.post("/api/enviar-asesor/{session_id}")
-def enviar_asesor(session_id: str):
+def enviar_asesor(session_id: str, _: str = Depends(auth.verificar_asesor)):
     """Reenvio manual -- normalmente el correo ya se envio solo cuando la
     interaccion realmente se cierra (ver interaccion_cerrada en /api/mensaje
     y /api/finalizar). Esto sirve para reintentar si el envio automatico
@@ -291,7 +304,15 @@ def asesor_resumen_dia(_: str = Depends(auth.verificar_asesor)):
     90/10 es una cuota sobre el total, no un descuento por persona, y la
     comparacion de canales es lo que permite decidir donde recortar pauta.
     """
-    return leads_store.calcular_stats(leads_store.listar_leads_hoy())
+    stats = leads_store.calcular_stats(leads_store.listar_leads_hoy())
+    # los umbrales viajan con el resumen para que el panel dibuje las bandas
+    # del medidor con los cortes reales y no con valores hardcodeados que se
+    # desincronizan en cada recalibracion
+    stats["umbrales"] = {
+        "tibio": config.UMBRAL_TIBIO,
+        "caliente": config.UMBRAL_CALIENTE,
+    }
+    return stats
 
 
 @app.get("/api/asesor/leads/{session_id}")

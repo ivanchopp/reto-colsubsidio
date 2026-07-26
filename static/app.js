@@ -13,10 +13,6 @@ const inputTelefono = document.getElementById("input-telefono");
 const inputMensaje = document.getElementById("input-mensaje");
 const btnEnviarMensaje = document.getElementById("btn-enviar");
 const btnMicrofono = document.getElementById("btn-microfono");
-const resumenVacio = document.getElementById("resumen-vacio");
-const resumenContenido = document.getElementById("resumen-contenido");
-const btnEnviarAsesor = document.getElementById("btn-enviar-asesor");
-const estadoEnvio = document.getElementById("estado-envio");
 const btnFinalizarChat = document.getElementById("btn-finalizar-chat");
 const barraChatInput = document.getElementById("barra-chat-input");
 const barraChatFinalizado = document.getElementById("barra-chat-finalizado");
@@ -27,6 +23,7 @@ const tituloAvatar = document.getElementById("titulo-avatar");
 const progresoTexto = document.getElementById("progreso-texto");
 const progresoNumero = document.getElementById("progreso-numero");
 const progresoBarra = document.getElementById("progreso-barra");
+const perfilChips = document.getElementById("perfil-chips");
 const respuestasRapidas = document.getElementById("respuestas-rapidas");
 const proyectoRecomendado = document.getElementById("proyecto-recomendado");
 const recomendadoNombre = document.getElementById("recomendado-nombre");
@@ -180,6 +177,35 @@ function mostrarProyectoRecomendado(recomendacion, mostrar) {
   proyectoRecomendado.classList.remove("oculto");
 }
 
+// Cada dato que la conversacion aporta al perfil aparece como un chip. Hace
+// visible que la charla enriquece la evaluacion, sin exponer la evaluacion en
+// si: el backend manda estas lineas ya redactadas en /api/sesion y nunca
+// incluye score ni segmento.
+let chipsPintados = 0;
+
+function mostrarChipsPerfil(lineas = []) {
+  if (!lineas.length) {
+    perfilChips.classList.add("oculto");
+    perfilChips.innerHTML = "";
+    chipsPintados = 0;
+    return;
+  }
+  // solo se agregan los nuevos, para que los ya visibles no re-animen en cada
+  // sincronizacion de estado
+  if (lineas.length < chipsPintados) {
+    perfilChips.innerHTML = "";
+    chipsPintados = 0;
+  }
+  lineas.slice(chipsPintados).forEach((linea) => {
+    const item = document.createElement("li");
+    item.className = "perfil-chip";
+    item.textContent = linea;
+    perfilChips.appendChild(item);
+  });
+  chipsPintados = lineas.length;
+  perfilChips.classList.remove("oculto");
+}
+
 function actualizarExperiencia(estado = estadoSesion, forzarEstado = null) {
   const respuestas = Math.min(estado.respuestas_aspiracionales || 0, 3);
   const completa = estado.finalizada || estado.fase === "recomendacion" || estado.fase === "cierre";
@@ -196,6 +222,8 @@ function actualizarExperiencia(estado = estadoSesion, forzarEstado = null) {
     progresoTexto.textContent = "Conociéndote";
     progresoNumero.textContent = "0 de 3";
   }
+
+  mostrarChipsPerfil(estado.datos_declarados_legibles || []);
 
   let estadoAvatarActual = forzarEstado;
   if (!estadoAvatarActual) {
@@ -308,7 +336,6 @@ async function restaurarSesionGuardada() {
   if (estado.interaccion_cerrada || sesionFinalizada) {
     sesionFinalizada = true;
     bloquearChat();
-    await cargarResumen();
   } else {
     btnFinalizarChat.classList.remove("oculto");
     reiniciarTemporizadorInactividad();
@@ -376,8 +403,6 @@ async function enviarMensaje(respuestaRapida = null) {
       limpiarTemporizadoresInactividad();
       bloquearChat();
     }
-    await cargarResumen();
-    if (data.envio_asesor) mostrarEstadoEnvio(data.envio_asesor);
   }
 }
 
@@ -410,8 +435,6 @@ async function finalizarConversacion(motivo) {
   agregarBurbuja(data.mensaje, "bot");
   await sincronizarExperiencia();
   bloquearChat();
-  await cargarResumen();
-  if (data.envio_asesor) mostrarEstadoEnvio(data.envio_asesor);
 }
 
 function bloquearChat() {
@@ -431,6 +454,7 @@ function reiniciarChatCompleto() {
   usuarioEncontrado = true;
   sessionId = null;
   limpiarEstadoLocal();
+  mostrarChipsPerfil([]);
   estadoSesion = { fase: "saludo", tema_actual: null, respuestas_aspiracionales: 0, finalizada: false, interaccion_cerrada: false, recomendacion: null };
   mensajesDiv.innerHTML = "";
   inputTelefono.value = "";
@@ -448,29 +472,6 @@ function reiniciarChatCompleto() {
   inputTelefonoWa.focus();
 }
 
-function mostrarEstadoEnvio({ enviado, detalle }) {
-  estadoEnvio.textContent = enviado ? `✓ Correo enviado automáticamente al asesor — ${detalle}` : `⚠ ${detalle}`;
-  btnEnviarAsesor.textContent = enviado ? "Reenviar correo al asesor" : "Reintentar envío al asesor";
-}
-
-async function cargarResumen() {
-  try {
-    const { asunto, cuerpo, enviado_al_asesor } = await leerJson(`/api/resumen/${sessionId}`);
-    resumenVacio.classList.add("oculto");
-    resumenContenido.classList.remove("oculto");
-    btnEnviarAsesor.classList.remove("oculto");
-    resumenContenido.textContent = `Asunto: ${asunto}\n\n${cuerpo}`;
-    btnEnviarAsesor.textContent = enviado_al_asesor ? "Reenviar correo al asesor" : "Enviar correo al asesor";
-  } catch (error) { console.warn("No se pudo cargar el resumen:", error); }
-}
-
-async function enviarAAsesor() {
-  btnEnviarAsesor.disabled = true;
-  estadoEnvio.textContent = "Enviando…";
-  try { mostrarEstadoEnvio(await leerJson(`/api/enviar-asesor/${sessionId}`, { method: "POST" })); }
-  catch (error) { estadoEnvio.textContent = "⚠ No se pudo enviar el correo. Intenta nuevamente."; }
-  btnEnviarAsesor.disabled = false;
-}
 
 // Dictado opcional: el navegador convierte la voz a texto antes de enviarla,
 // así el backend y sus reglas conversacionales no requieren cambios.
@@ -527,10 +528,12 @@ btnMicrofono.addEventListener("click", () => {
   try { reconocimiento.start(); } catch (_) { dictando = false; }
 });
 document.getElementById("btn-iniciar").addEventListener("click", iniciar);
-document.getElementById("btn-enviar").addEventListener("click", enviarMensaje);
+// se envuelve en una arrow: addEventListener pasa el MouseEvent como primer
+// argumento, y enviarMensaje lo tomaria como `respuestaRapida`, reventando en
+// `respuestaRapida.trim()`. Por eso el boton no hacia nada y Enter si.
+document.getElementById("btn-enviar").addEventListener("click", () => enviarMensaje());
 inputMensaje.addEventListener("keydown", (e) => { if (e.key === "Enter") enviarMensaje(); });
 inputTelefono.addEventListener("keydown", (e) => { if (e.key === "Enter") iniciar(); });
-btnEnviarAsesor.addEventListener("click", enviarAAsesor);
 btnFinalizarChat.addEventListener("click", () => finalizarConversacion("manual"));
 btnNuevaConversacion.addEventListener("click", reiniciarChatCompleto);
 
