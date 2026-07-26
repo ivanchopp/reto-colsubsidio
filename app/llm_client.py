@@ -37,6 +37,46 @@ def generar_respuesta(system_prompt: str, historial: list[dict], instruccion_tur
         return MENSAJE_FALLBACK
 
 
+SYSTEM_PROMPT_EXTRACTOR = (
+    "Eres un extractor de datos. Recibes un mensaje de un usuario y devuelves "
+    "UNICAMENTE un objeto JSON valido, sin texto alrededor y sin bloques de "
+    "codigo. No inventes valores: si un dato no esta presente o no es claro, "
+    "usa null. No razones en voz alta."
+)
+
+
+def extraer_json(instruccion: str) -> dict:
+    """Llamada auxiliar al LLM que devuelve datos estructurados en vez de un
+    mensaje para el usuario. Usa un system prompt neutro (no la persona del
+    asesor) porque aqui no se conversa, se clasifica.
+
+    Nunca lanza: si el proveedor falla o devuelve algo que no es JSON, retorna
+    {} y el flujo sigue sin los datos declarados. Una extraccion fallida no
+    puede tumbar la conversacion.
+    """
+    import json
+
+    respuesta = generar_respuesta(SYSTEM_PROMPT_EXTRACTOR, [], instruccion)
+    if respuesta == MENSAJE_FALLBACK:
+        return {}
+
+    texto = respuesta.strip()
+    # algunos modelos envuelven el JSON en ```json ... ``` pese a la instruccion
+    if texto.startswith("```"):
+        texto = texto.split("```")[1] if "```" in texto[3:] else texto[3:]
+        texto = texto.removeprefix("json").strip()
+    # o lo acompanan de una frase: se recorta al primer objeto balanceado
+    inicio, fin = texto.find("{"), texto.rfind("}")
+    if inicio == -1 or fin <= inicio:
+        return {}
+
+    try:
+        datos = json.loads(texto[inicio : fin + 1])
+    except (ValueError, TypeError):
+        return {}
+    return datos if isinstance(datos, dict) else {}
+
+
 def _generar_openai(mensajes: list[dict]) -> str:
     from openai import OpenAI
 
