@@ -216,7 +216,7 @@ function actualizarExperiencia(estado = estadoSesion, forzarEstado = null) {
   const [estadoTexto, titulo] = copy[estadoAvatarActual] || copy.saludo;
   estadoAvatar.textContent = estadoTexto;
   tituloAvatar.textContent = titulo;
-  mostrarRespuestasRapidas(estado, estadoAvatarActual);
+  //mostrarRespuestasRapidas(estado, estadoAvatarActual);
   mostrarProyectoRecomendado(estado.recomendacion, completa);
 }
 
