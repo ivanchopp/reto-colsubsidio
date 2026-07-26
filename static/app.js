@@ -23,6 +23,7 @@ const tituloAvatar = document.getElementById("titulo-avatar");
 const progresoTexto = document.getElementById("progreso-texto");
 const progresoNumero = document.getElementById("progreso-numero");
 const progresoBarra = document.getElementById("progreso-barra");
+const perfilChips = document.getElementById("perfil-chips");
 const respuestasRapidas = document.getElementById("respuestas-rapidas");
 const proyectoRecomendado = document.getElementById("proyecto-recomendado");
 const recomendadoNombre = document.getElementById("recomendado-nombre");
@@ -176,6 +177,35 @@ function mostrarProyectoRecomendado(recomendacion, mostrar) {
   proyectoRecomendado.classList.remove("oculto");
 }
 
+// Cada dato que la conversacion aporta al perfil aparece como un chip. Hace
+// visible que la charla enriquece la evaluacion, sin exponer la evaluacion en
+// si: el backend manda estas lineas ya redactadas en /api/sesion y nunca
+// incluye score ni segmento.
+let chipsPintados = 0;
+
+function mostrarChipsPerfil(lineas = []) {
+  if (!lineas.length) {
+    perfilChips.classList.add("oculto");
+    perfilChips.innerHTML = "";
+    chipsPintados = 0;
+    return;
+  }
+  // solo se agregan los nuevos, para que los ya visibles no re-animen en cada
+  // sincronizacion de estado
+  if (lineas.length < chipsPintados) {
+    perfilChips.innerHTML = "";
+    chipsPintados = 0;
+  }
+  lineas.slice(chipsPintados).forEach((linea) => {
+    const item = document.createElement("li");
+    item.className = "perfil-chip";
+    item.textContent = linea;
+    perfilChips.appendChild(item);
+  });
+  chipsPintados = lineas.length;
+  perfilChips.classList.remove("oculto");
+}
+
 function actualizarExperiencia(estado = estadoSesion, forzarEstado = null) {
   const respuestas = Math.min(estado.respuestas_aspiracionales || 0, 3);
   const completa = estado.finalizada || estado.fase === "recomendacion" || estado.fase === "cierre";
@@ -192,6 +222,8 @@ function actualizarExperiencia(estado = estadoSesion, forzarEstado = null) {
     progresoTexto.textContent = "Conociéndote";
     progresoNumero.textContent = "0 de 3";
   }
+
+  mostrarChipsPerfil(estado.datos_declarados_legibles || []);
 
   let estadoAvatarActual = forzarEstado;
   if (!estadoAvatarActual) {
@@ -422,6 +454,7 @@ function reiniciarChatCompleto() {
   usuarioEncontrado = true;
   sessionId = null;
   limpiarEstadoLocal();
+  mostrarChipsPerfil([]);
   estadoSesion = { fase: "saludo", tema_actual: null, respuestas_aspiracionales: 0, finalizada: false, interaccion_cerrada: false, recomendacion: null };
   mensajesDiv.innerHTML = "";
   inputTelefono.value = "";
