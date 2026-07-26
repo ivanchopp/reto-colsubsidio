@@ -13,10 +13,6 @@ const inputTelefono = document.getElementById("input-telefono");
 const inputMensaje = document.getElementById("input-mensaje");
 const btnEnviarMensaje = document.getElementById("btn-enviar");
 const btnMicrofono = document.getElementById("btn-microfono");
-const resumenVacio = document.getElementById("resumen-vacio");
-const resumenContenido = document.getElementById("resumen-contenido");
-const btnEnviarAsesor = document.getElementById("btn-enviar-asesor");
-const estadoEnvio = document.getElementById("estado-envio");
 const btnFinalizarChat = document.getElementById("btn-finalizar-chat");
 const barraChatInput = document.getElementById("barra-chat-input");
 const barraChatFinalizado = document.getElementById("barra-chat-finalizado");
@@ -308,7 +304,6 @@ async function restaurarSesionGuardada() {
   if (estado.interaccion_cerrada || sesionFinalizada) {
     sesionFinalizada = true;
     bloquearChat();
-    await cargarResumen();
   } else {
     btnFinalizarChat.classList.remove("oculto");
     reiniciarTemporizadorInactividad();
@@ -376,8 +371,6 @@ async function enviarMensaje(respuestaRapida = null) {
       limpiarTemporizadoresInactividad();
       bloquearChat();
     }
-    await cargarResumen();
-    if (data.envio_asesor) mostrarEstadoEnvio(data.envio_asesor);
   }
 }
 
@@ -410,8 +403,6 @@ async function finalizarConversacion(motivo) {
   agregarBurbuja(data.mensaje, "bot");
   await sincronizarExperiencia();
   bloquearChat();
-  await cargarResumen();
-  if (data.envio_asesor) mostrarEstadoEnvio(data.envio_asesor);
 }
 
 function bloquearChat() {
@@ -448,29 +439,6 @@ function reiniciarChatCompleto() {
   inputTelefonoWa.focus();
 }
 
-function mostrarEstadoEnvio({ enviado, detalle }) {
-  estadoEnvio.textContent = enviado ? `✓ Correo enviado automáticamente al asesor — ${detalle}` : `⚠ ${detalle}`;
-  btnEnviarAsesor.textContent = enviado ? "Reenviar correo al asesor" : "Reintentar envío al asesor";
-}
-
-async function cargarResumen() {
-  try {
-    const { asunto, cuerpo, enviado_al_asesor } = await leerJson(`/api/resumen/${sessionId}`);
-    resumenVacio.classList.add("oculto");
-    resumenContenido.classList.remove("oculto");
-    btnEnviarAsesor.classList.remove("oculto");
-    resumenContenido.textContent = `Asunto: ${asunto}\n\n${cuerpo}`;
-    btnEnviarAsesor.textContent = enviado_al_asesor ? "Reenviar correo al asesor" : "Enviar correo al asesor";
-  } catch (error) { console.warn("No se pudo cargar el resumen:", error); }
-}
-
-async function enviarAAsesor() {
-  btnEnviarAsesor.disabled = true;
-  estadoEnvio.textContent = "Enviando…";
-  try { mostrarEstadoEnvio(await leerJson(`/api/enviar-asesor/${sessionId}`, { method: "POST" })); }
-  catch (error) { estadoEnvio.textContent = "⚠ No se pudo enviar el correo. Intenta nuevamente."; }
-  btnEnviarAsesor.disabled = false;
-}
 
 // Dictado opcional: el navegador convierte la voz a texto antes de enviarla,
 // así el backend y sus reglas conversacionales no requieren cambios.
@@ -527,10 +495,12 @@ btnMicrofono.addEventListener("click", () => {
   try { reconocimiento.start(); } catch (_) { dictando = false; }
 });
 document.getElementById("btn-iniciar").addEventListener("click", iniciar);
-document.getElementById("btn-enviar").addEventListener("click", enviarMensaje);
+// se envuelve en una arrow: addEventListener pasa el MouseEvent como primer
+// argumento, y enviarMensaje lo tomaria como `respuestaRapida`, reventando en
+// `respuestaRapida.trim()`. Por eso el boton no hacia nada y Enter si.
+document.getElementById("btn-enviar").addEventListener("click", () => enviarMensaje());
 inputMensaje.addEventListener("keydown", (e) => { if (e.key === "Enter") enviarMensaje(); });
 inputTelefono.addEventListener("keydown", (e) => { if (e.key === "Enter") iniciar(); });
-btnEnviarAsesor.addEventListener("click", enviarAAsesor);
 btnFinalizarChat.addEventListener("click", () => finalizarConversacion("manual"));
 btnNuevaConversacion.addEventListener("click", reiniciarChatCompleto);
 
