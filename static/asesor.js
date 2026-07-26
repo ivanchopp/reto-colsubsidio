@@ -98,8 +98,17 @@ async function cargarResumenDia() {
     document.getElementById("cuota-detalle").textContent = "No se pudo cargar el resumen del día.";
     return;
   }
+  if (stats.umbrales) UMBRALES = stats.umbrales;
+  renderFiltrados(stats.filtrados);
   renderCuota(stats.cuota_90_10);
   renderCanales(stats.calidad_por_origen);
+}
+
+function renderFiltrados(f) {
+  const tile = document.getElementById("tile-filtrados");
+  if (!f || !f.cerrados) { tile.textContent = "0"; return; }
+  tile.textContent = f.filtrados;
+  tile.title = `${f.filtrados} de ${f.cerrados} conversaciones cerradas no se derivaron (${f.pct_filtrados}%)`;
 }
 
 function renderCuota(cuota) {
@@ -193,18 +202,31 @@ const COLOR_SEGMENTO = {
   sindatos: "#6b6b6a",
 };
 
+// Umbrales de corte del score. Se piden al backend en cargarResumenDia y se
+// usan para dibujar las bandas del medidor: si quedan hardcodeados, una
+// recalibracion del scoring deja el grafico contradiciendo a la etiqueta del
+// propio lead (un score de 55 con pill "Caliente" cayendo en la banda tibia).
+let UMBRALES = { tibio: 29.1, caliente: 53.6 };
+
+// el medidor va de x=20 (score 0) a x=300 (score 100)
+function xDeScore(score) {
+  return 20 + (Math.max(0, Math.min(100, score)) / 100) * 280;
+}
+
 function medidorSVG(score, segmento) {
   const color = COLOR_SEGMENTO[claseSegmento(segmento)];
-  const x = Math.max(20, Math.min(300, 20 + (score / 100) * 280));
+  const x = Math.max(20, Math.min(300, xDeScore(score)));
+  const xTibio = xDeScore(UMBRALES.tibio);
+  const xCaliente = xDeScore(UMBRALES.caliente);
   return `
     <svg viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
-      <rect x="20" y="44" width="112" height="20" rx="4" fill="var(--frio-bg)" />
-      <rect x="132" y="44" width="84" height="20" fill="var(--tibio-bg)" />
-      <rect x="216" y="44" width="84" height="20" rx="4" fill="var(--caliente-bg)" />
-      <line x1="132" y1="40" x2="132" y2="68" stroke="var(--borde)" stroke-width="2" />
-      <text x="132" y="82" font-size="10" fill="var(--texto-tenue)" text-anchor="middle">40</text>
-      <line x1="216" y1="40" x2="216" y2="68" stroke="var(--borde)" stroke-width="2" />
-      <text x="216" y="82" font-size="10" fill="var(--texto-tenue)" text-anchor="middle">70</text>
+      <rect x="20" y="44" width="${xTibio - 20}" height="20" rx="4" fill="var(--frio-bg)" />
+      <rect x="${xTibio}" y="44" width="${xCaliente - xTibio}" height="20" fill="var(--tibio-bg)" />
+      <rect x="${xCaliente}" y="44" width="${300 - xCaliente}" height="20" rx="4" fill="var(--caliente-bg)" />
+      <line x1="${xTibio}" y1="40" x2="${xTibio}" y2="68" stroke="var(--borde)" stroke-width="2" />
+      <text x="${xTibio}" y="82" font-size="10" fill="var(--texto-tenue)" text-anchor="middle">${UMBRALES.tibio}</text>
+      <line x1="${xCaliente}" y1="40" x2="${xCaliente}" y2="68" stroke="var(--borde)" stroke-width="2" />
+      <text x="${xCaliente}" y="82" font-size="10" fill="var(--texto-tenue)" text-anchor="middle">${UMBRALES.caliente}</text>
       <text x="20" y="82" font-size="10" fill="var(--texto-tenue)" text-anchor="start">0</text>
       <text x="300" y="82" font-size="10" fill="var(--texto-tenue)" text-anchor="end">100</text>
       <polygon points="${x - 7},34 ${x + 7},34 ${x},48" fill="${color}" />

@@ -88,5 +88,11 @@ INGRESO_SUPUESTO_POR_SITUACION = {
 # Umbrales de corte del score, calculados con scripts/calibrar_scoring.py
 # sobre los 3.449 usuarios de la base (percentiles 88 y 50). Recalibrar si
 # cambia la base o los porcentajes objetivo de arriba.
+# Segmentos que se derivan al equipo comercial. Un FRIO no se transfiere: se
+# queda en el panel con su plan de nutricion para retomarlo mas adelante. Es
+# la barrera que pide el reto y la linea roja de SOBREMI.md sobre no ocupar al
+# asesor con quien no aporto datos de valor.
+SEGMENTOS_DERIVABLES = ("CALIENTE", "TIBIO")
+
 UMBRAL_CALIENTE = 53.6
 UMBRAL_TIBIO = 29.1

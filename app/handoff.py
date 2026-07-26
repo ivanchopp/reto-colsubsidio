@@ -1,7 +1,7 @@
 """Arma el resumen estructurado que se le entrega al asesor comercial:
 info del usuario, proyecto recomendado, probabilidad de compra y un dato
 interesante para romper el hielo en la llamada."""
-from app import extraccion, nutricion, scoring
+from app import config, extraccion, nutricion, scoring
 from app.conversation import Sesion
 
 
@@ -70,6 +70,20 @@ def construir_resumen(sesion: Sesion) -> dict:
             else []
         ),
     }
+
+
+# Segmentos que se derivan al equipo comercial. Un FRIO no se transfiere: se
+# queda en el panel con su plan de nutricion para retomarlo mas adelante.
+#
+# Es la barrera que pide el reto ("los leads listos para cerrar llegan directo
+# al asesor; los que aun no pueden comprar entran a un flujo de nutricion") y
+# la linea roja de SOBREMI.md: no transferir a nadie que no haya aportado
+# datos de valor. Sin esto, el correo salia para todos y el equipo comercial
+# seguia gastando horas en leads que no cierran, que es exactamente el costo
+# que el proyecto existe para eliminar.
+def debe_derivar_al_asesor(resultado) -> bool:
+    """True si este lead amerita ocupar tiempo del equipo comercial."""
+    return resultado is not None and resultado.segmento_lead in config.SEGMENTOS_DERIVABLES
 
 
 _ETIQUETA_URGENCIA = {

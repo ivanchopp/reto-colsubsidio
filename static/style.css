@@ -75,3 +75,10 @@ button { cursor:pointer; }
 .wa-simulacion .btn { width:100%; }
 .wa-saltar { margin-top:12px; border:0; color:#87939c; background:transparent; font-size:12px; text-decoration:underline; }
 .wa-saltar:hover { color:var(--azul); }
+
+/* Chips de perfil: lo que la conversacion fue aportando. Verde menta para
+   que se lean como logro y no como dato de formulario. */
+.perfil-chips { display:flex; flex-wrap:wrap; gap:5px; margin:9px 0 0; padding:0; list-style:none; }
+.perfil-chip { border-radius:999px; padding:4px 10px; border:1px solid #7fd1a0; color:#125c33; background:#dff5e8; font-size:11px; font-weight:800; line-height:1.25; animation:chip-entra .3s ease both; }
+.perfil-chip::before { content:"✓ "; opacity:.75; }
+@keyframes chip-entra { from { opacity:0; transform:translateY(-4px) scale(.92); } to { opacity:1; transform:none; } }

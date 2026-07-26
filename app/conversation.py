@@ -147,11 +147,20 @@ class Sesion:
 _SESIONES: dict[str, Sesion] = {}
 
 
-def _es_evasion(texto: str) -> bool:
+def _es_evasion(texto: str, tema: str | None = None) -> bool:
+    """El tema importa: hay preguntas que se responden naturalmente con "no",
+    y ahi esa respuesta es el dato, no una evasion.
+
+    "¿ya vienes ahorrando o tienes cesantias?" -> "no" significa
+    ahorro_cuota_inicial=False, que es justo lo que necesita el scoring para
+    detectar el bloqueante de cuota inicial. Tratarlo como evasion descartaba
+    la respuesta, no capturaba el dato y ademas le sumaba un intento de
+    evasion a alguien que si habia contestado.
+    """
     texto_low = texto.strip().lower()
     palabras = [p.strip(".,!¡¿?") for p in texto_low.split()]
     if palabras and len(palabras) <= 3 and all(p in PALABRAS_EVASION_CORTAS for p in palabras):
-        return True
+        return CAMPO_POR_PREGUNTA.get(tema) not in extraccion.CAMPOS_BOOLEANOS
     return any(frase in texto_low for frase in FRASES_EVASION)
 
 
@@ -181,7 +190,7 @@ def _capturar_datos_declarados(sesion: Sesion, texto_usuario: str, tema: str | N
     El score se recalcula aqui mismo para que el panel de explicabilidad lo
     muestre moverse durante la conversacion, no solo al final.
     """
-    if _es_evasion(texto_usuario):
+    if _es_evasion(texto_usuario, tema):
         return
 
     nuevos = extraccion.extraer_de_mensaje(texto_usuario, tema)
@@ -285,7 +294,7 @@ def procesar_mensaje(sesion: Sesion, texto_usuario: str) -> str:
     if sesion.fase == "aspiracional":
         tema = sesion.tema_actual
         _capturar_datos_declarados(sesion, texto_usuario, tema)
-        if _es_evasion(texto_usuario):
+        if _es_evasion(texto_usuario, tema):
             sesion.intentos_evasion[tema] = sesion.intentos_evasion.get(tema, 0) + 1
             if sesion.intentos_evasion[tema] < LIMITE_EVASION:
                 instruccion = (

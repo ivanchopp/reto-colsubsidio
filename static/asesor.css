@@ -281,3 +281,6 @@ body.pagina-asesor {
 .asesor-nutricion li { padding:10px 12px; border-left:3px solid #ffd000; border-radius:0 9px 9px 0; background:#fffbe9; font-size:12.5px; }
 .asesor-nutricion strong { display:block; margin-bottom:2px; color:#5c4a00; }
 .asesor-nutricion span { color:#6b6455; line-height:1.45; }
+
+.asesor-tile.filtrados .num { color:#4d5a66; }
+.asesor-tile.filtrados { border-bottom:3px solid #c9d3db; }
