@@ -494,7 +494,9 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
     invitacion_seguimiento = (
         "Termina tu respuesta invitandolo con calidez a seguir preguntando mientras lo contactan, "
         "algo como 'mientras te contactan, ¿hay algo mas que quieras saber sobre este proyecto?' "
-        "(usa tus propias palabras, no cites este ejemplo literalmente)."
+        "(usa tus propias palabras, no cites este ejemplo literalmente). "
+        "Ademas, al final de tu mensaje, incluye este link de WhatsApp para que pueda contactar "
+        "directamente si lo prefiere: https://wa.me/573188630827 rellenando los datos relevantes previamente para el mensaje."
     )
 
     instruccion = (
@@ -503,7 +505,7 @@ def _pasar_a_recomendacion(sesion: Sesion) -> str:
         f"{ficha_proyecto} "
         f"Razones por las que este proyecto encaja con este usuario en particular: {razones_humanas}. "
         "Explicale al usuario, en 2-3 frases, POR QUE este proyecto es el ideal para el, conectando "
-        "explicitamente datos reales del proyecto (ubicacion, tipologias/alcobas, amenities concretas) "
+        "explicitamente datos reales del proyecto (ubicacion, tipologias/alcobas, amenities concretos) "
         "con lo que el te conto en la conversacion. Usa solo los datos que te di arriba, nunca inventes "
         "precios, fechas ni caracteristicas que no esten en esta ficha. "
         f"{nota_subsidios} "
