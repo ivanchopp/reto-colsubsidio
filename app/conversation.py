@@ -198,6 +198,31 @@ def _capturar_datos_declarados(sesion: Sesion, texto_usuario: str, tema: str | N
         sesion.resultado_scoring = scoring.calcular_score_no_registrado(sesion.datos_declarados)
 
 
+def _construir_resumen_usuario(usuario: dict) -> str:
+    """Construye un resumen con los campos disponibles del usuario para incluir en la instruccion."""
+    campos = {
+        "Nombre": usuario.get("Nombre"),
+        "Ciudad": usuario.get("Ciudad"),
+        "Afiliado a colsubsidio": usuario.get("Afiliado a colsubsidio"),
+        "Estado de vivienda propia": usuario.get("Estado de vivienda propia"),
+        "Suscripciones actuales": usuario.get("Suscripciones actuales"),
+        "Estado laboral": usuario.get("Estado laboral"),
+        "Fecha de inicio de labores": usuario.get("Fecha de inicio de labores"),
+        "Tipo de contrato": usuario.get("Tipo de contrato"),
+        "Rango salarial": usuario.get("Rango salarial"),
+        "Ha pedido subsidios": usuario.get("Ha pedido subsidios"),
+        "Reportado en data crédito": usuario.get("Reportado en data crédito"),
+        "Edad": usuario.get("Edad"),
+    }
+    
+    partes = []
+    for campo, valor in campos.items():
+        if valor and str(valor).strip() and str(valor).lower() not in ("nan", "none", ""):
+            partes.append(f"{campo}: {valor}")
+    
+    return ". ".join(partes) if partes else ""
+
+
 def iniciar_sesion(telefono: str, origen: str = "organico") -> tuple[Sesion, str]:
     session_id = str(uuid.uuid4())
     usuario = data_store.buscar_usuario_por_telefono(telefono)
@@ -205,10 +230,12 @@ def iniciar_sesion(telefono: str, origen: str = "organico") -> tuple[Sesion, str
 
     if usuario:
         sesion.resultado_scoring = scoring.calcular_score(usuario)
+        resumen_usuario = _construir_resumen_usuario(usuario)
         instruccion = (
             "[INSTRUCCION INTERNA] Este es el primer mensaje de la conversacion. "
-            f"El usuario se llama {usuario.get('Nombre')}. Saludalo de forma calida y natural "
-            "(nunca menciones que revisaste una base de datos). Luego haz, con tus propias palabras, "
+            f"Datos del usuario: {resumen_usuario}. "
+            "Saludalo de forma calida y natural (nunca menciones que revisaste una base de datos). "
+            "Luego haz, con tus propias palabras, "
             f"esta primera pregunta abierta: '{PREGUNTAS_ASPIRACIONALES_SUGERIDAS[0]}'."
         )
         sesion.fase = "aspiracional"
