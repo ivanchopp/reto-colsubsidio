@@ -119,6 +119,12 @@ def _enviar_correo_asesor(sesion: conversation.Sesion) -> dict:
     ok, detalle = email_sender.enviar_resumen_asesor(asunto, cuerpo)
     if ok:
         sesion.enviado_al_asesor = True
+    else:
+        # sin esto, un fallo de SMTP en produccion (credenciales, host
+        # bloqueado, timeout) no deja ningun rastro -- queda solo en la
+        # respuesta HTTP, que nadie revisa despues del hecho. Con logging
+        # queda visible en los logs de Render.
+        logging.error("Fallo el envio de correo al asesor para la sesion %s: %s", sesion.id, detalle)
     return {"enviado": ok, "detalle": detalle, "asunto": asunto, "cuerpo": cuerpo}
 
 
