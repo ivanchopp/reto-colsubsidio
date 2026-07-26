@@ -76,6 +76,83 @@ async function cargarLeadsHoy() {
   document.getElementById("conteo-leads").textContent = `${leads.length} hoy`;
 
   renderLista(leads);
+  cargarResumenDia();
+}
+
+const ETIQUETA_ORIGEN = {
+  meta: "Meta Ads",
+  google: "Google Ads",
+  whatsapp: "WhatsApp",
+  organico: "Orgánico",
+  contact_center: "Contact center",
+  desconocido: "Sin origen",
+};
+
+async function cargarResumenDia() {
+  let stats;
+  try {
+    const resp = await fetch("/api/asesor/resumen-dia");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    stats = await resp.json();
+  } catch (e) {
+    document.getElementById("cuota-detalle").textContent = "No se pudo cargar el resumen del día.";
+    return;
+  }
+  renderCuota(stats.cuota_90_10);
+  renderCanales(stats.calidad_por_origen);
+}
+
+function renderCuota(cuota) {
+  const estado = document.getElementById("cuota-estado");
+  const detalle = document.getElementById("cuota-detalle");
+  const barraAfiliados = document.getElementById("cuota-barra-afiliados");
+  const barraNoAfiliados = document.getElementById("cuota-barra-no-afiliados");
+
+  if (!cuota || !cuota.derivables) {
+    estado.textContent = "Sin leads derivables";
+    estado.className = "asesor-cuota-estado neutro";
+    detalle.textContent = "Todavía no hay leads calientes para derivar al equipo comercial.";
+    barraAfiliados.style.width = "0%";
+    barraNoAfiliados.style.width = "0%";
+    return;
+  }
+
+  const pctNoAfiliados = cuota.pct_no_afiliados;
+  barraAfiliados.style.width = `${100 - pctNoAfiliados}%`;
+  barraNoAfiliados.style.width = `${pctNoAfiliados}%`;
+
+  if (cuota.excedido) {
+    estado.textContent = "Cupo excedido";
+    estado.className = "asesor-cuota-estado excedido";
+    detalle.textContent =
+      `${cuota.no_afiliados} de ${cuota.derivables} leads derivables son no afiliados (${pctNoAfiliados}%), ` +
+      `por encima del cupo de ${cuota.cupo_no_afiliados}. Priorizar afiliados en las próximas derivaciones.`;
+    return;
+  }
+
+  estado.textContent = `${cuota.cupo_disponible} de cupo disponible`;
+  estado.className = "asesor-cuota-estado ok";
+  detalle.textContent =
+    `${cuota.afiliados} afiliado(s) y ${cuota.no_afiliados} no afiliado(s) sobre ${cuota.derivables} leads derivables ` +
+    `(${pctNoAfiliados}%). El cupo para no afiliados es de ${cuota.cupo_no_afiliados}.`;
+}
+
+function renderCanales(canales) {
+  const cont = document.getElementById("tabla-canales");
+  if (!canales || !canales.length) {
+    cont.innerHTML = `<div class="asesor-vacio">Sin datos todavía.</div>`;
+    return;
+  }
+  cont.innerHTML = canales
+    .map((c) => `
+      <div class="asesor-canal-fila">
+        <span class="asesor-canal-nombre">${escaparHtml(ETIQUETA_ORIGEN[c.origen] || c.origen)}</span>
+        <span class="asesor-canal-total">${c.total} lead(s)</span>
+        <span class="asesor-canal-barra"><i style="width:${c.pct_calientes}%"></i></span>
+        <span class="asesor-canal-pct">${c.pct_calientes}% caliente</span>
+      </div>
+    `)
+    .join("");
 }
 
 function renderLista(leads) {
@@ -282,6 +359,26 @@ function bloqueChat(data) {
   `;
 }
 
+// Que le falta a este lead para poder comprar. Solo se muestra si no es
+// CALIENTE: en un lead listo para cerrar, listar pendientes distrae del
+// unico objetivo, que es llamarlo.
+function bloqueNutricion(scoring) {
+  const bloqueantes = scoring?.bloqueantes || [];
+  if (!bloqueantes.length || scoring?.segmento_lead === "CALIENTE") return "";
+  const items = bloqueantes
+    .map((b) => `
+      <li>
+        <strong>${escaparHtml(b.titulo)}</strong>
+        <span>${escaparHtml(b.accion)}</span>
+      </li>
+    `)
+    .join("");
+  return `
+    <div class="asesor-seccion-titulo">Plan de nutrición</div>
+    <ul class="asesor-nutricion">${items}</ul>
+  `;
+}
+
 function renderDetalle(data) {
   const det = document.getElementById("detalle");
   const seg = claseSegmento(data.scoring?.segmento_lead);
@@ -300,6 +397,7 @@ function renderDetalle(data) {
       </div>
     </div>
     ${bloqueScore(data.scoring)}
+    ${bloqueNutricion(data.scoring)}
     ${bloqueApoyo(data.scoring)}
     ${bloqueChat(data)}
   `;

@@ -55,12 +55,53 @@ function conLinksClicables(textoEscapado) {
   });
 }
 
-function agregarBurbuja(texto, quien) {
+// ---------------------------------------------------------------------
+// Persistencia local de la conversacion
+//
+// El backend guarda las sesiones en un diccionario en memoria del proceso
+// (app/conversation.py), asi que un refresh del navegador perdia la charla
+// completa aunque la sesion siguiera viva del otro lado. Aca se guarda lo
+// minimo para reconstruirla: el id y las burbujas ya mostradas.
+//
+// La version en la clave permite invalidar lo guardado si cambia el formato,
+// en vez de tener que interpretar estructuras viejas.
+// ---------------------------------------------------------------------
+const CLAVE_ESTADO_LOCAL = "colsubsidio.asesor.v1";
+let historialLocal = [];
+
+function guardarEstadoLocal() {
+  if (!sessionId) {
+    localStorage.removeItem(CLAVE_ESTADO_LOCAL);
+    return;
+  }
+  try {
+    localStorage.setItem(CLAVE_ESTADO_LOCAL, JSON.stringify({
+      sessionId, sesionFinalizada, usuarioEncontrado, historialLocal,
+    }));
+  } catch (error) {
+    // modo incognito o cuota llena: la conversacion sigue, solo no sobrevive
+    // al refresh. No es motivo para romper el chat.
+    console.warn("No se pudo guardar la conversación localmente:", error);
+  }
+}
+
+function limpiarEstadoLocal() {
+  historialLocal = [];
+  localStorage.removeItem(CLAVE_ESTADO_LOCAL);
+}
+
+function agregarBurbuja(texto, quien, persistir = true) {
   const div = document.createElement("div");
   div.className = `burbuja ${quien}`;
   div.innerHTML = conLinksClicables(escaparHtml(texto));
   mensajesDiv.appendChild(div);
   mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+  // los avisos de error de conexion no se guardan: al recargar ya no aplican
+  // y confundirian mas de lo que ayudan
+  if (persistir) {
+    historialLocal.push({ texto, quien });
+    guardarEstadoLocal();
+  }
 }
 
 function sugerenciasParaTema(tema) {
@@ -79,6 +120,18 @@ function sugerenciasParaTema(tema) {
   }
   if (temaNormalizado.includes("estilo de vida")) {
     return ["Trabajo desde casa", "Vida familiar", "Activo y social"];
+  }
+  // Temas que alimentan el scoring (ver PREGUNTAS_QUE_CALIFICAN en
+  // app/conversation.py). Las sugerencias cubren las respuestas tipicas para
+  // que el usuario pueda contestar de un toque, sin que parezca un formulario.
+  if (temaNormalizado.includes("empresa") || temaNormalizado.includes("se dedica")) {
+    return ["Trabajo en una empresa", "Soy independiente", "Estoy buscando trabajo"];
+  }
+  if (temaNormalizado.includes("ahorrando") || temaNormalizado.includes("cesantias")) {
+    return ["Sí, tengo ahorros", "Tengo cesantías", "Todavía no"];
+  }
+  if (temaNormalizado.includes("mudando")) {
+    return ["Solo/a", "En pareja", "Con mis hijos"];
   }
   return [];
 }
@@ -219,17 +272,66 @@ async function pedirConIndicadorEscribiendo(peticion) {
   return data;
 }
 
+async function restaurarSesionGuardada() {
+  let guardado;
+  try {
+    guardado = JSON.parse(localStorage.getItem(CLAVE_ESTADO_LOCAL) || "null");
+  } catch (error) {
+    limpiarEstadoLocal();
+    return false;
+  }
+  if (!guardado?.sessionId) return false;
+
+  // La sesion del backend vive en memoria del proceso: si el server se
+  // reinicio, ese id ya no existe y hay que empezar de cero. Se consulta
+  // antes de pintar nada para no mostrar una conversacion que ya no se puede
+  // continuar.
+  let estado;
+  try {
+    estado = await leerJson(`/api/sesion/${guardado.sessionId}`);
+  } catch (error) {
+    limpiarEstadoLocal();
+    return false;
+  }
+
+  sessionId = guardado.sessionId;
+  sesionFinalizada = Boolean(guardado.sesionFinalizada);
+  usuarioEncontrado = guardado.usuarioEncontrado !== false;
+  historialLocal = Array.isArray(guardado.historialLocal) ? guardado.historialLocal : [];
+
+  pantallaInicio.classList.add("oculto");
+  pantallaChat.classList.remove("oculto");
+  historialLocal.forEach(({ texto, quien }) => agregarBurbuja(texto, quien, false));
+
+  estadoSesion = estado;
+  actualizarExperiencia(estado);
+  if (estado.interaccion_cerrada || sesionFinalizada) {
+    sesionFinalizada = true;
+    bloquearChat();
+    await cargarResumen();
+  } else {
+    btnFinalizarChat.classList.remove("oculto");
+    reiniciarTemporizadorInactividad();
+  }
+  abrirChat();
+  return true;
+}
+
 async function iniciar() {
   const telefono = inputTelefono.value.trim();
   if (!telefono) {
     inputTelefono.focus();
     return;
   }
+  limpiarEstadoLocal();
   pantallaInicio.classList.add("oculto");
   pantallaChat.classList.remove("oculto");
   btnFinalizarChat.classList.remove("oculto");
+  // la URL de la pauta trae el canal (?origen=meta): permite comparar
+  // calidad de lead por fuente sin pedirle nada al usuario
+  const origen = new URLSearchParams(location.search).get("origen");
   const data = await pedirConIndicadorEscribiendo(() => leerJson("/api/iniciar", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ telefono }),
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ telefono, origen }),
   }));
   if (!data) {
     pantallaChat.classList.add("oculto");
@@ -242,6 +344,7 @@ async function iniciar() {
   sessionId = data.session_id;
   sesionFinalizada = false;
   usuarioEncontrado = data.usuario_encontrado;
+  historialLocal = [];
   agregarBurbuja(data.mensaje, "bot");
   await sincronizarExperiencia();
   reiniciarTemporizadorInactividad();
@@ -258,7 +361,7 @@ async function enviarMensaje(respuestaRapida = null) {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: sessionId, texto }),
   }));
   if (!data) {
-    agregarBurbuja("No pude enviar tu mensaje por un problema de conexión. Por favor intenta de nuevo.", "bot");
+    agregarBurbuja("No pude enviar tu mensaje por un problema de conexión. Por favor intenta de nuevo.", "bot", false);
     inputMensaje.value = texto;
     await sincronizarExperiencia();
     reiniciarTemporizadorInactividad();
@@ -298,7 +401,7 @@ async function finalizarConversacion(motivo) {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ motivo }),
   }));
   if (!data) {
-    agregarBurbuja("No pudimos cerrar la conversación por un problema de conexión. Intenta de nuevo con el botón Finalizar.", "bot");
+    agregarBurbuja("No pudimos cerrar la conversación por un problema de conexión. Intenta de nuevo con el botón Finalizar.", "bot", false);
     sesionFinalizada = false;
     await sincronizarExperiencia();
     reiniciarTemporizadorInactividad();
@@ -312,6 +415,8 @@ async function finalizarConversacion(motivo) {
 }
 
 function bloquearChat() {
+  sesionFinalizada = true;
+  guardarEstadoLocal();
   inputMensaje.disabled = true;
   btnEnviarMensaje.disabled = true;
   btnMicrofono.disabled = true;
@@ -325,6 +430,7 @@ function reiniciarChatCompleto() {
   sesionFinalizada = false;
   usuarioEncontrado = true;
   sessionId = null;
+  limpiarEstadoLocal();
   estadoSesion = { fase: "saludo", tema_actual: null, respuestas_aspiracionales: 0, finalizada: false, interaccion_cerrada: false, recomendacion: null };
   mensajesDiv.innerHTML = "";
   inputTelefono.value = "";
@@ -335,9 +441,11 @@ function reiniciarChatCompleto() {
   barraChatFinalizado.classList.add("oculto");
   btnFinalizarChat.classList.add("oculto");
   pantallaChat.classList.add("oculto");
-  pantallaInicio.classList.remove("oculto");
+  // se vuelve al paso de WhatsApp, que es el inicio real del flujo
+  inputTelefonoWa.value = "";
+  mostrarPantallaInicial("whatsapp");
   actualizarExperiencia();
-  inputTelefono.focus();
+  inputTelefonoWa.focus();
 }
 
 function mostrarEstadoEnvio({ enviado, detalle }) {
@@ -402,7 +510,7 @@ if (reconocimientoDisponible) {
   });
   reconocimiento.addEventListener("error", () => {
     btnMicrofono.classList.remove("escuchando");
-    agregarBurbuja("No pude activar el dictado. Puedes escribir tu mensaje cuando quieras.", "bot");
+    agregarBurbuja("No pude activar el dictado. Puedes escribir tu mensaje cuando quieras.", "bot", false);
   });
 } else {
   btnMicrofono.disabled = true;
@@ -431,7 +539,9 @@ const btnChatFlotante = document.getElementById("btn-chat-flotante");
 function abrirChat() {
   ventanaChat.classList.remove("oculto");
   btnChatFlotante.classList.add("oculto");
-  (pantallaChat.classList.contains("oculto") ? inputTelefono : inputMensaje).focus();
+  if (!pantallaChat.classList.contains("oculto")) inputMensaje.focus();
+  else if (!pantallaWhatsapp.classList.contains("oculto")) inputTelefonoWa.focus();
+  else inputTelefono.focus();
 }
 function cerrarChat() { ventanaChat.classList.add("oculto"); btnChatFlotante.classList.remove("oculto"); }
 btnChatFlotante.addEventListener("click", abrirChat);
@@ -453,5 +563,43 @@ async function cargarProyectos() {
   } catch (error) { sub.textContent = "No se pudo cargar el catálogo de proyectos."; }
 }
 
-actualizarExperiencia();
-cargarProyectos();
+// ---------------------------------------------------------------------
+// Entrada simulada desde WhatsApp (paso 1 del flujo de MIEMPRESA.md)
+// ---------------------------------------------------------------------
+const pantallaWhatsapp = document.getElementById("pantalla-whatsapp");
+const inputTelefonoWa = document.getElementById("input-telefono-wa");
+
+function mostrarPantallaInicial(pantalla) {
+  pantallaWhatsapp.classList.toggle("oculto", pantalla !== "whatsapp");
+  pantallaInicio.classList.toggle("oculto", pantalla !== "telefono");
+}
+
+async function iniciarDesdeWhatsapp() {
+  const telefono = inputTelefonoWa.value.trim();
+  if (!telefono) {
+    inputTelefonoWa.focus();
+    return;
+  }
+  // se reusa el mismo flujo: la pantalla de WhatsApp solo aporta el numero
+  inputTelefono.value = telefono;
+  pantallaWhatsapp.classList.add("oculto");
+  await iniciar();
+}
+
+document.getElementById("btn-abrir-desde-wa").addEventListener("click", iniciarDesdeWhatsapp);
+inputTelefonoWa.addEventListener("keydown", (e) => { if (e.key === "Enter") iniciarDesdeWhatsapp(); });
+document.getElementById("btn-saltar-wa").addEventListener("click", () => {
+  mostrarPantallaInicial("telefono");
+  inputTelefono.focus();
+});
+
+async function arrancar() {
+  actualizarExperiencia();
+  cargarProyectos();
+  // si hay una conversacion viva se retoma; si no, se arranca en el paso de
+  // WhatsApp, que es por donde llega el lead de pauta
+  const restaurada = await restaurarSesionGuardada();
+  if (!restaurada) mostrarPantallaInicial("whatsapp");
+}
+
+arrancar();

@@ -8,10 +8,13 @@ correo. Backend en FastAPI, frontend estático simple, y LLM configurable
 ## Requisitos
 
 - Python 3.11+
-- Una cuenta de [Supabase](https://supabase.com) (Postgres) para los datos, o
-  usar los Excel/JSON locales de `RECURSOS/` como alternativa de solo lectura
+- Una cuenta de [Supabase](https://supabase.com) (Postgres). **No es
+  opcional**: `app/data_store.py` lee todo desde la base, los Excel y JSON de
+  `RECURSOS/` son solo la fuente de carga inicial. Sin `SUPABASE_DB_URL` la
+  app levanta pero cualquier consulta falla.
 - Una API key de OpenAI o Google (Gemini/Vertex) para el LLM
 - (Opcional) Credenciales SMTP para el envío del correo al asesor
+- (Opcional) `ASESOR_PASSWORD` para habilitar el panel `/asesor`
 
 ## Instalación
 
@@ -55,8 +58,19 @@ correo. Backend en FastAPI, frontend estático simple, y LLM configurable
    python scripts/migrar_a_supabase.py
    ```
 
-   Este script es idempotente: cada tabla se vacía y se vuelve a cargar con el
-   contenido de `RECURSOS/`, así que se puede correr varias veces sin problema.
+   Este script es idempotente: `usuarios`, `subsidios` y `proyectos` se vacían
+   y se vuelven a cargar con el contenido de `RECURSOS/`, así que se puede
+   correr varias veces sin problema. **No toca la tabla `leads`**, que es la
+   que se escribe en vivo con cada conversación.
+
+   Si el archivo fuente cambia sus encabezados o trae documentos repetidos, el
+   script se detiene con un mensaje explícito en vez de cargar datos rotos.
+
+4. Crea la tabla de leads del panel del asesor (idempotente, nunca borra):
+
+   ```bash
+   python scripts/crear_tabla_leads.py
+   ```
 
 ## Ejecutar el servidor
 
@@ -64,7 +78,9 @@ correo. Backend en FastAPI, frontend estático simple, y LLM configurable
 uvicorn app.main:app --reload
 ```
 
-La app queda disponible en [http://localhost:8000](http://localhost:8000).
+- Chat del cliente: [http://localhost:8000](http://localhost:8000)
+- Panel del asesor: [http://localhost:8000/asesor](http://localhost:8000/asesor)
+  (usuario `asesor`, contraseña de `ASESOR_PASSWORD`)
 
 ## Correr los tests
 
@@ -73,14 +89,30 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
+`tests/test_distribucion_scoring.py` es de integración y consulta la base
+real; se salta solo si no hay `SUPABASE_DB_URL` configurada.
+
+## Calibrar el scoring
+
+```bash
+python scripts/calibrar_scoring.py
+```
+
+Reporta el rango que usa cada señal del blend, la distribución de scores sobre
+toda la base y qué umbrales hacen falta para el porcentaje objetivo de leads
+CALIENTE definido en `app/config.py`. Correrlo después de cambiar la base de
+usuarios o los pesos del scoring.
+
 ## Estructura del proyecto
 
 ```
-app/           Backend FastAPI (scoring, recomendador, conversación, envío de correo)
-static/        Frontend estático (HTML/CSS/JS)
-RECURSOS/      Datos base: usuarios y subsidios (Excel), catálogo de proyectos (JSON), schema SQL
-scripts/       Utilidades, incl. migración de datos a Supabase
-tests/         Suite de pytest
+app/           Backend FastAPI (scoring, recomendador, conversación, envío de correo, panel asesor)
+static/        Frontend estático (HTML/CSS/JS), chat del cliente y panel del asesor
+RECURSOS/      Fuente de carga: usuarios y subsidios (Excel), brochures de proyectos (JSON), schema SQL
+scripts/       Migración de datos, creación de la tabla leads y calibración del scoring
+tests/         Suite de pytest (unitarios + un módulo de integración)
+SOBRE MI/      Contrato de tono del agente y especificación del MVP
+SKILL/         Recursos de marca
 ```
 
 ## Notas
@@ -89,3 +121,8 @@ tests/         Suite de pytest
   generados para efectos de esta demo.
 - El valor de `SMLV_COP` en `app/config.py` debe actualizarse al salario
   mínimo legal vigente real cuando corresponda.
+- El estado de cada conversación vive en memoria del proceso, no en la base:
+  al reiniciar el servidor se pierden las sesiones abiertas. Lo que sí
+  persiste es el lead, que se guarda en Supabase en cada turno.
+- `SOBRE MI/MIEMPRESA.md` documenta el alcance real del MVP y sus pendientes
+  conocidos.

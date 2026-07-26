@@ -44,6 +44,30 @@
     </div>
   </div>
 
+  <!-- La regla 90/10 es una cuota sobre el total de ventas, no un descuento
+       por lead: el scoring ya penaliza al no afiliado uno por uno, pero solo
+       una vista agregada dice cuánto cupo queda. -->
+  <div class="asesor-operacion">
+    <section class="asesor-cuota" id="bloque-cuota">
+      <header>
+        <h2>Cupo regulatorio 90/10</h2>
+        <span class="asesor-cuota-estado" id="cuota-estado">—</span>
+      </header>
+      <div class="asesor-cuota-barra" role="img" aria-labelledby="cuota-detalle">
+        <div class="asesor-cuota-afiliados" id="cuota-barra-afiliados"></div>
+        <div class="asesor-cuota-no-afiliados" id="cuota-barra-no-afiliados"></div>
+      </div>
+      <p class="asesor-cuota-detalle" id="cuota-detalle">Sin leads derivables todavía.</p>
+    </section>
+
+    <section class="asesor-canales">
+      <header><h2>Calidad por canal</h2></header>
+      <div id="tabla-canales" class="asesor-canales-tabla">
+        <div class="asesor-vacio">Sin datos todavía.</div>
+      </div>
+    </section>
+  </div>
+
   <div class="asesor-cuerpo">
     <div class="asesor-panel-caja">
       <div class="asesor-panel-header">

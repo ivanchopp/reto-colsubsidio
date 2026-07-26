@@ -61,9 +61,14 @@ create table if not exists leads (
     finalizada boolean not null default false,
     interaccion_cerrada boolean not null default false,
     enviado_al_asesor boolean not null default false,
+    origen text not null default 'organico',  -- meta / google / whatsapp / organico / contact_center
+    afiliado boolean,              -- necesario para el cupo agregado de la regla 90/10
+    bloqueantes jsonb,             -- que le falta al lead para poder comprar (app/nutricion.py)
+    datos_declarados jsonb,        -- variables extraidas de la conversacion (app/extraccion.py)
     creado_en timestamptz not null default now(),
     actualizado_en timestamptz not null default now()
 );
 
 create index if not exists idx_leads_creado_en on leads (creado_en desc);
 create index if not exists idx_leads_telefono on leads (telefono);
+create index if not exists idx_leads_origen on leads (origen);
