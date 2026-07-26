@@ -5,6 +5,28 @@ subsidios aplicables, y hace el *handoff* del resumen al asesor comercial por
 correo. Backend en FastAPI, frontend estático simple, y LLM configurable
 (OpenAI, Gemini o Vertex AI).
 
+## Demo desplegada (Render)
+
+- **Chat del cliente**: https://colsubsidio-asesor-vivienda.onrender.com/
+
+- **Panel del asesor**: https://colsubsidio-asesor-vivienda.onrender.com/asesor
+  (usuario `asesor`, contraseña = valor de `ASESOR_PASSWORD` configurado en
+  el entorno de Render — pídela por un canal privado, no está en este repo)
+
+- **Buzón de correo del asesor**: `retocolsubsidio@gmail.com` — la contraseña
+  se comparte por un canal privado (password manager / chat directo), nunca
+  en este repositorio.
+
+El plan gratuito de Render duerme el servicio tras un rato sin tráfico: la
+primera petición después de eso puede tardar ~30-60s en responder mientras
+arranca de nuevo.
+
+Al cerrarse cada conversación, el resumen del lead (perfil, score, proyecto
+recomendado y subsidios aplicables) se envía automáticamente por correo a
+**retocolsubsidio@gmail.com** (configurado en `ASESOR_EMAIL_DESTINO`; ver
+`app/email_sender.py` y `app/handoff.py`). Ese mismo resumen también queda
+disponible en vivo en el panel del asesor de arriba.
+
 ## Requisitos
 
 - Python 3.11+
