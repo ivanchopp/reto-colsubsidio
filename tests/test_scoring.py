@@ -16,7 +16,7 @@ abajo.
 import pandas as pd
 import pytest
 
-from app import data_store, scoring
+from app import config, data_store, scoring
 
 
 # ---------------------------------------------------------------------
@@ -207,3 +207,22 @@ def test_calcular_score_no_registrado_es_penalizacion_fija_y_fria():
     assert resultado.segmento_lead == "FRIO"
     assert resultado.subsidios_elegibles == []
     assert len(resultado.razones) >= 1
+
+
+# ---------------------------------------------------------------------
+# scoring_version: auditoria de con que configuracion salio un score
+# ---------------------------------------------------------------------
+
+def test_calcular_score_incluye_la_version_de_configuracion_vigente(make_usuario):
+    resultado = scoring.calcular_score(make_usuario())
+    assert resultado.scoring_version == config.SCORING_VERSION
+
+
+def test_calcular_score_no_registrado_incluye_la_version_de_configuracion_vigente():
+    con_datos = scoring.calcular_score_no_registrado(
+        {"situacion_laboral": "empleado_formal", "ingresos_mensuales_aprox": 6_000_000}
+    )
+    sin_datos = scoring.calcular_score_no_registrado()
+
+    assert con_datos.scoring_version == config.SCORING_VERSION
+    assert sin_datos.scoring_version == config.SCORING_VERSION

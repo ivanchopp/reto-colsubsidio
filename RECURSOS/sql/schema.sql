@@ -60,6 +60,7 @@ create table if not exists leads (
     score numeric(5,1),
     segmento_lead text,            -- CALIENTE / TIBIO / FRIO
     project_segment text,          -- VIS / No VIS / "Sin dato (no registrado)"
+    scoring_version text,          -- config.SCORING_VERSION vigente al calcular el score (auditoria)
     razones jsonb,
     peer_stats jsonb,
     subsidios_elegibles jsonb,

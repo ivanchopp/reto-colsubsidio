@@ -67,6 +67,10 @@ COLUMNAS_NUEVAS = [
     "alter table leads add column if not exists bloqueantes jsonb;",
     # variables de calificacion extraidas de la conversacion
     "alter table leads add column if not exists datos_declarados jsonb;",
+    # config.SCORING_VERSION vigente al momento del calculo: permite saber
+    # con que pesos/umbrales salio un score historico despues de que
+    # config.py haya cambiado (ver app/scoring.py)
+    "alter table leads add column if not exists scoring_version text;",
 ]
 
 

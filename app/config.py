@@ -97,6 +97,21 @@ SEGMENTOS_DERIVABLES = ("CALIENTE", "TIBIO")
 UMBRAL_CALIENTE = 52.6
 UMBRAL_TIBIO = 31.1
 
+# Identificador de la configuracion de scoring vigente (pesos, umbrales,
+# bonos, multiplicadores -- todo lo de esta seccion mas las constantes de
+# app/scoring.py y app/subsidios.py que afectan el calculo). Se guarda junto
+# a cada lead (leads.scoring_version) para poder saber, meses despues, con
+# que reglas se calculo un score historico -- sin esto, un cambio de umbrales
+# como el de arriba deja huerfanos los scores ya guardados: no hay forma de
+# saber si vienen de antes o despues del cambio.
+#
+# Es un numero incrementado a mano, no un hash automatico: subir esto es
+# responsabilidad de quien toca los pesos/umbrales/bonos, igual que ya lo es
+# actualizar MIEMPRESA.md. Bumpear en cualquier cambio a: los umbrales/pesos
+# de este archivo, los multiplicadores/bonos de app/scoring.py, o los montos
+# de app/subsidios.py.
+SCORING_VERSION = "1.0"
+
 # Techo (en COP) a partir del cual el ahorro verificado (usuarios.ahorros)
 # suma el bono maximo BONO_AHORRO_VERIFICADO_MAX -- ver app/scoring.py. Es el
 # percentil 75 real de la columna al momento de conectarla

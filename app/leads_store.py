@@ -59,6 +59,7 @@ def upsert_lead(
     score: float | None,
     segmento_lead: str | None,
     project_segment: str | None,
+    scoring_version: str | None,
     razones: list[str] | None,
     peer_stats: dict | None,
     origen: str,
@@ -78,13 +79,13 @@ def upsert_lead(
                 """
                 insert into leads (
                     session_id, telefono, nombre, ciudad, usuario_registrado, documento,
-                    score, segmento_lead, project_segment, razones, peer_stats,
+                    score, segmento_lead, project_segment, scoring_version, razones, peer_stats,
                     subsidios_elegibles, contribuciones, fase, finalizada,
                     interaccion_cerrada, enviado_al_asesor,
                     origen, afiliado, bloqueantes, datos_declarados
                 ) values (
                     :session_id, :telefono, :nombre, :ciudad, :usuario_registrado, :documento,
-                    :score, :segmento_lead, :project_segment,
+                    :score, :segmento_lead, :project_segment, :scoring_version,
                     cast(:razones as jsonb), cast(:peer_stats as jsonb),
                     cast(:subsidios_elegibles as jsonb), cast(:contribuciones as jsonb),
                     :fase, :finalizada, :interaccion_cerrada, :enviado_al_asesor,
@@ -100,6 +101,7 @@ def upsert_lead(
                     score = excluded.score,
                     segmento_lead = excluded.segmento_lead,
                     project_segment = excluded.project_segment,
+                    scoring_version = excluded.scoring_version,
                     razones = excluded.razones,
                     peer_stats = excluded.peer_stats,
                     subsidios_elegibles = excluded.subsidios_elegibles,
@@ -125,6 +127,7 @@ def upsert_lead(
                 "score": score,
                 "segmento_lead": segmento_lead,
                 "project_segment": project_segment,
+                "scoring_version": scoring_version,
                 "razones": _a_jsonb(razones),
                 "peer_stats": _a_jsonb(peer_stats),
                 "subsidios_elegibles": _a_jsonb(subsidios_elegibles),

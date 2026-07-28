@@ -1,7 +1,7 @@
 """Pruebas de main._lead_payload -- mapea una Sesion en memoria al shape que
 espera leads_store.upsert_lead. Sin DB, sin HTTP: se construye la Sesion a
 mano y se llama la funcion directo."""
-from app import conversation, main, scoring, subsidios
+from app import config, conversation, main, scoring, subsidios
 
 
 def _sesion_base(**overrides):
@@ -38,6 +38,7 @@ def test_usuario_registrado_con_score():
     assert payload["documento"] == 123456789
     assert payload["score"] == 71.3
     assert payload["segmento_lead"] == "CALIENTE"
+    assert payload["scoring_version"] == config.SCORING_VERSION
     assert payload["subsidios_elegibles"] == [{"nombre": "Mi Casa Ya", "requisito_salarial_texto": "De 0 a 4 SMMLV"}]
     assert payload["contribuciones"] == resultado.contribuciones
     assert payload["fase"] == "cierre"
@@ -61,6 +62,7 @@ def test_usuario_no_registrado_sin_score_todavia():
     assert payload["documento"] is None
     assert payload["score"] is None
     assert payload["segmento_lead"] is None
+    assert payload["scoring_version"] is None
     assert payload["contribuciones"] is None
 
 
@@ -79,5 +81,6 @@ def test_usuario_no_registrado_con_score_fijo_al_cerrar():
 
     assert payload["score"] == scoring.SCORE_NO_REGISTRADO
     assert payload["segmento_lead"] == "FRIO"
+    assert payload["scoring_version"] == config.SCORING_VERSION
     assert payload["contribuciones"] is None
     assert payload["subsidios_elegibles"] == []

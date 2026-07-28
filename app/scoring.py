@@ -59,6 +59,10 @@ class ResultadoScoring:
     # el panel del asesor para el grafico de torta. None cuando el score no
     # viene de ese blend (ver calcular_score_no_registrado).
     contribuciones: list[dict] | None = None
+    # config.SCORING_VERSION vigente al momento del calculo -- se persiste en
+    # leads.scoring_version para poder auditar con que reglas salio un score
+    # historico despues de que config.py haya cambiado.
+    scoring_version: str = config.SCORING_VERSION
 
 
 def _midpoint_rango_salarial(rango: str) -> float:

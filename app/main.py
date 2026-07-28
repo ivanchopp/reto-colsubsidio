@@ -156,6 +156,7 @@ def _lead_payload(sesion: conversation.Sesion) -> dict:
         "score": resultado.score if resultado else None,
         "segmento_lead": resultado.segmento_lead if resultado else None,
         "project_segment": resultado.project_segment if resultado else None,
+        "scoring_version": resultado.scoring_version if resultado else None,
         "razones": resultado.razones if resultado else None,
         "peer_stats": resultado.peer_stats if resultado else None,
         "subsidios_elegibles": (
