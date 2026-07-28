@@ -61,6 +61,7 @@ def upsert_lead(
     project_segment: str | None,
     scoring_version: str | None,
     razones: list[str] | None,
+    codigos_razones: list[str] | None,
     peer_stats: dict | None,
     origen: str,
     afiliado: bool | None,
@@ -79,14 +80,16 @@ def upsert_lead(
                 """
                 insert into leads (
                     session_id, telefono, nombre, ciudad, usuario_registrado, documento,
-                    score, segmento_lead, project_segment, scoring_version, razones, peer_stats,
+                    score, segmento_lead, project_segment, scoring_version, razones,
+                    codigos_razones, peer_stats,
                     subsidios_elegibles, contribuciones, fase, finalizada,
                     interaccion_cerrada, enviado_al_asesor,
                     origen, afiliado, bloqueantes, datos_declarados
                 ) values (
                     :session_id, :telefono, :nombre, :ciudad, :usuario_registrado, :documento,
                     :score, :segmento_lead, :project_segment, :scoring_version,
-                    cast(:razones as jsonb), cast(:peer_stats as jsonb),
+                    cast(:razones as jsonb), cast(:codigos_razones as jsonb),
+                    cast(:peer_stats as jsonb),
                     cast(:subsidios_elegibles as jsonb), cast(:contribuciones as jsonb),
                     :fase, :finalizada, :interaccion_cerrada, :enviado_al_asesor,
                     :origen, :afiliado,
@@ -103,6 +106,7 @@ def upsert_lead(
                     project_segment = excluded.project_segment,
                     scoring_version = excluded.scoring_version,
                     razones = excluded.razones,
+                    codigos_razones = excluded.codigos_razones,
                     peer_stats = excluded.peer_stats,
                     subsidios_elegibles = excluded.subsidios_elegibles,
                     contribuciones = excluded.contribuciones,
@@ -129,6 +133,7 @@ def upsert_lead(
                 "project_segment": project_segment,
                 "scoring_version": scoring_version,
                 "razones": _a_jsonb(razones),
+                "codigos_razones": _a_jsonb(codigos_razones),
                 "peer_stats": _a_jsonb(peer_stats),
                 "subsidios_elegibles": _a_jsonb(subsidios_elegibles),
                 "contribuciones": _a_jsonb(contribuciones),
@@ -145,7 +150,7 @@ def upsert_lead(
 
 
 _CAMPOS_JSONB = (
-    "razones", "peer_stats", "subsidios_elegibles", "contribuciones",
+    "razones", "codigos_razones", "peer_stats", "subsidios_elegibles", "contribuciones",
     "bloqueantes", "datos_declarados",
 )
 

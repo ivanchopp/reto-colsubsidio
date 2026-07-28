@@ -16,6 +16,7 @@ def test_usuario_registrado_con_score():
         segmento_lead="CALIENTE",
         project_segment="No VIS",
         razones=["Ingreso estimado 5.0 SMLV -> segmento No VIS, aporte base 70.0 pts"],
+        codigos_razones=[scoring.RC_INGRESO_BASE],
         peer_stats={"total_peers": 4, "pct_con_vivienda_propia": 50.0},
         subsidios_elegibles=[subsidios.Subsidio(nombre="Mi Casa Ya", requisito_salarial_texto="De 0 a 4 SMMLV")],
         contribuciones=[{"etiqueta": "Reglas", "valor": 42.8, "peso": 0.6, "categoria": "reglas"}],
@@ -39,6 +40,7 @@ def test_usuario_registrado_con_score():
     assert payload["score"] == 71.3
     assert payload["segmento_lead"] == "CALIENTE"
     assert payload["scoring_version"] == config.SCORING_VERSION
+    assert payload["codigos_razones"] == [scoring.RC_INGRESO_BASE]
     assert payload["subsidios_elegibles"] == [{"nombre": "Mi Casa Ya", "requisito_salarial_texto": "De 0 a 4 SMMLV"}]
     assert payload["contribuciones"] == resultado.contribuciones
     assert payload["fase"] == "cierre"
@@ -63,6 +65,7 @@ def test_usuario_no_registrado_sin_score_todavia():
     assert payload["score"] is None
     assert payload["segmento_lead"] is None
     assert payload["scoring_version"] is None
+    assert payload["codigos_razones"] is None
     assert payload["contribuciones"] is None
 
 
@@ -82,5 +85,6 @@ def test_usuario_no_registrado_con_score_fijo_al_cerrar():
     assert payload["score"] == scoring.SCORE_NO_REGISTRADO
     assert payload["segmento_lead"] == "FRIO"
     assert payload["scoring_version"] == config.SCORING_VERSION
+    assert payload["codigos_razones"] == resultado.codigos_razones
     assert payload["contribuciones"] is None
     assert payload["subsidios_elegibles"] == []

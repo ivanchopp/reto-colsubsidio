@@ -71,6 +71,10 @@ COLUMNAS_NUEVAS = [
     # con que pesos/umbrales salio un score historico despues de que
     # config.py haya cambiado (ver app/scoring.py)
     "alter table leads add column if not exists scoring_version text;",
+    # codigo estable por cada entrada de razones (ver app/scoring.py RC_*):
+    # permite analitica agregada (que razon rechaza mas leads, por canal o
+    # ciudad) sin parsear texto libre
+    "alter table leads add column if not exists codigos_razones jsonb;",
 ]
 
 

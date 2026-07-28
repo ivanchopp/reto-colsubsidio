@@ -62,6 +62,7 @@ create table if not exists leads (
     project_segment text,          -- VIS / No VIS / "Sin dato (no registrado)"
     scoring_version text,          -- config.SCORING_VERSION vigente al calcular el score (auditoria)
     razones jsonb,
+    codigos_razones jsonb,         -- codigo estable por cada entrada de razones (ver app/scoring.py RC_*)
     peer_stats jsonb,
     subsidios_elegibles jsonb,
     contribuciones jsonb,          -- desglose {etiqueta, valor, peso, categoria} para el grafico de torta

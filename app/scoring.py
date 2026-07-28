@@ -62,6 +62,33 @@ BONO_AHORRO_VERIFICADO_MAX = 10.0
 # con historial comprobable.
 FACTOR_CONFIANZA_DECLARADO = 0.75
 
+# Reason codes: identificador estable por cada regla que puede afectar el
+# score, en paralelo al texto en espanol de "razones" (ver ResultadoScoring).
+# Existen para dos cosas que un texto libre no permite: testear "este perfil
+# debe disparar exactamente estos codigos" sin comparar substrings fragiles,
+# y agregar analitica (que razon rechaza mas leads, por canal o por ciudad)
+# sin tener que parsear texto en el panel del asesor.
+RC_INGRESO_BASE = "RC_INGRESO_BASE"
+RC_ESTABILIDAD_LABORAL = "RC_ESTABILIDAD_LABORAL"
+RC_DESEMPLEO = "RC_DESEMPLEO"
+RC_NO_AFILIADO_VIS = "RC_NO_AFILIADO_VIS"
+RC_MONOPARENTAL_AFILIADO = "RC_MONOPARENTAL_AFILIADO"
+RC_MONOPARENTAL_NO_AFILIADO = "RC_MONOPARENTAL_NO_AFILIADO"
+RC_CREDITO_INSUFICIENTE_NO_VIS = "RC_CREDITO_INSUFICIENTE_NO_VIS"
+RC_AFILIADO_NO_VIS = "RC_AFILIADO_NO_VIS"
+RC_NO_AFILIADO_NO_VIS = "RC_NO_AFILIADO_NO_VIS"
+RC_REPORTADO_DATACREDITO = "RC_REPORTADO_DATACREDITO"
+RC_PEERS_SIMILARES = "RC_PEERS_SIMILARES"
+RC_SIMILITUD_VECTORIAL = "RC_SIMILITUD_VECTORIAL"
+RC_SUBSIDIOS_ELEGIBLES = "RC_SUBSIDIOS_ELEGIBLES"
+RC_AHORRO_VERIFICADO = "RC_AHORRO_VERIFICADO"
+RC_AHORRO_DECLARADO = "RC_AHORRO_DECLARADO"
+RC_NO_ENCONTRADO_EN_SISTEMA = "RC_NO_ENCONTRADO_EN_SISTEMA"
+RC_SIN_DATOS_DECLARADOS = "RC_SIN_DATOS_DECLARADOS"
+RC_PENALIZACION_FIJA_NO_REGISTRADO = "RC_PENALIZACION_FIJA_NO_REGISTRADO"
+RC_SUPUESTO_INGRESO = "RC_SUPUESTO_INGRESO"
+RC_FACTOR_CONFIANZA_DECLARADO = "RC_FACTOR_CONFIANZA_DECLARADO"
+
 
 @dataclass
 class ResultadoScoring:
@@ -69,6 +96,9 @@ class ResultadoScoring:
     segmento_lead: str  # CALIENTE / TIBIO / FRIO
     project_segment: str  # VIS / No VIS
     razones: list[str] = field(default_factory=list)
+    # codigo estable por cada entrada de "razones", mismo orden y misma
+    # longitud -- ver el bloque RC_* arriba.
+    codigos_razones: list[str] = field(default_factory=list)
     peer_stats: dict | None = None
     subsidios_elegibles: list = field(default_factory=list)
     # desglose {etiqueta, valor, peso, categoria} de como el blend final
@@ -143,6 +173,12 @@ def calcular_score(
     los datos duros verificables (ingreso, centrales de riesgo) siguen saliendo
     del registro cuando existe."""
     razones: list[str] = []
+    codigos_razones: list[str] = []
+
+    def _agregar(codigo: str, texto: str) -> None:
+        codigos_razones.append(codigo)
+        razones.append(texto)
+
     datos_declarados = datos_declarados or {}
 
     # family_structure explicito gana sobre el declarado (lo usan los tests
@@ -173,43 +209,62 @@ def calcular_score(
     )
 
     score = base_weight_income * min(ingreso_smlv / techo_smlv, 1.0) * 100
-    razones.append(
+    _agregar(
+        RC_INGRESO_BASE,
         f"Ingreso estimado {ingreso_smlv:.1f} SMLV -> segmento {project_segment}, "
-        f"aporte base {score:.1f} pts"
+        f"aporte base {score:.1f} pts",
     )
 
     score *= EMPLOYER_TIER_MULTIPLIER[tier]
-    razones.append(f"Estabilidad laboral {tier} ({usuario.get('Estado laboral')} / {usuario.get('Tipo de contrato')})")
+    _agregar(
+        RC_ESTABILIDAD_LABORAL,
+        f"Estabilidad laboral {tier} ({usuario.get('Estado laboral')} / {usuario.get('Tipo de contrato')})",
+    )
 
     if desempleado:
         score *= 0.15
-        razones.append("Sin empleo activo: penalizacion fuerte a la capacidad de pago")
+        _agregar(RC_DESEMPLEO, "Sin empleo activo: penalizacion fuerte a la capacidad de pago")
 
     if project_segment == "VIS":
         if not afiliado:
             score *= MULT_NO_AFILIADO_VIS
-            razones.append("No afiliado a Colsubsidio en segmento VIS: penalizacion severa (regla 90/10)")
+            _agregar(
+                RC_NO_AFILIADO_VIS,
+                "No afiliado a Colsubsidio en segmento VIS: penalizacion severa (regla 90/10)",
+            )
         if family_structure == "Monoparental Joven":
             if afiliado:
                 score += 20
-                razones.append("Hogar monoparental joven afiliado: +20 pts (aplica beneficios VIS)")
+                _agregar(
+                    RC_MONOPARENTAL_AFILIADO,
+                    "Hogar monoparental joven afiliado: +20 pts (aplica beneficios VIS)",
+                )
             else:
                 score -= 30
-                razones.append("Hogar monoparental joven no afiliado: -30 pts")
+                _agregar(RC_MONOPARENTAL_NO_AFILIADO, "Hogar monoparental joven no afiliado: -30 pts")
     else:  # No VIS
         if credit_score < CREDIT_SCORE_THRESHOLD:
             score = 0
-            razones.append("Historial crediticio insuficiente para No VIS: score anulado")
+            _agregar(
+                RC_CREDITO_INSUFICIENTE_NO_VIS,
+                "Historial crediticio insuficiente para No VIS: score anulado",
+            )
         elif afiliado:
             score += BONO_AFILIADO_NO_VIS
-            razones.append(f"Afiliado a Colsubsidio: +{BONO_AFILIADO_NO_VIS:.0f} pts")
+            _agregar(RC_AFILIADO_NO_VIS, f"Afiliado a Colsubsidio: +{BONO_AFILIADO_NO_VIS:.0f} pts")
         if not afiliado:
             score *= MULT_NO_AFILIADO_NO_VIS
-            razones.append(f"No afiliado a Colsubsidio: penalizacion regla 90/10 (x{MULT_NO_AFILIADO_NO_VIS})")
+            _agregar(
+                RC_NO_AFILIADO_NO_VIS,
+                f"No afiliado a Colsubsidio: penalizacion regla 90/10 (x{MULT_NO_AFILIADO_NO_VIS})",
+            )
 
     if reportado_datacredito:
         score *= 0.10
-        razones.append("Reportado negativamente en centrales de riesgo: penalizacion casi eliminatoria")
+        _agregar(
+            RC_REPORTADO_DATACREDITO,
+            "Reportado negativamente en centrales de riesgo: penalizacion casi eliminatoria",
+        )
 
     score = max(0.0, min(100.0, score))
 
@@ -230,10 +285,11 @@ def calcular_score(
         conversion_peers = peer_stats["pct_con_vivienda_propia"]
         pesos["peers"] = PESO_PEERS
         senales["peers"] = _lift_de_peers(conversion_peers)
-        razones.append(
+        _agregar(
+            RC_PEERS_SIMILARES,
             f"{peer_stats['total_peers']} usuarios con perfil similar (mismo rango salarial, "
             f"estado laboral y afiliacion): {conversion_peers}% concreto compra historicamente "
-            f"(promedio general de la base: {data_store.tasa_base_conversion():.1f}%)"
+            f"(promedio general de la base: {data_store.tasa_base_conversion():.1f}%)",
         )
     else:
         pesos["reglas"] += PESO_PEERS  # sin suficientes peers, ese peso vuelve a las reglas
@@ -241,10 +297,11 @@ def calcular_score(
     vector_stats = vector_similarity.calcular_similitud_vectorial(usuario)
     pesos["vectorial"] = PESO_VECTORIAL
     senales["vectorial"] = vector_stats["score_vectorial"]
-    razones.append(
+    _agregar(
+        RC_SIMILITUD_VECTORIAL,
         f"Similitud vectorial del perfil contra centroides historicos "
         f"(compro/desistio/rechazado/sin vivienda): {vector_stats['score_vectorial']}/100 "
-        "de cercania al centroide de compradores exitosos"
+        "de cercania al centroide de compradores exitosos",
     )
 
     score = sum(pesos[k] * senales[k] for k in senales)
@@ -273,7 +330,10 @@ def calcular_score(
         bono = subsidios.calcular_bonus_score(subsidios_elegibles)
         score += bono
         nombres = ", ".join(s.nombre for s in subsidios_elegibles)
-        razones.append(f"Aplica a {len(subsidios_elegibles)} subsidio(s) de vivienda (+{bono:.0f} pts): {nombres}")
+        _agregar(
+            RC_SUBSIDIOS_ELEGIBLES,
+            f"Aplica a {len(subsidios_elegibles)} subsidio(s) de vivienda (+{bono:.0f} pts): {nombres}",
+        )
         contribuciones.append(
             {"etiqueta": "Bono por subsidios", "valor": round(bono, 1), "peso": None, "categoria": "subsidios"}
         )
@@ -290,9 +350,10 @@ def calcular_score(
     if hay_ahorro_verificado:
         bono = min(ahorros_verificados / config.AHORRO_VERIFICADO_TECHO_COP, 1.0) * BONO_AHORRO_VERIFICADO_MAX
         score += bono
-        razones.append(
+        _agregar(
+            RC_AHORRO_VERIFICADO,
             f"Ahorro verificado en la base (${ahorros_verificados:,.0f} COP) para la cuota "
-            f"inicial (+{bono:.1f} pts): dato duro, no declarado"
+            f"inicial (+{bono:.1f} pts): dato duro, no declarado",
         )
         contribuciones.append(
             {
@@ -304,9 +365,10 @@ def calcular_score(
         )
     elif datos_declarados.get("ahorro_cuota_inicial") is True:
         score += BONO_AHORRO_CUOTA_INICIAL
-        razones.append(
+        _agregar(
+            RC_AHORRO_DECLARADO,
             f"Declara tener ahorro o cesantias para la cuota inicial "
-            f"(+{BONO_AHORRO_CUOTA_INICIAL:.0f} pts): mejora su capacidad real de compra"
+            f"(+{BONO_AHORRO_CUOTA_INICIAL:.0f} pts): mejora su capacidad real de compra",
         )
         contribuciones.append(
             {
@@ -331,6 +393,7 @@ def calcular_score(
         segmento_lead=segmento_lead,
         project_segment=project_segment,
         razones=razones,
+        codigos_razones=codigos_razones,
         peer_stats=peer_stats,
         subsidios_elegibles=subsidios_elegibles,
         contribuciones=contribuciones,
@@ -402,6 +465,11 @@ def calcular_score_no_registrado(datos_declarados: dict | None = None) -> Result
                 f"Se asigna una penalizacion fija de {SCORE_NO_REGISTRADO:.0f}/100 (FRIO) hasta "
                 "que se registre o un asesor verifique sus datos manualmente.",
             ],
+            codigos_razones=[
+                RC_NO_ENCONTRADO_EN_SISTEMA,
+                RC_SIN_DATOS_DECLARADOS,
+                RC_PENALIZACION_FIJA_NO_REGISTRADO,
+            ],
         )
 
     resultado = calcular_score(
@@ -420,6 +488,7 @@ def calcular_score_no_registrado(datos_declarados: dict | None = None) -> Result
         "Numero no encontrado en el sistema: el perfil se arma con lo que la persona "
         "conto en la conversacion, sin verificar contra la base.",
     ]
+    codigos_razones = [RC_NO_ENCONTRADO_EN_SISTEMA]
     situacion = datos_declarados.get("situacion_laboral")
     if not datos_declarados.get("ingresos_mensuales_aprox") and situacion:
         supuesto = config.INGRESO_SUPUESTO_POR_SITUACION.get(situacion)
@@ -428,17 +497,20 @@ def calcular_score_no_registrado(datos_declarados: dict | None = None) -> Result
                 f"No declaro ingreso: se asume la mediana de quienes estan en su misma "
                 f"situacion laboral (${supuesto:,.0f} COP). Confirmar en la llamada."
             )
+            codigos_razones.append(RC_SUPUESTO_INGRESO)
     razones += [
         *resultado.razones,
         f"Ajuste por datos sin verificar: x{FACTOR_CONFIANZA_DECLARADO} "
         f"({resultado.score} -> {score})",
     ]
+    codigos_razones += [*resultado.codigos_razones, RC_FACTOR_CONFIANZA_DECLARADO]
 
     return ResultadoScoring(
         score=score,
         segmento_lead=segmento_lead,
         project_segment=resultado.project_segment,
         razones=razones,
+        codigos_razones=codigos_razones,
         peer_stats=resultado.peer_stats,
         subsidios_elegibles=resultado.subsidios_elegibles,
         contribuciones=resultado.contribuciones,
