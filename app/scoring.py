@@ -20,6 +20,23 @@ CREDIT_SCORE_NO_REPORTADO = 750
 
 EMPLOYER_TIER_MULTIPLIER = {"Tier 1": 1.15, "Tier 2": 1.0, "Tier 3": 0.85}
 
+# Peso de cada senal en el blend final (ver mas abajo en calcular_score) y
+# minimo de peers para que esa senal aplique -- documentado tambien en
+# SOBRE MI/MIEMPRESA.md seccion 6. Extraidas a constantes con nombre (en vez
+# de literales inline) para que tests/test_documentacion_consistente.py
+# pueda compararlas contra el texto del documento sin parsear codigo fuente.
+PESO_REGLAS = 0.6
+PESO_PEERS = 0.2
+PESO_VECTORIAL = 0.2
+MIN_PEERS_PARA_BLEND = 3  # con menos, el peso de "peers" vuelve a reglas
+
+# Regla 90/10: penalizacion individual sobre el score de reglas (distinta de
+# la cuota agregada leads_store.PCT_MAXIMO_NO_AFILIADOS). Documentado en
+# SOBRE MI/MIEMPRESA.md seccion 6.
+MULT_NO_AFILIADO_VIS = 0.2
+MULT_NO_AFILIADO_NO_VIS = 0.8
+BONO_AFILIADO_NO_VIS = 5.0
+
 # penalizacion fija (no formula) para leads sin registro en el sistema: no hay
 # como verificar ingreso, estabilidad laboral ni antecedentes en centrales de
 # riesgo, asi que no corren el modelo de reglas real -- se les asigna este
@@ -170,7 +187,7 @@ def calcular_score(
 
     if project_segment == "VIS":
         if not afiliado:
-            score *= 0.2
+            score *= MULT_NO_AFILIADO_VIS
             razones.append("No afiliado a Colsubsidio en segmento VIS: penalizacion severa (regla 90/10)")
         if family_structure == "Monoparental Joven":
             if afiliado:
@@ -184,11 +201,11 @@ def calcular_score(
             score = 0
             razones.append("Historial crediticio insuficiente para No VIS: score anulado")
         elif afiliado:
-            score += 5
-            razones.append("Afiliado a Colsubsidio: +5 pts")
+            score += BONO_AFILIADO_NO_VIS
+            razones.append(f"Afiliado a Colsubsidio: +{BONO_AFILIADO_NO_VIS:.0f} pts")
         if not afiliado:
-            score *= 0.8
-            razones.append("No afiliado a Colsubsidio: penalizacion regla 90/10 (x0.8)")
+            score *= MULT_NO_AFILIADO_NO_VIS
+            razones.append(f"No afiliado a Colsubsidio: penalizacion regla 90/10 (x{MULT_NO_AFILIADO_NO_VIS})")
 
     if reportado_datacredito:
         score *= 0.10
@@ -205,13 +222,13 @@ def calcular_score(
     # con las tasas de conversion reales de la base (~25-35%, no picos de
     # muestras chicas) eso hacia que nadie llegara a CALIENTE -- se revirtio
     # a 0.2 hasta recalibrar el umbral de CALIENTE junto con el peso.
-    pesos = {"reglas": 0.6}
+    pesos = {"reglas": PESO_REGLAS}
     senales = {"reglas": score}
 
     peer_stats = _peer_conversion_stats(usuario)
-    if peer_stats.get("total_peers", 0) >= 3:
+    if peer_stats.get("total_peers", 0) >= MIN_PEERS_PARA_BLEND:
         conversion_peers = peer_stats["pct_con_vivienda_propia"]
-        pesos["peers"] = 0.2
+        pesos["peers"] = PESO_PEERS
         senales["peers"] = _lift_de_peers(conversion_peers)
         razones.append(
             f"{peer_stats['total_peers']} usuarios con perfil similar (mismo rango salarial, "
@@ -219,10 +236,10 @@ def calcular_score(
             f"(promedio general de la base: {data_store.tasa_base_conversion():.1f}%)"
         )
     else:
-        pesos["reglas"] += 0.2  # sin suficientes peers, ese peso vuelve a las reglas
+        pesos["reglas"] += PESO_PEERS  # sin suficientes peers, ese peso vuelve a las reglas
 
     vector_stats = vector_similarity.calcular_similitud_vectorial(usuario)
-    pesos["vectorial"] = 0.2
+    pesos["vectorial"] = PESO_VECTORIAL
     senales["vectorial"] = vector_stats["score_vectorial"]
     razones.append(
         f"Similitud vectorial del perfil contra centroides historicos "
