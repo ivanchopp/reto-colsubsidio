@@ -46,6 +46,87 @@ def test_ahorro_aparece_en_las_contribuciones(make_usuario):
 
 
 # ---------------------------------------------------------------------
+# ahorros verificado (usuarios.ahorros): dato duro de la base, distinto
+# de savings_fna_cesantias declarado en la conversacion
+# ---------------------------------------------------------------------
+
+def test_ahorro_verificado_al_techo_suma_el_bono_maximo(make_usuario):
+    usuario = make_usuario(ahorros=config.AHORRO_VERIFICADO_TECHO_COP)
+    sin_ahorro = scoring.calcular_score(make_usuario())
+    con_ahorro = scoring.calcular_score(usuario)
+
+    assert con_ahorro.score == pytest.approx(
+        sin_ahorro.score + scoring.BONO_AHORRO_VERIFICADO_MAX
+    )
+    assert any("ahorro verificado" in r.lower() for r in con_ahorro.razones)
+
+
+def test_ahorro_verificado_por_encima_del_techo_no_suma_de_mas(make_usuario):
+    al_techo = scoring.calcular_score(make_usuario(ahorros=config.AHORRO_VERIFICADO_TECHO_COP))
+    muy_por_encima = scoring.calcular_score(
+        make_usuario(ahorros=config.AHORRO_VERIFICADO_TECHO_COP * 3)
+    )
+    assert muy_por_encima.score == pytest.approx(al_techo.score)
+
+
+def test_ahorro_verificado_escala_con_el_monto(make_usuario):
+    usuario = make_usuario(ahorros=config.AHORRO_VERIFICADO_TECHO_COP / 2)
+    sin_ahorro = scoring.calcular_score(make_usuario())
+    con_ahorro = scoring.calcular_score(usuario)
+
+    assert con_ahorro.score == pytest.approx(
+        sin_ahorro.score + scoring.BONO_AHORRO_VERIFICADO_MAX / 2
+    )
+
+
+def test_ahorro_verificado_tiene_prioridad_sobre_el_declarado(make_usuario):
+    """Si el usuario esta registrado con ahorros verificados, lo declarado en
+    la conversacion no debe sumar aparte: seria contar la misma senal dos
+    veces con distinta confianza."""
+    usuario = make_usuario(ahorros=config.AHORRO_VERIFICADO_TECHO_COP)
+    resultado = scoring.calcular_score(
+        usuario, datos_declarados={"ahorro_cuota_inicial": True}
+    )
+
+    assert resultado.score == pytest.approx(
+        scoring.calcular_score(usuario).score
+    )
+    categorias = [c["categoria"] for c in resultado.contribuciones]
+    assert "ahorro_verificado" in categorias
+    assert "declarado" not in categorias
+
+
+def test_ahorro_verificado_aparece_en_las_contribuciones(make_usuario):
+    resultado = scoring.calcular_score(make_usuario(ahorros=config.AHORRO_VERIFICADO_TECHO_COP))
+    categorias = [c["categoria"] for c in resultado.contribuciones]
+    assert "ahorro_verificado" in categorias
+
+
+def test_sin_columna_ahorros_cae_al_declarado(make_usuario):
+    """Un usuario sin el campo (leads armados antes de conectar la columna,
+    o el perfil sintetico de un no registrado) no debe romper el calculo."""
+    usuario = make_usuario()  # make_usuario no incluye "ahorros" por defecto
+    resultado = scoring.calcular_score(
+        usuario, datos_declarados={"ahorro_cuota_inicial": True}
+    )
+    assert resultado.score == pytest.approx(
+        scoring.calcular_score(usuario).score + scoring.BONO_AHORRO_CUOTA_INICIAL
+    )
+
+
+def test_ahorros_nan_cae_al_declarado(make_usuario):
+    """Una fila de pandas sin dato en una columna numerica llega como NaN, no
+    como None -- no debe tratarse como 'tiene $nan de ahorro verificado'."""
+    usuario = make_usuario(ahorros=float("nan"))
+    resultado = scoring.calcular_score(
+        usuario, datos_declarados={"ahorro_cuota_inicial": True}
+    )
+    categorias = [c["categoria"] for c in resultado.contribuciones]
+    assert "declarado" in categorias
+    assert "ahorro_verificado" not in categorias
+
+
+# ---------------------------------------------------------------------
 # family_structure: antes era codigo muerto (nadie pasaba el valor)
 # ---------------------------------------------------------------------
 

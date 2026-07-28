@@ -18,8 +18,15 @@ create table if not exists usuarios (
     tipo_contrato text,
     rango_salarial text,
     ha_pedido_subsidios text,
-    reportado_data_credito text
+    reportado_data_credito text,
+    ahorros bigint
 );
+
+-- columna agregada despues de la creacion original de la tabla (liquidez
+-- verificada para la cuota inicial, ver app/scoring.py); "add column if not
+-- exists" para que este script se pueda re-correr sobre un proyecto de
+-- Supabase que ya existe sin perder los datos que ya tiene.
+alter table usuarios add column if not exists ahorros bigint;
 
 create index if not exists idx_usuarios_telefono on usuarios (telefono);
 

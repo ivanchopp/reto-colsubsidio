@@ -39,6 +39,7 @@ COLUMNAS_USUARIOS = {
     "Rango salarial": "rango_salarial",
     "Ha pedido subsidios": "ha_pedido_subsidios",
     "Reportado en data crédito": "reportado_data_credito",
+    "ahorros": "ahorros",
 }
 
 COLUMNAS_SUBSIDIOS = {

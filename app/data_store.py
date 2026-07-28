@@ -26,7 +26,8 @@ SQL_USUARIOS = """
         tipo_contrato as "Tipo de contrato",
         rango_salarial as "Rango salarial",
         ha_pedido_subsidios as "Ha pedido subsidios",
-        reportado_data_credito as "Reportado en data crédito"
+        reportado_data_credito as "Reportado en data crédito",
+        ahorros as "ahorros"
     from usuarios
 """
 

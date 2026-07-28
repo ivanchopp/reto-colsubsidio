@@ -125,10 +125,10 @@ además pierde el bono de +5. Y como cuota agregada en el panel del asesor, que
 muestra cuánto cupo de no afiliados queda sobre los leads derivables del día
 (ver sección 7).
 
-**Umbrales.** CALIENTE desde 53,6 y TIBIO desde 29,1, calibrados con
+**Umbrales.** CALIENTE desde 52,6 y TIBIO desde 31,1, calibrados con
 `scripts/calibrar_scoring.py` para que CALIENTE sea el 12% superior de la
-base. Distribución actual sobre los 3.449 usuarios: 11,9% CALIENTE, 37,8%
-TIBIO, 50,3% FRIO.
+base. Distribución actual sobre los 3.449 usuarios: 12,0% CALIENTE, 38,0%
+TIBIO, 49,9% FRIO.
 
 Los umbrales son una decisión de capacidad del equipo comercial, no una
 propiedad de los datos. Para moverlos: cambiar `PCT_OBJETIVO_CALIENTE` en

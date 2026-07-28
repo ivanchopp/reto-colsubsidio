@@ -33,6 +33,12 @@ SCORE_NO_REGISTRADO = 15.0
 # (mucha gente compra igual con credito y subsidio), solo deja de sumar.
 BONO_AHORRO_CUOTA_INICIAL = 8.0
 
+# Mismo rol "liquidity_indicator", pero con el dato verificado de la base
+# (usuarios.ahorros) en vez de lo declarado en la conversacion. Vale mas que
+# BONO_AHORRO_CUOTA_INICIAL porque es un dato duro, y escala con el monto en
+# vez de ser un bono fijo -- ver AHORRO_VERIFICADO_TECHO_COP en config.py.
+BONO_AHORRO_VERIFICADO_MAX = 10.0
+
 # Los datos que el usuario declara en la conversacion no estan verificados
 # contra ninguna fuente: valen, pero menos que un registro en la base. Un lead
 # sin registro que conversa bien puede llegar lejos, no al mismo lugar que uno
@@ -251,8 +257,31 @@ def calcular_score(
             {"etiqueta": "Bono por subsidios", "valor": round(bono, 1), "peso": None, "categoria": "subsidios"}
         )
 
-    # liquidez declarada en la conversacion (savings_fna_cesantias del schema)
-    if datos_declarados.get("ahorro_cuota_inicial") is True:
+    # liquidez para la cuota inicial: preferir el dato verificado de la base
+    # (usuarios.ahorros) sobre lo declarado en la conversacion cuando ambos
+    # estan disponibles. NaN se descarta con la comparacion ahorros==ahorros
+    # (una fila de pandas sin ahorros llega como NaN, no como None).
+    ahorros_verificados = usuario.get("ahorros")
+    hay_ahorro_verificado = (
+        isinstance(ahorros_verificados, (int, float)) and ahorros_verificados == ahorros_verificados
+    )
+
+    if hay_ahorro_verificado:
+        bono = min(ahorros_verificados / config.AHORRO_VERIFICADO_TECHO_COP, 1.0) * BONO_AHORRO_VERIFICADO_MAX
+        score += bono
+        razones.append(
+            f"Ahorro verificado en la base (${ahorros_verificados:,.0f} COP) para la cuota "
+            f"inicial (+{bono:.1f} pts): dato duro, no declarado"
+        )
+        contribuciones.append(
+            {
+                "etiqueta": "Ahorro verificado",
+                "valor": round(bono, 1),
+                "peso": None,
+                "categoria": "ahorro_verificado",
+            }
+        )
+    elif datos_declarados.get("ahorro_cuota_inicial") is True:
         score += BONO_AHORRO_CUOTA_INICIAL
         razones.append(
             f"Declara tener ahorro o cesantias para la cuota inicial "

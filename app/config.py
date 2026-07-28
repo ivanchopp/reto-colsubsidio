@@ -94,5 +94,14 @@ INGRESO_SUPUESTO_POR_SITUACION = {
 # asesor con quien no aporto datos de valor.
 SEGMENTOS_DERIVABLES = ("CALIENTE", "TIBIO")
 
-UMBRAL_CALIENTE = 53.6
-UMBRAL_TIBIO = 29.1
+UMBRAL_CALIENTE = 52.6
+UMBRAL_TIBIO = 31.1
+
+# Techo (en COP) a partir del cual el ahorro verificado (usuarios.ahorros)
+# suma el bono maximo BONO_AHORRO_VERIFICADO_MAX -- ver app/scoring.py. Es el
+# percentil 75 real de la columna al momento de conectarla
+# (RECURSOS/Base_de_datos_usuarios_Colombia.xlsx, 3.449 filas): la mitad
+# superior de la base ya tiene mas que esto ahorrado, asi que a partir de ahi
+# el aporte deja de crecer en vez de premiar sin limite a quien ahorra muy por
+# encima del resto. Recalibrar si cambia la base.
+AHORRO_VERIFICADO_TECHO_COP = 7_600_000
