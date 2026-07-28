@@ -12,6 +12,16 @@ import pytest
 from app import extraccion, llm_client
 
 
+@pytest.fixture(autouse=True)
+def metricas_extraccion_limpias():
+    """Los contadores de llm_client.metricas_extraccion son estado global de
+    proceso: sin resetearlos, el orden en que corren los tests cambiaria el
+    resultado de las aserciones de abajo."""
+    llm_client._resetear_metricas_extraccion()
+    yield
+    llm_client._resetear_metricas_extraccion()
+
+
 @pytest.fixture
 def respuesta_llm(monkeypatch):
     def _set(datos):
@@ -107,22 +117,26 @@ def test_resumir_sin_datos_devuelve_vacio():
 # ---------------------------------------------------------------------
 
 @pytest.mark.parametrize(
-    "crudo, esperado",
+    "crudo, esperado, es_fallo",
     [
-        ('{"empresa": "Acme"}', {"empresa": "Acme"}),
-        ('```json\n{"empresa": "Acme"}\n```', {"empresa": "Acme"}),
-        ('Claro, aqui tienes: {"empresa": "Acme"}', {"empresa": "Acme"}),
-        ("no encontre datos", {}),
-        ("", {}),
-        ('{"roto": ', {}),
-        ('["no", "es", "objeto"]', {}),
+        ('{"empresa": "Acme"}', {"empresa": "Acme"}, False),
+        ('```json\n{"empresa": "Acme"}\n```', {"empresa": "Acme"}, False),
+        ('Claro, aqui tienes: {"empresa": "Acme"}', {"empresa": "Acme"}, False),
+        ("no encontre datos", {}, True),
+        ("", {}, True),
+        ('{"roto": ', {}, True),
+        ('["no", "es", "objeto"]', {}, True),
     ],
 )
-def test_extraer_json_tolera_respuestas_sucias(monkeypatch, crudo, esperado):
+def test_extraer_json_tolera_respuestas_sucias(monkeypatch, crudo, esperado, es_fallo):
     monkeypatch.setattr(
         llm_client, "generar_respuesta", lambda system, historial, instruccion: crudo
     )
     assert llm_client.extraer_json("da algo") == esperado
+
+    metricas = llm_client.metricas_extraccion()
+    assert metricas["intentos"] == 1
+    assert metricas["fallos"] == (1 if es_fallo else 0)
 
 
 def test_extraer_json_devuelve_vacio_si_el_proveedor_falla(monkeypatch):
@@ -132,3 +146,38 @@ def test_extraer_json_devuelve_vacio_si_el_proveedor_falla(monkeypatch):
         lambda system, historial, instruccion: llm_client.MENSAJE_FALLBACK,
     )
     assert llm_client.extraer_json("da algo") == {}
+    assert llm_client.metricas_extraccion() == {"intentos": 1, "fallos": 1, "tasa_fallos_pct": 100.0}
+
+
+# ---------------------------------------------------------------------
+# metricas_extraccion: tasa de fallos monitoreada (ver /api/asesor/resumen-dia)
+# ---------------------------------------------------------------------
+
+def test_metricas_extraccion_arranca_en_cero():
+    assert llm_client.metricas_extraccion() == {"intentos": 0, "fallos": 0, "tasa_fallos_pct": 0.0}
+
+
+def test_metricas_extraccion_calcula_la_tasa_de_fallos(monkeypatch):
+    respuestas = iter(['{"empresa": "Acme"}', "no encontre datos", "tampoco esta vez"])
+    monkeypatch.setattr(
+        llm_client, "generar_respuesta", lambda system, historial, instruccion: next(respuestas)
+    )
+
+    for _ in range(3):
+        llm_client.extraer_json("da algo")
+
+    assert llm_client.metricas_extraccion() == {
+        "intentos": 3,
+        "fallos": 2,
+        "tasa_fallos_pct": round(2 / 3 * 100, 1),
+    }
+
+
+def test_fallo_de_extraccion_queda_logueado(monkeypatch, caplog):
+    monkeypatch.setattr(
+        llm_client, "generar_respuesta", lambda system, historial, instruccion: "no hay json aqui"
+    )
+    with caplog.at_level("WARNING"):
+        llm_client.extraer_json("da algo")
+
+    assert any("fallo de extraccion" in r.message for r in caplog.records)

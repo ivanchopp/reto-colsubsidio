@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from app import (
     auth, config, conversation, data_store, email_sender, extraccion, handoff,
-    leads_store, nutricion, scoring,
+    leads_store, llm_client, nutricion, scoring,
 )
 
 ZONA_BOGOTA = ZoneInfo("America/Bogota")
@@ -313,6 +313,11 @@ def asesor_resumen_dia(_: str = Depends(auth.verificar_asesor)):
         "tibio": config.UMBRAL_TIBIO,
         "caliente": config.UMBRAL_CALIENTE,
     }
+    # tasa de fallos de extraccion LLM desde que arranco el proceso: un fallo
+    # sistematico (ej. cambio de proveedor que rompe el formato JSON) degrada
+    # silenciosamente los datos declarados sin romper la conversacion -- ver
+    # llm_client.metricas_extraccion.
+    stats["extraccion_llm"] = llm_client.metricas_extraccion()
     return stats
 
 

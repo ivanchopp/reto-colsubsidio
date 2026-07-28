@@ -1,5 +1,7 @@
 """Unico punto de contacto con el proveedor de LLM. Aislado a proposito:
 para cambiar de proveedor o de modelo solo se toca este archivo."""
+import logging
+
 from app import config
 
 MENSAJE_FALLBACK = "Uy, se me cruzaron los cables un segundo. ¿Me repites lo último que me contabas?"
@@ -52,12 +54,19 @@ def extraer_json(instruccion: str) -> dict:
 
     Nunca lanza: si el proveedor falla o devuelve algo que no es JSON, retorna
     {} y el flujo sigue sin los datos declarados. Una extraccion fallida no
-    puede tumbar la conversacion.
+    puede tumbar la conversacion -- pero antes tampoco dejaba rastro: un fallo
+    sistematico (ej. un cambio de proveedor que rompe el formato JSON
+    esperado) se veia identico a "el usuario no conto nada util" y podia
+    degradar la calidad de los datos declarados durante semanas sin que nadie
+    lo notara. Ver metricas_extraccion().
     """
     import json
 
+    _metricas_extraccion["intentos"] += 1
+
     respuesta = generar_respuesta(SYSTEM_PROMPT_EXTRACTOR, [], instruccion)
     if respuesta == MENSAJE_FALLBACK:
+        _registrar_fallo_extraccion("el proveedor de LLM fallo (ver el error logueado arriba)")
         return {}
 
     texto = respuesta.strip()
@@ -68,13 +77,55 @@ def extraer_json(instruccion: str) -> dict:
     # o lo acompanan de una frase: se recorta al primer objeto balanceado
     inicio, fin = texto.find("{"), texto.rfind("}")
     if inicio == -1 or fin <= inicio:
+        _registrar_fallo_extraccion(f"la respuesta no trae un objeto JSON: {texto[:200]!r}")
         return {}
 
     try:
         datos = json.loads(texto[inicio : fin + 1])
     except (ValueError, TypeError):
+        _registrar_fallo_extraccion(f"el JSON no es parseable: {texto[inicio:fin + 1][:200]!r}")
         return {}
-    return datos if isinstance(datos, dict) else {}
+
+    if not isinstance(datos, dict):
+        _registrar_fallo_extraccion(f"el JSON parseo pero no es un objeto: {type(datos).__name__}")
+        return {}
+
+    return datos
+
+
+# Contadores en memoria de proceso (se reinician con cada deploy/restart,
+# igual que el resto del estado en memoria de la app -- ver "pendientes
+# conocidos" en SOBRE MI/MIEMPRESA.md). Alcanza para ver un fallo sistematico
+# durante el dia: para retener historia entre reinicios haria falta
+# persistirlo en Supabase, que hoy es mas de lo que este problema necesita.
+_metricas_extraccion = {"intentos": 0, "fallos": 0}
+
+
+def _registrar_fallo_extraccion(motivo: str) -> None:
+    _metricas_extraccion["fallos"] += 1
+    logging.warning(
+        "[llm_client] fallo de extraccion #%d: %s", _metricas_extraccion["fallos"], motivo
+    )
+
+
+def metricas_extraccion() -> dict:
+    """Tasa de fallos de extraer_json desde que arranco el proceso. La expone
+    /api/asesor/resumen-dia para que un fallo sistematico sea visible en el
+    panel en vez de solo en los logs de Render."""
+    intentos = _metricas_extraccion["intentos"]
+    fallos = _metricas_extraccion["fallos"]
+    return {
+        "intentos": intentos,
+        "fallos": fallos,
+        "tasa_fallos_pct": round(fallos / intentos * 100, 1) if intentos else 0.0,
+    }
+
+
+def _resetear_metricas_extraccion() -> None:
+    """Solo para tests: los contadores son estado global de proceso y no
+    deben arrastrarse de un test a otro."""
+    _metricas_extraccion["intentos"] = 0
+    _metricas_extraccion["fallos"] = 0
 
 
 def _generar_openai(mensajes: list[dict]) -> str:
