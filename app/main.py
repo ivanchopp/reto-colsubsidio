@@ -159,6 +159,7 @@ def _lead_payload(sesion: conversation.Sesion) -> dict:
         "scoring_version": resultado.scoring_version if resultado else None,
         "razones": resultado.razones if resultado else None,
         "codigos_razones": resultado.codigos_razones if resultado else None,
+        "conflictos": resultado.conflictos if resultado else None,
         "peer_stats": resultado.peer_stats if resultado else None,
         "subsidios_elegibles": (
             [{"nombre": s.nombre, "requisito_salarial_texto": s.requisito_salarial_texto}

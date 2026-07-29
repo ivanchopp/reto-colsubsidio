@@ -63,6 +63,7 @@ create table if not exists leads (
     scoring_version text,          -- config.SCORING_VERSION vigente al calcular el score (auditoria)
     razones jsonb,
     codigos_razones jsonb,         -- codigo estable por cada entrada de razones (ver app/scoring.py RC_*)
+    conflictos jsonb,              -- discrepancias entre lo declarado y la base (ver app/scoring._detectar_conflictos)
     peer_stats jsonb,
     subsidios_elegibles jsonb,
     contribuciones jsonb,          -- desglose {etiqueta, valor, peso, categoria} para el grafico de torta

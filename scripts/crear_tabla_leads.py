@@ -75,6 +75,10 @@ COLUMNAS_NUEVAS = [
     # permite analitica agregada (que razon rechaza mas leads, por canal o
     # ciudad) sin parsear texto libre
     "alter table leads add column if not exists codigos_razones jsonb;",
+    # discrepancias entre lo declarado en la conversacion y la base
+    # (ver app/scoring._detectar_conflictos): informativo, no cambia el
+    # score, pero le da al asesor una senal de que revisar
+    "alter table leads add column if not exists conflictos jsonb;",
 ]
 
 

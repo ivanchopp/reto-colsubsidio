@@ -20,6 +20,31 @@ CREDIT_SCORE_NO_REPORTADO = 750
 
 EMPLOYER_TIER_MULTIPLIER = {"Tier 1": 1.15, "Tier 2": 1.0, "Tier 3": 0.85}
 
+# Vocabulario de app/extraccion.py (situacion_laboral) -> vocabulario de la
+# base (Estado laboral). Un solo diccionario compartido entre
+# _perfil_desde_declarados (arma el perfil sintetico de un no registrado) y
+# _detectar_conflictos (compara lo declarado contra un usuario SI registrado)
+# para que ambos usen la misma equivalencia.
+MAPA_SITUACION_A_ESTADO_LABORAL = {
+    "empleado_formal": "Empleado",
+    "independiente": "Independiente",
+    "desempleado": "Desempleado",
+}
+
+# Margen de tolerancia sobre el "Rango salarial" de la base antes de marcar
+# conflicto con el ingreso declarado: el rango es un bucket, no un numero
+# exacto, y un autoreporte cerca del borde no deberia dispararlo.
+TOLERANCIA_INGRESO_DECLARADO_PCT = 0.15
+
+# Umbrales para conflicto entre el ahorro declarado (booleano, de la
+# conversacion) y el ahorro verificado (usuarios.ahorros, COP). La base
+# sintetica no tiene ceros (ver RECURSOS/Base_de_datos_usuarios_Colombia.xlsx,
+# minimo real ~3.479 COP), asi que un simple ">0" marcaria conflicto en casi
+# cualquier "no tengo ahorro" declarado -- estos umbrales delimitan una zona
+# neutra donde declarar cualquiera de las dos cosas es razonable.
+UMBRAL_AHORRO_CONFLICTO_BAJO_COP = 500_000  # declara SI tener, la base muestra menos que esto
+UMBRAL_AHORRO_CONFLICTO_ALTO_COP = 3_000_000  # declara NO tener, la base muestra mas que esto
+
 # Peso de cada senal en el blend final (ver mas abajo en calcular_score) y
 # minimo de peers para que esa senal aplique -- documentado tambien en
 # SOBRE MI/MIEMPRESA.md seccion 6. Extraidas a constantes con nombre (en vez
@@ -104,6 +129,10 @@ RC_SIN_DATOS_DECLARADOS = "RC_SIN_DATOS_DECLARADOS"
 RC_PENALIZACION_FIJA_NO_REGISTRADO = "RC_PENALIZACION_FIJA_NO_REGISTRADO"
 RC_SUPUESTO_INGRESO = "RC_SUPUESTO_INGRESO"
 RC_FACTOR_CONFIANZA_DECLARADO = "RC_FACTOR_CONFIANZA_DECLARADO"
+RC_CONFLICTO_SITUACION_LABORAL = "RC_CONFLICTO_SITUACION_LABORAL"
+RC_CONFLICTO_INGRESO = "RC_CONFLICTO_INGRESO"
+RC_CONFLICTO_AHORRO = "RC_CONFLICTO_AHORRO"
+RC_CONFLICTO_VIVIENDA = "RC_CONFLICTO_VIVIENDA"
 
 
 @dataclass
@@ -126,6 +155,14 @@ class ResultadoScoring:
     # leads.scoring_version para poder auditar con que reglas salio un score
     # historico despues de que config.py haya cambiado.
     scoring_version: str = config.SCORING_VERSION
+    # discrepancias entre lo que la persona declaro en la conversacion y lo
+    # que dice la base (ver _detectar_conflictos). Informativo: no cambia el
+    # score, solo lo señala para que un asesor lo revise -- puede ser un dato
+    # de base desactualizado o una extraccion del LLM incorrecta, y en ambos
+    # casos conviene mirarlo en vez de resolverlo en silencio a favor de una
+    # fuente. Siempre vacio para un lead sin registro (no hay con que
+    # comparar lo declarado).
+    conflictos: list[dict] = field(default_factory=list)
 
 
 def _midpoint_rango_salarial(rango: str) -> float:
@@ -137,6 +174,18 @@ def _midpoint_rango_salarial(rango: str) -> float:
     return sum(numeros) / 2
 
 
+def _bounds_rango_salarial(rango: str) -> tuple[float, float] | None:
+    """Limites (min, max) de un 'Rango salarial' de la base, para comparar un
+    ingreso puntual declarado contra el bucket completo en vez de solo contra
+    el punto medio (ver _detectar_conflictos)."""
+    rango = str(rango).lower().replace("de ", "").strip()
+    partes = [p.strip().replace(".", "") for p in rango.split("-")]
+    numeros = [float(p) for p in partes if p.replace(",", "").isdigit()]
+    if len(numeros) != 2:
+        return None
+    return min(numeros), max(numeros)
+
+
 def _employer_tier(usuario: dict) -> str:
     estado = str(usuario.get("Estado laboral", "")).strip()
     contrato = str(usuario.get("Tipo de contrato", "")).strip()
@@ -145,6 +194,106 @@ def _employer_tier(usuario: dict) -> str:
     if estado == "Empleado" and contrato == "Fijo":
         return "Tier 2"
     return "Tier 3"  # Independiente, Obra y labor, Desempleado
+
+
+def _detectar_conflictos(usuario: dict, datos_declarados: dict) -> list[dict]:
+    """Compara lo declarado en la conversacion contra los datos verificados
+    de la base, cuando el usuario esta registrado. No decide cual fuente
+    tiene razon -- puede ser un dato de base desactualizado o una extraccion
+    del LLM incorrecta -- solo lo señala para que un asesor lo revise. No
+    cambia el score.
+
+    Para un lead sin registro esto siempre da [] sin necesidad de un caso
+    especial: el perfil que se compara (_perfil_desde_declarados) se arma con
+    lo mismo que datos_declarados, asi que nunca hay con que contradecirlo.
+    """
+    conflictos: list[dict] = []
+
+    situacion = datos_declarados.get("situacion_laboral")
+    estado_esperado = MAPA_SITUACION_A_ESTADO_LABORAL.get(situacion)
+    estado_base = str(usuario.get("Estado laboral", "")).strip()
+    if estado_esperado and estado_base and estado_esperado != estado_base:
+        conflictos.append(
+            {
+                "campo": "situacion_laboral",
+                "codigo": RC_CONFLICTO_SITUACION_LABORAL,
+                "valor_base": estado_base,
+                "valor_declarado": situacion,
+                "mensaje": (
+                    f"Conflicto de situacion laboral: la base dice '{estado_base}', "
+                    f"declaro '{situacion}' en la conversacion. Verificar con el usuario."
+                ),
+            }
+        )
+
+    ingreso_declarado = datos_declarados.get("ingresos_mensuales_aprox")
+    limites = _bounds_rango_salarial(usuario.get("Rango salarial", ""))
+    if ingreso_declarado and limites:
+        minimo, maximo = limites
+        margen = maximo * TOLERANCIA_INGRESO_DECLARADO_PCT
+        if not (minimo - margen <= ingreso_declarado <= maximo + margen):
+            conflictos.append(
+                {
+                    "campo": "ingresos_mensuales_aprox",
+                    "codigo": RC_CONFLICTO_INGRESO,
+                    "valor_base": usuario.get("Rango salarial"),
+                    "valor_declarado": ingreso_declarado,
+                    "mensaje": (
+                        f"Conflicto de ingreso: la base ubica al usuario en el rango "
+                        f"'{usuario.get('Rango salarial')}', declaro ${ingreso_declarado:,.0f} COP "
+                        "en la conversacion. Verificar con el usuario."
+                    ),
+                }
+            )
+
+    if "ahorro_cuota_inicial" in datos_declarados:
+        ahorro_declarado = datos_declarados["ahorro_cuota_inicial"]
+        ahorros_base = usuario.get("ahorros")
+        if isinstance(ahorros_base, (int, float)) and ahorros_base == ahorros_base:  # descarta NaN
+            conflicto_por_bajo = ahorro_declarado and ahorros_base < UMBRAL_AHORRO_CONFLICTO_BAJO_COP
+            conflicto_por_alto = (
+                ahorro_declarado is False and ahorros_base > UMBRAL_AHORRO_CONFLICTO_ALTO_COP
+            )
+            if conflicto_por_bajo or conflicto_por_alto:
+                conflictos.append(
+                    {
+                        "campo": "ahorro_cuota_inicial",
+                        "codigo": RC_CONFLICTO_AHORRO,
+                        "valor_base": ahorros_base,
+                        "valor_declarado": ahorro_declarado,
+                        "mensaje": (
+                            f"Conflicto de ahorro: declaro "
+                            f"{'tener' if ahorro_declarado else 'NO tener'} ahorro para la cuota "
+                            f"inicial, la base muestra ${ahorros_base:,.0f} COP verificados. "
+                            "Verificar con el usuario."
+                        ),
+                    }
+                )
+
+    if "tiene_vivienda" in datos_declarados:
+        tiene_vivienda_declarado = datos_declarados["tiene_vivienda"]
+        estado_vivienda_base = str(usuario.get("Estado de vivienda propia", "")).strip()
+        # solo se compara contra los dos valores sin ambiguedad de la base:
+        # "Desistido"/"Rechazado" describen el desenlace de un proceso pasado,
+        # no si hoy tiene vivienda, y comparar contra eso daria falsos positivos
+        contradice_con_vivienda = estado_vivienda_base == "Con vivienda propia" and not tiene_vivienda_declarado
+        contradice_sin_vivienda = estado_vivienda_base == "Sin vivienda" and tiene_vivienda_declarado
+        if contradice_con_vivienda or contradice_sin_vivienda:
+            conflictos.append(
+                {
+                    "campo": "tiene_vivienda",
+                    "codigo": RC_CONFLICTO_VIVIENDA,
+                    "valor_base": estado_vivienda_base,
+                    "valor_declarado": tiene_vivienda_declarado,
+                    "mensaje": (
+                        f"Conflicto de vivienda: la base dice '{estado_vivienda_base}', declaro "
+                        f"{'tener' if tiene_vivienda_declarado else 'no tener'} vivienda propia "
+                        "en la conversacion. Verificar con el usuario."
+                    ),
+                }
+            )
+
+    return conflictos
 
 
 def _peer_conversion_stats(usuario: dict) -> dict:
@@ -196,6 +345,12 @@ def calcular_score(
         razones.append(texto)
 
     datos_declarados = datos_declarados or {}
+
+    # discrepancias entre lo declarado y la base: solo informativo, no toca
+    # el score. Ver _detectar_conflictos.
+    conflictos = _detectar_conflictos(usuario, datos_declarados)
+    for conflicto in conflictos:
+        _agregar(conflicto["codigo"], conflicto["mensaje"])
 
     # family_structure explicito gana sobre el declarado (lo usan los tests
     # para probar la rama sin pasar por la extraccion)
@@ -413,6 +568,7 @@ def calcular_score(
         peer_stats=peer_stats,
         subsidios_elegibles=subsidios_elegibles,
         contribuciones=contribuciones,
+        conflictos=conflictos,
     )
 
 
@@ -422,11 +578,8 @@ def _perfil_desde_declarados(declarados: dict) -> dict:
     neutros, nunca en el peor valor posible: no declarar algo no es lo mismo
     que declararlo en contra."""
     situacion = declarados.get("situacion_laboral")
-    estado_laboral = {
-        "empleado_formal": "Empleado",
-        "independiente": "Independiente",
-        "desempleado": "Desempleado",
-    }.get(situacion, "Independiente")  # neutro: Tier 3 sin la penalizacion de desempleo
+    # neutro si no declaro: Tier 3 sin la penalizacion de desempleo
+    estado_laboral = MAPA_SITUACION_A_ESTADO_LABORAL.get(situacion, "Independiente")
 
     ingreso = declarados.get("ingresos_mensuales_aprox")
     if not ingreso and situacion:
@@ -554,4 +707,5 @@ def calcular_score_no_registrado(datos_declarados: dict | None = None) -> Result
         peer_stats=resultado.peer_stats,
         subsidios_elegibles=resultado.subsidios_elegibles,
         contribuciones=resultado.contribuciones,
+        conflictos=resultado.conflictos,
     )
