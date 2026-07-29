@@ -60,7 +60,23 @@ BONO_AHORRO_VERIFICADO_MAX = 10.0
 # contra ninguna fuente: valen, pero menos que un registro en la base. Un lead
 # sin registro que conversa bien puede llegar lejos, no al mismo lugar que uno
 # con historial comprobable.
-FACTOR_CONFIANZA_DECLARADO = 0.75
+#
+# El descuento no es plano: un perfil donde la persona afirmo un ingreso
+# concreto no deberia valer lo mismo que uno donde solo se sabe la situacion
+# laboral y el ingreso se asumio por la mediana del grupo
+# (INGRESO_SUPUESTO_POR_SITUACION) -- eso es justo lo que el descuento fijo
+# de antes no distinguia. Ver _confianza_declarado().
+FACTOR_CONFIANZA_INGRESO_EXPLICITO = 0.85  # afirmo un numero: situacion + ingreso declarados
+FACTOR_CONFIANZA_INGRESO_INFERIDO = 0.70   # afirmo su situacion, el ingreso se asumio por la mediana
+FACTOR_CONFIANZA_SIN_SITUACION = 0.55      # ni siquiera se sabe a que se dedica
+
+# Cada campo secundario que tambien se declaro (ahorro, estructura familiar,
+# vivienda) suma un poco de certeza extra sobre la base de arriba. El techo
+# evita que un perfil declarado, por completo que sea, llegue a valer lo
+# mismo que uno verificado en la base.
+BONO_CONFIANZA_POR_CAMPO_SECUNDARIO = 0.02
+FACTOR_CONFIANZA_TECHO = 0.9
+_CAMPOS_SECUNDARIOS_CONFIANZA = ("ahorro_cuota_inicial", "estructura_familiar", "tiene_vivienda")
 
 # Reason codes: identificador estable por cada regla que puede afectar el
 # score, en paralelo al texto en espanol de "razones" (ver ResultadoScoring).
@@ -438,6 +454,29 @@ def _perfil_desde_declarados(declarados: dict) -> dict:
     }
 
 
+def _confianza_declarado(datos_declarados: dict) -> float:
+    """Cuanto confiar en un perfil armado con datos de la conversacion, nunca
+    verificados contra la base. Depende de que tan directamente afirmo la
+    persona lo que mas pesa en el score final -- ingreso y situacion laboral,
+    ver calcular_score -- con un pequeno ajuste por cuantos campos
+    secundarios tambien conto (ahorro, estructura familiar, vivienda)."""
+    situacion = datos_declarados.get("situacion_laboral")
+    if not situacion:
+        base = FACTOR_CONFIANZA_SIN_SITUACION
+    elif "ingresos_mensuales_aprox" in datos_declarados:
+        base = FACTOR_CONFIANZA_INGRESO_EXPLICITO
+    else:
+        base = FACTOR_CONFIANZA_INGRESO_INFERIDO
+
+    secundarios_declarados = sum(
+        campo in datos_declarados for campo in _CAMPOS_SECUNDARIOS_CONFIANZA
+    )
+    return min(
+        base + secundarios_declarados * BONO_CONFIANZA_POR_CAMPO_SECUNDARIO,
+        FACTOR_CONFIANZA_TECHO,
+    )
+
+
 def calcular_score_no_registrado(datos_declarados: dict | None = None) -> ResultadoScoring:
     """Score para leads cuyo telefono no esta en la base.
 
@@ -445,12 +484,12 @@ def calcular_score_no_registrado(datos_declarados: dict | None = None) -> Result
     SCORE_NO_REGISTRADO y el lead queda FRIO: no hay con que calificarlo.
 
     Si aporto datos, se corre el mismo motor de reglas sobre un perfil armado
-    con lo declarado y se multiplica por FACTOR_CONFIANZA_DECLARADO, porque
-    nada de eso esta verificado. Antes todos recibian el mismo 15 sin importar
-    lo que contaran, asi que un no afiliado con ingresos altos y cuota inicial
-    ahorrada quedaba igual que un desempleado: la mitad de los leads de la
-    base son no afiliados, y ese caso es justamente el que el reto pide no
-    perder de vista.
+    con lo declarado y se multiplica por un factor de confianza (ver
+    _confianza_declarado), porque nada de eso esta verificado. Antes todos
+    recibian el mismo 15 sin importar lo que contaran, asi que un no afiliado
+    con ingresos altos y cuota inicial ahorrada quedaba igual que un
+    desempleado: la mitad de los leads de la base son no afiliados, y ese
+    caso es justamente el que el reto pide no perder de vista.
     """
     datos_declarados = datos_declarados or {}
     if not datos_declarados:
@@ -476,7 +515,8 @@ def calcular_score_no_registrado(datos_declarados: dict | None = None) -> Result
         _perfil_desde_declarados(datos_declarados), datos_declarados=datos_declarados
     )
 
-    score = round(resultado.score * FACTOR_CONFIANZA_DECLARADO, 1)
+    factor_confianza = _confianza_declarado(datos_declarados)
+    score = round(resultado.score * factor_confianza, 1)
     if score >= config.UMBRAL_CALIENTE:
         segmento_lead = "CALIENTE"
     elif score >= config.UMBRAL_TIBIO:
@@ -500,8 +540,8 @@ def calcular_score_no_registrado(datos_declarados: dict | None = None) -> Result
             codigos_razones.append(RC_SUPUESTO_INGRESO)
     razones += [
         *resultado.razones,
-        f"Ajuste por datos sin verificar: x{FACTOR_CONFIANZA_DECLARADO} "
-        f"({resultado.score} -> {score})",
+        f"Ajuste por datos sin verificar (confianza segun cuanto se afirmo vs. se "
+        f"asumio): x{factor_confianza:.2f} ({resultado.score} -> {score})",
     ]
     codigos_razones += [*resultado.codigos_razones, RC_FACTOR_CONFIANZA_DECLARADO]
 

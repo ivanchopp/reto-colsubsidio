@@ -202,9 +202,79 @@ def test_se_aplica_el_factor_de_confianza():
 
     assert sin_verificar.score < como_si_estuviera_en_la_base.score
     assert sin_verificar.score == pytest.approx(
-        round(como_si_estuviera_en_la_base.score * scoring.FACTOR_CONFIANZA_DECLARADO, 1)
+        round(
+            como_si_estuviera_en_la_base.score * scoring._confianza_declarado(declarados), 1
+        )
     )
     assert any("sin verificar" in r.lower() for r in sin_verificar.razones)
+
+
+# ---------------------------------------------------------------------
+# _confianza_declarado: por campo, no un descuento plano para todo el perfil
+# ---------------------------------------------------------------------
+
+def test_confianza_sin_situacion_laboral_es_la_minima():
+    factor = scoring._confianza_declarado({})
+    assert factor == scoring.FACTOR_CONFIANZA_SIN_SITUACION
+
+
+def test_confianza_ingreso_explicito_vale_mas_que_ingreso_inferido():
+    inferido = scoring._confianza_declarado({"situacion_laboral": "empleado_formal"})
+    explicito = scoring._confianza_declarado(
+        {"situacion_laboral": "empleado_formal", "ingresos_mensuales_aprox": 6_000_000}
+    )
+
+    assert inferido == scoring.FACTOR_CONFIANZA_INGRESO_INFERIDO
+    assert explicito == scoring.FACTOR_CONFIANZA_INGRESO_EXPLICITO
+    assert explicito > inferido
+
+
+def test_confianza_crece_con_cada_campo_secundario_declarado():
+    base = {"situacion_laboral": "empleado_formal", "ingresos_mensuales_aprox": 6_000_000}
+    solo_base = scoring._confianza_declarado(base)
+    con_ahorro = scoring._confianza_declarado({**base, "ahorro_cuota_inicial": True})
+    con_ahorro_y_vivienda = scoring._confianza_declarado(
+        {**base, "ahorro_cuota_inicial": True, "tiene_vivienda": False}
+    )
+
+    assert con_ahorro > solo_base
+    assert con_ahorro_y_vivienda > con_ahorro
+
+
+def test_confianza_declarar_no_tener_algo_tambien_cuenta_como_dato():
+    """False es un dato declarado igual que True -- lo que resta certeza es
+    NO declarar el campo, no el valor que se haya declarado."""
+    con_ahorro_true = scoring._confianza_declarado(
+        {"situacion_laboral": "empleado_formal", "ahorro_cuota_inicial": True}
+    )
+    con_ahorro_false = scoring._confianza_declarado(
+        {"situacion_laboral": "empleado_formal", "ahorro_cuota_inicial": False}
+    )
+    assert con_ahorro_true == con_ahorro_false
+
+
+def test_confianza_nunca_supera_el_techo():
+    perfil_completo = {
+        "situacion_laboral": "empleado_formal",
+        "ingresos_mensuales_aprox": 6_000_000,
+        "ahorro_cuota_inicial": True,
+        "estructura_familiar": "Nuclear Integrada",
+        "tiene_vivienda": False,
+    }
+    assert scoring._confianza_declarado(perfil_completo) == scoring.FACTOR_CONFIANZA_TECHO
+
+
+def test_confianza_nunca_llega_a_1():
+    """Ni el perfil declarado mas completo vale lo mismo que un dato
+    verificado contra la base."""
+    perfil_completo = {
+        "situacion_laboral": "empleado_formal",
+        "ingresos_mensuales_aprox": 6_000_000,
+        "ahorro_cuota_inicial": True,
+        "estructura_familiar": "Nuclear Integrada",
+        "tiene_vivienda": False,
+    }
+    assert scoring._confianza_declarado(perfil_completo) < 1.0
 
 
 def test_el_segmento_del_no_registrado_respeta_los_umbrales_configurados():
