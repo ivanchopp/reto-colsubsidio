@@ -34,15 +34,21 @@ Contexto: se le acababa de preguntar sobre "{tema}".
 
 Devuelve un JSON con exactamente estas claves:
 - "empresa": nombre de la empresa donde trabaja, o null.
-- "situacion_laboral": "empleado_formal" si trabaja con contrato en una empresa,
-  "independiente" si trabaja por su cuenta o por prestacion de servicios,
-  "desempleado" si no tiene trabajo ahora. null si no se puede saber.
+- "situacion_laboral": "empleado_formal" si el mensaje dice explicitamente que
+  trabaja con contrato en una empresa, "independiente" si dice que trabaja por
+  su cuenta o por prestacion de servicios, "desempleado" si dice que no tiene
+  trabajo ahora. null si no se puede saber. Mencionar cesantias o ahorros por
+  si solo NO es evidencia de situacion laboral (un independiente tambien puede
+  tener cesantias guardadas en un fondo).
 - "ahorro_cuota_inicial": true si menciona tener ahorros, cesantias o dinero
   guardado para la cuota inicial; false si dice explicitamente que no tiene;
   null si no se menciona.
 - "estructura_familiar": "Monoparental Joven" si es una persona joven sola con
-  hijos, "Nuclear Integrada" si es pareja con o sin hijos, "Sin Grupo" si se
-  mudaria solo o sola. null si no se menciona.
+  hijos, "Nuclear Integrada" si el mensaje dice explicitamente con quien se
+  mudaria (pareja, con o sin hijos), "Sin Grupo" si dice que se mudaria solo o
+  sola. null si el mensaje no responde con quien se mudaria -- mencionar a la
+  pareja o la familia en otro contexto (por ejemplo, quien administra los
+  ahorros) no cuenta como respuesta a esta pregunta.
 - "tiene_vivienda": true si ya tiene vivienda propia, false si dice que no,
   null si no se menciona.
 - "ingresos_mensuales_aprox": ingreso mensual en pesos colombianos como numero
