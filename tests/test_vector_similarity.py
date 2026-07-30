@@ -13,8 +13,10 @@ from app import data_store, vector_similarity as vs
 @pytest.fixture(autouse=True)
 def limpiar_cache_centroides():
     vs.calcular_centroides.cache_clear()
+    vs.contar_centroides.cache_clear()
     yield
     vs.calcular_centroides.cache_clear()
+    vs.contar_centroides.cache_clear()
 
 
 def _usuario(**overrides):
@@ -172,3 +174,38 @@ def test_calcular_similitud_vectorial_perfil_opuesto_da_score_bajo(monkeypatch):
     resultado_bueno = vs.calcular_similitud_vectorial(_usuario(**{"Rango salarial": "de 9.000.000 - 10.000.000"}))
 
     assert resultado["score_vectorial"] < resultado_bueno["score_vectorial"]
+
+
+# ---------------------------------------------------------------------
+# confianza: shrinkage segun cuantos usuarios soportan el centroide positivo
+# ---------------------------------------------------------------------
+
+def _dataset_con_n_compradores(n: int) -> pd.DataFrame:
+    filas = [
+        _usuario(**{"Rango salarial": "de 9.000.000 - 10.000.000", "Estado de vivienda propia": "Con vivienda propia"})
+        for _ in range(n)
+    ]
+    filas.append(_usuario(**{"Rango salarial": "de 0 - 1.750.905", "Estado de vivienda propia": "Rechazado"}))
+    return pd.DataFrame(filas)
+
+
+def test_confianza_crece_con_el_soporte_del_centroide_positivo(monkeypatch):
+    monkeypatch.setattr(data_store, "cargar_usuarios", lambda: _dataset_con_n_compradores(2))
+    poco_soporte = vs.calcular_similitud_vectorial(_usuario())
+    vs.calcular_centroides.cache_clear()
+    vs.contar_centroides.cache_clear()
+
+    monkeypatch.setattr(data_store, "cargar_usuarios", lambda: _dataset_con_n_compradores(200))
+    mucho_soporte = vs.calcular_similitud_vectorial(_usuario())
+
+    assert poco_soporte["confianza"] < mucho_soporte["confianza"]
+    assert poco_soporte["soporte_centroide_positivo"] == 2
+    assert mucho_soporte["soporte_centroide_positivo"] == 200
+
+
+def test_confianza_a_mitad_del_pseudo_conteo_es_0_5(monkeypatch):
+    monkeypatch.setattr(
+        data_store, "cargar_usuarios", lambda: _dataset_con_n_compradores(vs.PSEUDO_CONTEO_CENTROIDE)
+    )
+    resultado = vs.calcular_similitud_vectorial(_usuario())
+    assert resultado["confianza"] == pytest.approx(0.5)

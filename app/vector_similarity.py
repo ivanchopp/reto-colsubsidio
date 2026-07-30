@@ -24,6 +24,17 @@ RESULTADO_POSITIVO = "Con vivienda propia"
 TIER_A_NUMERO = {"Tier 1": 1.0, "Tier 2": 0.66, "Tier 3": 0.33}
 ANTIGUEDAD_TECHO_MESES = 120.0  # 10 anios, satura el feature de antiguedad
 
+# Shrinkage tipo Empirical Bayes sobre el peso de esta senal en el blend
+# (ver app/scoring.py): un centroide calculado sobre pocos usuarios es
+# ruidoso, y antes eso pesaba lo mismo en el blend que un centroide con
+# cientos de usuarios detras. PSEUDO_CONTEO_CENTROIDE es el numero de
+# usuarios al que el centroide positivo ya aporta la mitad de la confianza
+# maxima (n / (n + k)); mismo criterio y mismo valor que
+# scoring.PSEUDO_CONTEO_PEERS. Con la base actual (914 usuarios en "Con
+# vivienda propia") la confianza practicamente satura en 1.0 -- el shrinkage
+# protege sobre todo a una base mas chica o desbalanceada.
+PSEUDO_CONTEO_CENTROIDE = 10
+
 
 def _midpoint_rango_salarial(rango: str) -> float:
     from app.scoring import _midpoint_rango_salarial as f
@@ -80,6 +91,15 @@ def calcular_centroides() -> dict:
     return centroides
 
 
+@lru_cache(maxsize=1)
+def contar_centroides() -> dict:
+    """Cuantos usuarios soportan cada centroide -- la base del shrinkage de
+    confianza (ver PSEUDO_CONTEO_CENTROIDE). Cacheado por la misma razon que
+    calcular_centroides."""
+    df = data_store.cargar_usuarios()
+    return df["Estado de vivienda propia"].value_counts().to_dict()
+
+
 def calcular_similitud_vectorial(usuario: dict) -> dict:
     """Devuelve la similitud coseno del usuario contra cada centroide y un
     score_vectorial (0-100) basado en que tan cerca esta del centroide de
@@ -113,7 +133,16 @@ def calcular_similitud_vectorial(usuario: dict) -> dict:
         score_vectorial = 50.0
     score_vectorial = max(0.0, min(100.0, score_vectorial))
 
+    soporte_positivo = contar_centroides().get(RESULTADO_POSITIVO, 0)
+    confianza = soporte_positivo / (soporte_positivo + PSEUDO_CONTEO_CENTROIDE)
+
     return {
         "score_vectorial": round(score_vectorial, 1),
         "similitudes_por_centroide": similitudes,
+        # cuantos usuarios soportan el centroide "Con vivienda propia" y que
+        # tanto pesa por eso esta senal en el blend de scoring.py -- no el
+        # score en si (ya viene acotado 0-100 y con un piso neutro de 50
+        # cuando no hay ranking del que sacar señal), sino su influencia.
+        "soporte_centroide_positivo": soporte_positivo,
+        "confianza": round(confianza, 3),
     }

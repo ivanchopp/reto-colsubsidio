@@ -54,7 +54,15 @@ def tasa_base_fija(request, monkeypatch):
 def vectorial_neutro(request, monkeypatch):
     if not _usa_stubs(request):
         return
-    stub = lambda usuario: {"score_vectorial": 50.0, "similitudes_por_centroide": {}}
+    # confianza=1.0 (soporte "infinito"): asi el peso efectivo de vectorial
+    # en el blend queda igual a PESO_VECTORIAL sin shrinkage, y los tests que
+    # no le interesa esto no tienen que pensar en confianza para nada.
+    stub = lambda usuario: {
+        "score_vectorial": 50.0,
+        "similitudes_por_centroide": {},
+        "soporte_centroide_positivo": 999_999,
+        "confianza": 1.0,
+    }
     monkeypatch.setattr(vector_similarity, "calcular_similitud_vectorial", stub)
 
 

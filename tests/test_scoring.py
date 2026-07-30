@@ -158,7 +158,7 @@ def test_reportado_datacredito_penaliza_tambien_en_vis(make_usuario):
 # calcular_score: blending con peers de perfil similar
 # ---------------------------------------------------------------------
 
-def test_peer_blend_pondera_score_con_3_o_mas_peers(make_usuario, monkeypatch):
+def test_peer_blend_con_4_peers_encoge_la_tasa_y_el_peso(make_usuario, monkeypatch):
     peers = pd.DataFrame(
         {
             "Estado de vivienda propia": [
@@ -174,26 +174,74 @@ def test_peer_blend_pondera_score_con_3_o_mas_peers(make_usuario, monkeypatch):
     usuario = make_usuario(**{"Rango salarial": "de 9.000.000 - 10.000.000"})  # score de reglas puro: 85.5
     resultado = scoring.calcular_score(usuario)
 
-    # con >=3 peers, el blend reparte 0.6 reglas / 0.2 peers / 0.2 vectorial.
-    # La senal de peers no es la conversion cruda sino su lift contra la tasa
-    # base (26.0% via el fixture tasa_base_fija): 50/26*50 = 96.2.
-    # 0.6*85.5 + 0.2*96.2 + 0.2*50.0(stub vectorial) = 80.5
-    assert resultado.score == pytest.approx(80.5, abs=0.1)
-    assert resultado.segmento_lead == "CALIENTE"
+    # shrinkage n/(n+10) con n=4 peers, tasa observada 50.0%, base 26.0% (via
+    # el fixture tasa_base_fija): confianza = 4/14 = 0.2857; tasa ajustada =
+    # 0.2857*50 + 0.7143*26 = 32.857; lift = 32.857/26*50 = 63.187.
+    # peso_peers_efectivo = 0.2*0.2857 = 0.05714; el resto (0.14286) vuelve a
+    # reglas: pesos = {reglas: 0.74286, peers: 0.05714, vectorial: 0.2}.
+    # 0.74286*85.5 + 0.05714*63.187 + 0.2*50.0(stub vectorial) = 77.1
+    assert resultado.score == pytest.approx(77.1, abs=0.1)
     assert resultado.peer_stats["total_peers"] == 4
     assert resultado.peer_stats["pct_con_vivienda_propia"] == 50.0
+    assert resultado.peer_stats["confianza"] == pytest.approx(4 / 14, abs=0.001)
 
 
-def test_menos_de_3_peers_no_aplica_blend_de_peers(make_usuario, monkeypatch):
-    peers = pd.DataFrame({"Estado de vivienda propia": ["Con vivienda propia", "Rechazado"]})
-    monkeypatch.setattr(data_store, "peers_con_perfil_similar", lambda usuario: peers)
+def test_peer_blend_con_pocos_peers_pesa_menos_que_con_muchos(make_usuario, monkeypatch):
+    """El shrinkage es gradual, no un corte binario: menos peers deberia
+    pesar menos en el blend que mas peers, sin caer necesariamente a cero."""
+    usuario = make_usuario(**{"Rango salarial": "de 9.000.000 - 10.000.000"})
 
+    peers_pocos = pd.DataFrame({"Estado de vivienda propia": ["Con vivienda propia", "Rechazado"]})
+    monkeypatch.setattr(data_store, "peers_con_perfil_similar", lambda usuario: peers_pocos)
+    con_2_peers = scoring.calcular_score(usuario)
+
+    peers_muchos = pd.DataFrame(
+        {"Estado de vivienda propia": ["Con vivienda propia"] * 20 + ["Rechazado"] * 20}
+    )
+    monkeypatch.setattr(data_store, "peers_con_perfil_similar", lambda usuario: peers_muchos)
+    con_40_peers = scoring.calcular_score(usuario)
+
+    assert con_2_peers.peer_stats["confianza"] < con_40_peers.peer_stats["confianza"]
+    contribucion_2 = next(c for c in con_2_peers.contribuciones if c["categoria"] == "peers")
+    contribucion_40 = next(c for c in con_40_peers.contribuciones if c["categoria"] == "peers")
+    assert contribucion_2["peso"] < contribucion_40["peso"]
+
+
+# ---------------------------------------------------------------------
+# _tasa_peers_con_shrinkage: la formula de shrinkage en aislamiento
+# ---------------------------------------------------------------------
+
+def test_shrinkage_sin_peers_da_exactamente_la_tasa_base(monkeypatch):
+    monkeypatch.setattr(data_store, "tasa_base_conversion", lambda: 26.0)
+    assert scoring._tasa_peers_con_shrinkage(conversion_peers=90.0, total_peers=0) == 26.0
+
+
+def test_shrinkage_con_muchos_peers_se_acerca_a_la_tasa_observada(monkeypatch):
+    monkeypatch.setattr(data_store, "tasa_base_conversion", lambda: 26.0)
+    tasa = scoring._tasa_peers_con_shrinkage(conversion_peers=90.0, total_peers=10_000)
+    assert tasa == pytest.approx(90.0, abs=0.1)
+
+
+def test_shrinkage_a_mitad_del_pseudo_conteo_es_el_promedio_simple(monkeypatch):
+    """Con n == PSEUDO_CONTEO_PEERS, la formula n/(n+k) da exactamente 0.5:
+    la tasa ajustada es el punto medio entre lo observado y la base."""
+    monkeypatch.setattr(data_store, "tasa_base_conversion", lambda: 26.0)
+    tasa = scoring._tasa_peers_con_shrinkage(
+        conversion_peers=90.0, total_peers=scoring.PSEUDO_CONTEO_PEERS
+    )
+    assert tasa == pytest.approx((90.0 + 26.0) / 2)
+
+
+def test_sin_peers_todo_el_peso_de_esa_senal_vuelve_a_reglas(make_usuario):
     usuario = make_usuario(**{"Rango salarial": "de 9.000.000 - 10.000.000"})  # score de reglas puro: 85.5
-    resultado = scoring.calcular_score(usuario)
+    resultado = scoring.calcular_score(usuario)  # sin_peers (fixture autouse): 0 peers
 
-    # sin peers suficientes, ese peso vuelve a reglas: 0.8*85.5 + 0.2*50.0(vectorial) = 78.4
+    # confianza 0 -> peso_peers_efectivo 0 -> todo PESO_PEERS vuelve a reglas:
+    # 0.8*85.5 + 0.2*50.0(stub vectorial) = 78.4
     assert resultado.score == pytest.approx(78.4)
-    assert resultado.peer_stats["total_peers"] == 2
+    assert resultado.peer_stats["total_peers"] == 0
+    assert resultado.peer_stats["confianza"] == 0.0
+    assert not any(c["categoria"] == "peers" for c in resultado.contribuciones)
 
 
 # ---------------------------------------------------------------------

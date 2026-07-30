@@ -45,15 +45,27 @@ TOLERANCIA_INGRESO_DECLARADO_PCT = 0.15
 UMBRAL_AHORRO_CONFLICTO_BAJO_COP = 500_000  # declara SI tener, la base muestra menos que esto
 UMBRAL_AHORRO_CONFLICTO_ALTO_COP = 3_000_000  # declara NO tener, la base muestra mas que esto
 
-# Peso de cada senal en el blend final (ver mas abajo en calcular_score) y
-# minimo de peers para que esa senal aplique -- documentado tambien en
-# SOBRE MI/MIEMPRESA.md seccion 6. Extraidas a constantes con nombre (en vez
-# de literales inline) para que tests/test_documentacion_consistente.py
-# pueda compararlas contra el texto del documento sin parsear codigo fuente.
+# Peso NOMINAL (con soporte estadistico pleno) de cada senal en el blend
+# final -- documentado tambien en SOBRE MI/MIEMPRESA.md seccion 6. Extraidas
+# a constantes con nombre (en vez de literales inline) para que
+# tests/test_documentacion_consistente.py pueda compararlas contra el texto
+# del documento sin parsear codigo fuente.
 PESO_REGLAS = 0.6
 PESO_PEERS = 0.2
 PESO_VECTORIAL = 0.2
-MIN_PEERS_PARA_BLEND = 3  # con menos, el peso de "peers" vuelve a reglas
+
+# Shrinkage tipo Empirical Bayes para "peers": antes, con menos de 3 peers el
+# peso completo de esa senal volvia a reglas y con 3 o mas se le daba
+# PESO_PEERS completo sin importar si eran 3 o 300 -- un corte binario que no
+# distinguia un grupo apenas viable de uno solido. Ahora el peso efectivo y
+# la tasa de conversion del grupo se acercan gradualmente al promedio general
+# de la base a medida que hay menos peers que la soporten (formula clasica de
+# shrinkage n / (n + k)). PSEUDO_CONTEO_PEERS (k) es el numero de peers al
+# que la senal ya pesa la mitad de PESO_PEERS: un grupo de 10 peers pesa la
+# mitad, uno de 30 pesa ~75%, uno de 2 pesa ~17%. Mismo criterio y mismo
+# valor que vector_similarity.PSEUDO_CONTEO_CENTROIDE. Recalibrar si cambia
+# el tamano tipico de los grupos de peers en la base.
+PSEUDO_CONTEO_PEERS = 10
 
 # Regla 90/10: penalizacion individual sobre el score de reglas (distinta de
 # la cuota agregada leads_store.PCT_MAXIMO_NO_AFILIADOS). Documentado en
@@ -299,11 +311,16 @@ def _detectar_conflictos(usuario: dict, datos_declarados: dict) -> list[dict]:
 def _peer_conversion_stats(usuario: dict) -> dict:
     peers = data_store.peers_con_perfil_similar(usuario)
     total = len(peers)
+    # confianza: mismo shrinkage n / (n + k) que el peso efectivo de esta
+    # senal en el blend (ver calcular_score) y que vector_similarity.
+    # PSEUDO_CONTEO_CENTROIDE -- 0.0 con 0 peers, crece gradualmente con n.
+    confianza = round(total / (total + PSEUDO_CONTEO_PEERS), 3)
     if total == 0:
-        return {"total_peers": 0}
+        return {"total_peers": 0, "confianza": confianza}
     conteo = peers["Estado de vivienda propia"].value_counts(normalize=True) * 100
     return {
         "total_peers": total,
+        "confianza": confianza,
         "pct_con_vivienda_propia": round(conteo.get("Con vivienda propia", 0.0), 1),
         "pct_desistido": round(conteo.get("Desistido", 0.0), 1),
         "pct_rechazado": round(conteo.get("Rechazado", 0.0), 1),
@@ -326,6 +343,17 @@ def _lift_de_peers(conversion_peers: float) -> float:
     if base <= 0:
         return 50.0
     return max(0.0, min(100.0, conversion_peers / base * 50.0))
+
+
+def _tasa_peers_con_shrinkage(conversion_peers: float, total_peers: int) -> float:
+    """Encoge la tasa de conversion observada de un grupo de peers hacia el
+    promedio general de la base, tanto mas fuerte cuantos menos peers la
+    soportan (shrinkage n / (n + k), ver PSEUDO_CONTEO_PEERS). Con muchos
+    peers el resultado tiende a la tasa observada; con pocos, al promedio
+    general -- nunca salta de golpe de uno a otro."""
+    base = data_store.tasa_base_conversion()
+    peso_observado = total_peers / (total_peers + PSEUDO_CONTEO_PEERS)
+    return peso_observado * conversion_peers + (1 - peso_observado) * base
 
 
 def calcular_score(
@@ -448,31 +476,46 @@ def calcular_score(
     # con las tasas de conversion reales de la base (~25-35%, no picos de
     # muestras chicas) eso hacia que nadie llegara a CALIENTE -- se revirtio
     # a 0.2 hasta recalibrar el umbral de CALIENTE junto con el peso.
+    #
+    # El peso NOMINAL de cada senal (PESO_PEERS, PESO_VECTORIAL) es el que le
+    # corresponde con soporte estadistico pleno; el peso EFECTIVO se encoge
+    # hacia 0 cuantas menos observaciones la respaldan (peer_stats/vector_stats
+    # ya traen su "confianza" precalculada, 0-1). Lo que cada senal pierde de
+    # peso vuelve a reglas, que es la unica que nunca depende del tamano de
+    # muestra.
     pesos = {"reglas": PESO_REGLAS}
     senales = {"reglas": score}
 
     peer_stats = _peer_conversion_stats(usuario)
-    if peer_stats.get("total_peers", 0) >= MIN_PEERS_PARA_BLEND:
+    total_peers = peer_stats.get("total_peers", 0)
+    peso_peers_efectivo = PESO_PEERS * peer_stats["confianza"]
+    pesos["reglas"] += PESO_PEERS - peso_peers_efectivo
+    if total_peers > 0:
         conversion_peers = peer_stats["pct_con_vivienda_propia"]
-        pesos["peers"] = PESO_PEERS
-        senales["peers"] = _lift_de_peers(conversion_peers)
+        tasa_ajustada = _tasa_peers_con_shrinkage(conversion_peers, total_peers)
+        pesos["peers"] = peso_peers_efectivo
+        senales["peers"] = _lift_de_peers(tasa_ajustada)
         _agregar(
             RC_PEERS_SIMILARES,
-            f"{peer_stats['total_peers']} usuarios con perfil similar (mismo rango salarial, "
-            f"estado laboral y afiliacion): {conversion_peers}% concreto compra historicamente "
-            f"(promedio general de la base: {data_store.tasa_base_conversion():.1f}%)",
+            f"{total_peers} usuarios con perfil similar (mismo rango salarial, estado laboral "
+            f"y afiliacion): {conversion_peers}% concreto compra historicamente, ajustado a "
+            f"{tasa_ajustada:.1f}% por shrinkage ({total_peers} peers, confianza "
+            f"{peer_stats['confianza']:.2f}) (promedio general de la base: "
+            f"{data_store.tasa_base_conversion():.1f}%)",
         )
-    else:
-        pesos["reglas"] += PESO_PEERS  # sin suficientes peers, ese peso vuelve a las reglas
 
     vector_stats = vector_similarity.calcular_similitud_vectorial(usuario)
-    pesos["vectorial"] = PESO_VECTORIAL
+    peso_vectorial_efectivo = PESO_VECTORIAL * vector_stats["confianza"]
+    pesos["reglas"] += PESO_VECTORIAL - peso_vectorial_efectivo
+    pesos["vectorial"] = peso_vectorial_efectivo
     senales["vectorial"] = vector_stats["score_vectorial"]
     _agregar(
         RC_SIMILITUD_VECTORIAL,
         f"Similitud vectorial del perfil contra centroides historicos "
         f"(compro/desistio/rechazado/sin vivienda): {vector_stats['score_vectorial']}/100 "
-        "de cercania al centroide de compradores exitosos",
+        f"de cercania al centroide de compradores exitosos (soporte del centroide: "
+        f"{vector_stats['soporte_centroide_positivo']} usuarios, confianza "
+        f"{vector_stats['confianza']:.2f})",
     )
 
     score = sum(pesos[k] * senales[k] for k in senales)

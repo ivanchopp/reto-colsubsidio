@@ -16,7 +16,7 @@ completa (ver scripts/calibrar_scoring.py y tests/test_distribucion_scoring.py),
 no de una constante fija -- compararlos aqui duplicaria ese test de
 integracion en un test que se supone rapido y sin DB.
 """
-from app import config, leads_store, scoring
+from app import config, leads_store, scoring, vector_similarity
 
 
 def _miempresa() -> str:
@@ -36,7 +36,7 @@ def _coma(valor: float) -> str:
 
 
 # ---------------------------------------------------------------------
-# Seccion 6: pesos del blend y minimo de peers
+# Seccion 6: pesos del blend y shrinkage de peers/vectorial
 # ---------------------------------------------------------------------
 
 def test_peso_reglas_documentado():
@@ -51,8 +51,15 @@ def test_peso_vectorial_documentado():
     assert f"Vectorial | {_coma(scoring.PESO_VECTORIAL)} |" in _miempresa()
 
 
-def test_minimo_de_peers_documentado():
-    assert f"menos de {scoring.MIN_PEERS_PARA_BLEND} peers" in _miempresa()
+def test_pseudo_conteo_de_shrinkage_documentado():
+    assert f"n / (n + {scoring.PSEUDO_CONTEO_PEERS})" in _miempresa()
+
+
+def test_peers_y_vectorial_usan_el_mismo_pseudo_conteo():
+    """El comentario de ambos modulos afirma 'mismo criterio y mismo valor'
+    -- si alguien recalibra uno sin el otro, el shrinkage deja de ser
+    comparable entre las dos senales."""
+    assert scoring.PSEUDO_CONTEO_PEERS == vector_similarity.PSEUDO_CONTEO_CENTROIDE
 
 
 # ---------------------------------------------------------------------

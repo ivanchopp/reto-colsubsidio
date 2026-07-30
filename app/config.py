@@ -94,8 +94,8 @@ INGRESO_SUPUESTO_POR_SITUACION = {
 # asesor con quien no aporto datos de valor.
 SEGMENTOS_DERIVABLES = ("CALIENTE", "TIBIO")
 
-UMBRAL_CALIENTE = 52.6
-UMBRAL_TIBIO = 31.1
+UMBRAL_CALIENTE = 52.0
+UMBRAL_TIBIO = 30.3
 
 # Identificador de la configuracion de scoring vigente (pesos, umbrales,
 # bonos, multiplicadores -- todo lo de esta seccion mas las constantes de
@@ -110,7 +110,7 @@ UMBRAL_TIBIO = 31.1
 # actualizar MIEMPRESA.md. Bumpear en cualquier cambio a: los umbrales/pesos
 # de este archivo, los multiplicadores/bonos de app/scoring.py, o los montos
 # de app/subsidios.py.
-SCORING_VERSION = "1.0"
+SCORING_VERSION = "1.1"
 
 # Techo (en COP) a partir del cual el ahorro verificado (usuarios.ahorros)
 # suma el bono maximo BONO_AHORRO_VERIFICADO_MAX -- ver app/scoring.py. Es el

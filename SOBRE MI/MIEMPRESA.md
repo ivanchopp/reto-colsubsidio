@@ -108,13 +108,21 @@ el recomendador descarta, así que el catálogo recomendable son 16.
 El score final es un blend de tres señales independientes, cada una
 normalizada a 0-100 antes de mezclarse:
 
-| Señal | Peso | Qué mide |
+| Señal | Peso nominal | Qué mide |
 |---|---|---|
 | Reglas | 0,6 | ingreso en SMLV, estabilidad laboral, afiliación, centrales de riesgo, umbral VIS/No VIS |
 | Peers | 0,2 | conversión histórica del grupo con mismo rango salarial, estado laboral y afiliación, medida como lift contra el promedio general de la base |
 | Vectorial | 0,2 | posición relativa del perfil entre los centroides de los cuatro resultados históricos |
 
-Si un usuario tiene menos de 3 peers, ese peso vuelve a las reglas.
+Peers y Vectorial no siempre pesan su valor nominal completo: cada una trae
+su propia "confianza" (0 a 1) según cuántas observaciones la respaldan
+—cuántos peers tiene el usuario, cuántos usuarios soportan el centroide de
+compradores exitosos— y su peso efectivo es `peso_nominal × confianza`
+(shrinkage `n / (n + 10)`, ver `PSEUDO_CONTEO_PEERS` y
+`PSEUDO_CONTEO_CENTROIDE`). Con pocas observaciones el peso se acerca a 0 y
+esa porción vuelve a Reglas; con muchas, se acerca al nominal. Reemplaza un
+corte binario anterior (menos de 3 peers no contaban nada, 3 o más contaban
+el peso completo) por una transición gradual.
 
 Los centroides se calculan en vivo sobre la base y se cachean por proceso. No
 hay un `centroids.json` precalculado.
@@ -125,10 +133,10 @@ además pierde el bono de +5. Y como cuota agregada en el panel del asesor, que
 muestra cuánto cupo de no afiliados queda sobre los leads derivables del día
 (ver sección 7).
 
-**Umbrales.** CALIENTE desde 52,6 y TIBIO desde 31,1, calibrados con
+**Umbrales.** CALIENTE desde 52,0 y TIBIO desde 30,3, calibrados con
 `scripts/calibrar_scoring.py` para que CALIENTE sea el 12% superior de la
 base. Distribución actual sobre los 3.449 usuarios: 12,0% CALIENTE, 38,0%
-TIBIO, 49,9% FRIO.
+TIBIO, 50,0% FRIO.
 
 Los umbrales son una decisión de capacidad del equipo comercial, no una
 propiedad de los datos. Para moverlos: cambiar `PCT_OBJETIVO_CALIENTE` en
