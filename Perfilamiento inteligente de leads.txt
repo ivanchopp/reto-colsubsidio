@@ -48,3 +48,4 @@ Qué NO toca este reto
 Estrategia de pauta o marketing (eso es tema de mercadeo).
 Integración real con el CRM, con DataCrédito o con el bot actual del contact center.
 Aprobación de crédito hipotecario, firma de promesa de compraventa, gestión documental.
+*-*-Fin del documento
