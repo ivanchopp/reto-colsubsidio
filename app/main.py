@@ -120,10 +120,10 @@ def _enviar_correo_asesor(sesion: conversation.Sesion) -> dict:
     if ok:
         sesion.enviado_al_asesor = True
     else:
-        # sin esto, un fallo de SMTP en produccion (credenciales, host
-        # bloqueado, timeout) no deja ningun rastro -- queda solo en la
-        # respuesta HTTP, que nadie revisa despues del hecho. Con logging
-        # queda visible en los logs de Render.
+        # sin esto, un fallo al enviar el correo en produccion (API key
+        # invalida, remitente sin verificar, timeout) no deja ningun rastro
+        # -- queda solo en la respuesta HTTP, que nadie revisa despues del
+        # hecho. Con logging queda visible en los logs de Render.
         logging.error("Fallo el envio de correo al asesor para la sesion %s: %s", sesion.id, detalle)
     return {"enviado": ok, "detalle": detalle, "asunto": asunto, "cuerpo": cuerpo}
 
@@ -258,7 +258,7 @@ def enviar_asesor(session_id: str, _: str = Depends(auth.verificar_asesor)):
     """Reenvio manual -- normalmente el correo ya se envio solo cuando la
     interaccion realmente se cierra (ver interaccion_cerrada en /api/mensaje
     y /api/finalizar). Esto sirve para reintentar si el envio automatico
-    fallo (ej. problema de red o SMTP)."""
+    fallo (ej. problema de red o de la API de correo)."""
     sesion = conversation.obtener_sesion(session_id)
     if sesion is None:
         raise HTTPException(404, "Sesion no encontrada")

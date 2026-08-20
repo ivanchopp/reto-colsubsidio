@@ -35,7 +35,8 @@ disponible en vivo en el panel del asesor de arriba.
   `RECURSOS/` son solo la fuente de carga inicial. Sin `SUPABASE_DB_URL` la
   app levanta pero cualquier consulta falla.
 - Una API key de OpenAI o Google (Gemini/Vertex) para el LLM
-- (Opcional) Credenciales SMTP para el envío del correo al asesor
+- (Opcional) Una API key de [Resend](https://resend.com) para el envío del
+  correo al asesor (gratis; ver por qué no es SMTP en `app/email_sender.py`)
 - (Opcional) `ASESOR_PASSWORD` para habilitar el panel `/asesor`
 
 ## Instalación
@@ -65,9 +66,12 @@ disponible en vivo en el panel del asesor de arriba.
      (ver `GOOGLE_APPLICATION_CREDENTIALS` en `.env.example`).
    - `SUPABASE_DB_URL`: cadena de conexión de tu proyecto de Supabase
      (Project Settings > Database > Connection string, formato SQLAlchemy).
-   - `SMTP_USER` / `SMTP_PASSWORD` / `ASESOR_EMAIL_DESTINO` si quieres que el
-     envío de correo al asesor funcione (si no, el resumen igual se genera
-     pero el envío fallará silenciosamente).
+   - `RESEND_API_KEY` / `EMAIL_FROM` / `ASESOR_EMAIL_DESTINO` si quieres que
+     el envío de correo al asesor funcione (si no, el resumen igual se genera
+     pero el envío fallará; queda registrado en los logs, no silenciosamente).
+     Sin un dominio propio verificado en Resend, `EMAIL_FROM` solo puede ser
+     `onboarding@resend.dev` y solo entrega al correo con el que creaste la
+     cuenta de Resend — suficiente para esta demo.
 
    **Nunca subas tu `.env` ni ningún archivo de credenciales a git** — ya
    están excluidos en `.gitignore`.

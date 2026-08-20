@@ -1,62 +1,72 @@
-"""Envio real por SMTP usando las credenciales del archivo .env. Se dispara
+"""Envio real de correo al asesor via la API HTTP de Resend
+(https://resend.com/docs/api-reference/emails/send-email). Se dispara
 automaticamente al finalizar una conversacion (ver main.py) y tambien se
-puede reintentar manualmente desde el panel de pruebas."""
-import smtplib
-import socket
-from email.mime.text import MIMEText
+puede reintentar manualmente desde el panel de pruebas.
+
+Antes usaba SMTP directo (smtp.gmail.com): funcionaba en local, pero en
+produccion (Render, plan gratuito) toda conexion a los puertos SMTP
+(25/465/587) se queda colgada hasta el timeout -- Render bloquea ese trafico
+saliente desde septiembre de 2025 para prevenir spam. Una API HTTP viaja por
+el puerto 443 (HTTPS), que nunca se bloquea, y de paso evita manejar
+TLS/autenticacion SMTP a mano. No se agrega una libreria nueva: es una sola
+llamada POST con json, alcanza con urllib (stdlib).
+"""
+import json
+import urllib.error
+import urllib.request
 
 from app import config
 
-# Sin esto, una conexion SMTP que se queda colgada (ej. el puerto bloqueado
-# por el proveedor de hosting, o el host SMTP sin responder) bloquea el
-# socket indefinidamente -- y como el envio de correo ocurre de forma
-# sincrona dentro de la misma peticion que responde al chat (ver main.py),
-# el usuario ve el chat "trabado" varios minutos esperando una respuesta
-# que en realidad ya estaba lista, solo que el request seguia colgado en el
-# envio del correo. Con timeout, si falla, falla rapido y el chat responde
-# igual de rapido.
-SMTP_TIMEOUT_SEGUNDOS = 10
+RESEND_ENDPOINT = "https://api.resend.com/emails"
 
-
-def _conectar_forzando_ipv4(host: str, port: int, timeout: int) -> smtplib.SMTP:
-    """smtp.gmail.com (y muchos hosts SMTP) publican tanto direccion IPv4
-    como IPv6. Muchas plataformas de contenedores (Render incluida) no
-    tienen salida IPv6 configurada: si la resolucion DNS devuelve primero
-    el registro AAAA, smtplib intenta conectar por ahi y falla con
-    '[Errno 101] Network is unreachable', aunque la ruta IPv4 si funcione
-    (por eso local funciona bien y en Render no).
-
-    Se fuerza la resolucion a solo IPv4 mientras se abre la conexion. El
-    hostname original (config.SMTP_HOST) se sigue pasando tal cual al
-    constructor de SMTP, asi que la verificacion del certificado TLS en
-    starttls() (que usa ese hostname para SNI) no se ve afectada -- solo se
-    filtra que direcciones prueba el socket subyacente."""
-    getaddrinfo_original = socket.getaddrinfo
-
-    def _solo_ipv4(host_, port_, family=0, type_=0, proto=0, flags=0):
-        return getaddrinfo_original(host_, port_, socket.AF_INET, type_, proto, flags)
-
-    socket.getaddrinfo = _solo_ipv4
-    try:
-        return smtplib.SMTP(host, port, timeout=timeout)
-    finally:
-        socket.getaddrinfo = getaddrinfo_original
+# Mismo criterio que el timeout SMTP que reemplaza: sin esto, una API que no
+# responde bloquea el chat del usuario (el envio de correo ocurre de forma
+# sincrona dentro de la misma peticion, ver main.py) mucho mas de lo que
+# deberia tardar una llamada HTTP normal.
+HTTP_TIMEOUT_SEGUNDOS = 10
 
 
 def enviar_resumen_asesor(asunto: str, cuerpo: str) -> tuple[bool, str]:
-    if not (config.SMTP_USER and config.SMTP_PASSWORD and config.ASESOR_EMAIL_DESTINO):
-        return False, "Faltan credenciales SMTP o el correo destino en el archivo .env"
+    faltantes = [
+        nombre
+        for nombre, valor in (
+            ("RESEND_API_KEY", config.RESEND_API_KEY),
+            ("EMAIL_FROM", config.EMAIL_FROM),
+            ("ASESOR_EMAIL_DESTINO", config.ASESOR_EMAIL_DESTINO),
+        )
+        if not valor
+    ]
+    if faltantes:
+        return False, f"Falta configurar en el archivo .env: {', '.join(faltantes)}"
 
-    mensaje = MIMEText(cuerpo, "plain", "utf-8")
-    mensaje["Subject"] = asunto
-    mensaje["From"] = config.SMTP_USER
-    mensaje["To"] = config.ASESOR_EMAIL_DESTINO
+    payload = json.dumps(
+        {
+            "from": config.EMAIL_FROM,
+            "to": [config.ASESOR_EMAIL_DESTINO],
+            "subject": asunto,
+            "text": cuerpo,
+        }
+    ).encode("utf-8")
+
+    peticion = urllib.request.Request(
+        RESEND_ENDPOINT,
+        data=payload,
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {config.RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+    )
 
     try:
-        with _conectar_forzando_ipv4(config.SMTP_HOST, config.SMTP_PORT, SMTP_TIMEOUT_SEGUNDOS) as server:
-            server.starttls()
-            server.login(config.SMTP_USER, config.SMTP_PASSWORD)
-            server.sendmail(config.SMTP_USER, [config.ASESOR_EMAIL_DESTINO], mensaje.as_string())
+        with urllib.request.urlopen(peticion, timeout=HTTP_TIMEOUT_SEGUNDOS) as respuesta:
+            respuesta.read()
         return True, f"Correo enviado a {config.ASESOR_EMAIL_DESTINO}"
-    except Exception as exc:
-        return False, f"Error enviando correo: {exc}"
+    except urllib.error.HTTPError as exc:
+        # Resend devuelve el motivo del rechazo en el cuerpo (ej. dominio no
+        # verificado, remitente invalido, API key revocada) -- se incluye en
+        # el detalle en vez de solo el codigo, para no tener que adivinar.
+        detalle_api = exc.read().decode("utf-8", errors="replace")
+        return False, f"Error enviando correo ({exc.code}): {detalle_api}"
+    except urllib.error.URLError as exc:
+        return False, f"Error enviando correo: {exc.reason}"

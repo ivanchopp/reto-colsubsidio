@@ -42,10 +42,17 @@ if VERTEX_CREDENTIALS_PATH:
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(_ruta_absoluta)
     VERTEX_CREDENTIALS_PATH = str(_ruta_absoluta)
 
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587") or "587")
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+# Correo al asesor via la API HTTP de Resend (https://resend.com), no SMTP:
+# Render bloquea el trafico saliente a los puertos SMTP (25/465/587) en su
+# plan gratuito desde septiembre de 2025, asi que una conexion smtplib se
+# queda colgada hasta el timeout. La API de Resend viaja por HTTPS (443),
+# que nunca se bloquea. Ver app/email_sender.py.
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+# Remitente: en Resend, sin verificar un dominio propio solo se puede usar
+# su dominio de pruebas (onboarding@resend.dev) y unicamente para enviar al
+# correo con el que se creo la cuenta -- suficiente para esta demo. Con un
+# dominio propio verificado en Resend, cambiar esto a ese remitente.
+EMAIL_FROM = os.getenv("EMAIL_FROM", "onboarding@resend.dev")
 ASESOR_EMAIL_DESTINO = os.getenv("ASESOR_EMAIL_DESTINO", "")
 
 # Contrasena compartida para entrar al panel del asesor comercial (/asesor).
