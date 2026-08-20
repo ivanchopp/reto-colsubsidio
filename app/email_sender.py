@@ -55,6 +55,11 @@ def enviar_resumen_asesor(asunto: str, cuerpo: str) -> tuple[bool, str]:
         headers={
             "Authorization": f"Bearer {config.RESEND_API_KEY}",
             "Content-Type": "application/json",
+            # el User-Agent por defecto de urllib ("Python-urllib/x.y") lo
+            # bloquea el WAF de Cloudflare frente a la API (403, "error code:
+            # 1010") antes de que la peticion llegue a Resend -- con un
+            # User-Agent normal, pasa y Resend responde su propio error real.
+            "User-Agent": "colsubsidio-asesor-vivienda/1.0",
         },
     )
 
